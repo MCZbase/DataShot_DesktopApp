@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="all" name="Build for Project butterflies">
+    <!--ANT 1.7 is required  -->
+    <property name="junit.output.dir" value="junit"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="butterflies.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="lib/core.jar"/>
+        <pathelement location="lib/javase.jar"/>
+        <pathelement location="lib/junit.jar"/>
+        <pathelement location="lib/metadata-extractor-2.3.1.jar"/>
+        <pathelement location="lib/antlr-2.7.6.jar"/>
+        <pathelement location="lib/commons-collections-3.1.jar"/>
+        <pathelement location="lib/commons-logging-1.1.1.jar"/>
+        <pathelement location="lib/dom4j-1.6.1.jar"/>
+        <pathelement location="lib/hibernate3.jar"/>
+        <pathelement location="lib/javassist-3.4.GA.jar"/>
+        <pathelement location="lib/jta-1.1.jar"/>
+        <pathelement location="lib/mysql-connector-java-5.0.8-bin.jar"/>
+        <pathelement location="lib/slf4j-api-1.5.6.jar"/>
+        <pathelement location="lib/log4j-1.2.15.jar"/>
+        <pathelement location="lib/slf4j-log4j12-1.5.6.jar"/>
+        <pathelement location="lib/ojdbc6.jar"/>
+        <pathelement location="lib/swingx-0.9.7.jar"/>
+    	<pathelement location="lib/iText-2.1.5.jar"/>   
+    </path>	
+    <target name="clean">
+    	<!-- bin directory needs to be svn ignore --> 
+        <delete dir="bin"/>
+    </target>
+	<target name="init">
+		    <!-- create the bin directory and the directory tree beneath it --> 
+	        <mkdir dir="bin"/>
+	        <copy includeemptydirs="false" todir="bin">
+	            <fileset dir="src" excludes="**/*.launch, **/*.java"/>
+	        </copy>
+	</target>	
+    <target depends="init" name="build">
+    	    <!-- do only a build of class files --> 
+            <echo message="${ant.project.name}: For Java ${target}: ${ant.file}"/>
+            <javac debug="true" debuglevel="lines,vars,source" destdir="bin" source="${source}" target="${target}">
+                <src path="src"/>
+                <classpath refid="butterflies.classpath"/>
+            </javac>
+    </target>   
+	<target depends="clean,build,alltests,create_run_jar" name="all">
+		<!-- run all steps and make production executable jar file, but only if unit tests pass --> 
+	</target>
+    <target name="alltests">
+    	<!-- run all JUnit unit tests, junit output directory should be svn ignore --> 
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="on" failureProperty="test.failure" >
+            <formatter type="xml"/>
+            <test name="edu.harvard.mcz.imagecapture.tests.AllTests" todir="${junit.output.dir}"/>
+            <classpath refid="butterflies.classpath"/>
+        </junit>
+    	<!-- create html report of unit tests in junit directory --> 
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport> 
+    	<echo message="For Unit test results see: ${basedir}/${junit.output.dir}/index.html"/>
+    	<!--task fails if unit tests failed  --> 
+    	<fail message="JUnit tests failed" if="test.failure" />
+    </target>	
+    <target name="create_run_jar">
+    	<!-- make production executable jar file --> 
+    	<echo message="${ant.project.name}: Create executable jar file:  ${ant.file}"/>
+    	<echo message="Other options: clean, init, build, alltests, all, create_devel_jar."/>
+        <jar destfile="build/ImageCapture.jar" filesonly="no" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Main-Class" value="edu.harvard.mcz.imagecapture.ImageCaptureApp"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+        	<!-- exclude development (mysql) hibernate.cfg.xml --> 
+            <fileset excludes="hibernate.cfg.xml" dir="bin"/>
+        	<!-- include production (oracle) hibernate.cfg.xml (from a svn ignored path) --> 
+        	<fileset dir="not_vcs"/>
+            <fileset excludes="hibernate.cfg.xml" dir="not_vcs_demo"/>
+        	<!-- include external libraries -->
+        	<!-- multiple conflicting licences mean this jar isn't redistributable --> 
+            <zipfileset excludes="META-INF/*.SF" src="lib/core.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/javase.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/junit.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/metadata-extractor-2.3.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/antlr-2.7.6.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/commons-collections-3.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/commons-logging-1.1.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/dom4j-1.6.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/hibernate3.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/javassist-3.4.GA.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/jta-1.1.jar"/>
+            <!--<zipfileset excludes="META-INF/*.SF" src="lib/mysql-connector-java-5.0.8-bin.jar"/>-->
+            <zipfileset excludes="META-INF/*.SF" src="lib/slf4j-api-1.5.6.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/log4j-1.2.15.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/slf4j-log4j12-1.5.6.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="lib/ojdbc6.jar"/>
+        	<zipfileset excludes="META-INF/*.SF" src="lib/swingx-0.9.7.jar"/>
+        	<zipfileset excludes="*" src="lib/iText-2.1.5.jar"/>
+        </jar>
+    </target>
+    <target name="create_devel_jar" depends="clean,build,alltests" >
+    	<!-- make executable jar file using development/test configuration file for demonstrations --> 
+    	<echo message="${ant.project.name}: Create executable jar file:  ${ant.file}"/>
+    	<echo message="Other options: clean, init, build, alltests, create_run_jar, all."/>
+        <jar destfile="build/ImageCaptureDemo.jar" filesonly="no" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Main-Class" value="edu.harvard.mcz.imagecapture.ImageCaptureApp"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+        	<!-- exclude development (mysql) hibernate.cfg.xml --> 
+            <fileset excludes="hibernate.cfg.xml" dir="bin"/>
+        	<!-- include production (oracle) hibernate.cfg.xml (from a svn ignored path) --> 
+        	<fileset dir="not_vcs_demo"/>
+            <fileset excludes="hibernate.cfg.xml" dir="not_vcs"/>
+        	<!-- include external libraries -->
+        	<!-- multiple conflicting licences mean this jar isn't redistributable --> 
+            <zipfileset excludes="META-INF/*.SF" src="lib/core.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/javase.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/junit.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/metadata-extractor-2.3.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/antlr-2.7.6.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/commons-collections-3.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/commons-logging-1.1.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/dom4j-1.6.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/hibernate3.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/javassist-3.4.GA.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/jta-1.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/mysql-connector-java-5.0.8-bin.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/slf4j-api-1.5.6.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/log4j-1.2.15.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/slf4j-log4j12-1.5.6.jar"/>
+        	<!--<zipfileset excludes="META-INF/*.SF" src="lib/ojdbc6.jar"/>-->
+        	<zipfileset excludes="META-INF/*.SF" src="lib/swingx-0.9.7.jar"/>
+        	<zipfileset excludes="*" src="lib/iText-2.1.5.jar"/>
+        </jar>
+    </target>	
+</project>

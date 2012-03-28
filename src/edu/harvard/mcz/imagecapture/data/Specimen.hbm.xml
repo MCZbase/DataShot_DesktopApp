@@ -1,0 +1,191 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 23, 2009 8:12:35 AM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping default-lazy="false" >
+    <class name="edu.harvard.mcz.imagecapture.data.Specimen" table="Specimen" catalog="lepidoptera">
+        <id name="specimenId" type="java.lang.Long">
+            <column name="SpecimenId" />
+            <generator class="native" >
+                <param name="sequence">SEQ_SPECIMENID</param> 
+            </generator>
+        </id>
+        <timestamp
+        column="DATECREATED"                                    
+        name="dateCreated"                                          
+        source="db" 
+        generated="always" 
+        node="dateCreated"/>
+        <property name="barcode" type="string">
+            <column name="Barcode" not-null="true" unique="true" length="20" />
+        </property>
+        <property name="drawerNumber" type="string">
+            <column name="DrawerNumber" length="10" />
+        </property>
+        <property name="typeStatus" type="string">
+            <column name="TypeStatus" length="50" not-null="true" />
+        </property>
+        <property name="typeNumber" type="java.lang.Long">
+            <column name="TypeNumber" />
+        </property>
+        <property name="citedInPublication" type="string">
+            <column name="CitedInPublication" length="900" />
+        </property>
+        <property name="features" type="string">
+            <column name="Features" length="50" />
+        </property>
+        <property name="family" type="string">
+            <column name="Family" length="40" />
+        </property>
+        <property name="subfamily" type="string">
+            <column name="Subfamily" length="40" />
+        </property>
+        <property name="tribe" type="string">
+            <column name="Tribe" length="40" />
+        </property>
+        <property name="genus" type="string">
+            <column name="Genus" length="40" />
+        </property>
+        <property name="specificEpithet" type="string">
+            <column name="SpecificEpithet" length="40" />
+        </property>
+        <property name="subspecificEpithet" type="string">
+            <column name="SubspecificEpithet" />
+        </property>
+        <property name="infraspecificEpithet" type="string">
+            <column name="InfraspecificEpithet" length="40" />
+        </property>
+        <property name="infraspecificRank" type="string">
+            <column name="InfraspecificRank" length="40" />
+        </property>
+        <property name="authorship" type="string">
+            <column name="Authorship" />
+        </property>
+        <property name="unNamedForm" type="string">
+            <column name="UnNamedForm" length="50" />
+        </property>
+        <property name="identifiedBy" type="string">
+            <column name="IdentifiedBy" />
+        </property>
+        <property name="country" type="string">
+            <column name="Country" />
+        </property>
+        <property name="primaryDivison" type="string">
+            <column name="PrimaryDivison" />
+        </property>
+        <property name="specificLocality" type="string">
+            <column name="SpecificLocality" length="65535" />
+        </property>
+        <property name="verbatimLocality" type="string">
+            <column name="VerbatimLocality" length="65535" />
+        </property>
+        <property name="verbatimElevation" type="string">
+            <column name="VerbatimElevation" />
+        </property>
+        <property name="collectingMethod" type="string">
+            <column name="CollectingMethod" />
+        </property>
+        <property name="isoDate" type="string">
+            <column name="ISODate" length="10" />
+        </property>
+        <property name="dateNos" type="string">
+            <column name="DateNOS" length="32" />
+        </property>
+        <property name="dateEmerged" type="string">
+            <column name="DateEmerged" length="32" />
+        </property>
+        <property name="dateEmergedIndicator" type="string">
+            <column name="DateEmergedIndicator" length="50" />
+        </property>
+        <property name="dateCollected" type="string">
+            <column name="DateCollected" length="32" />
+        </property>
+        <property name="dateCollectedIndicator" type="string">
+            <column name="DateCollectedIndicator" length="50" />
+        </property>
+        <property name="collection" type="string">
+            <column name="Collection" />
+        </property>
+        <property name="specimenNotes" type="string">
+            <column name="SpecimenNotes" length="65535" />
+        </property>
+        <property name="lifeStage" type="string">
+            <column name="LifeStage" length="50" />
+        </property>
+        <property name="sex" type="string">
+            <column name="Sex" length="50" />
+        </property>        
+        <property name="preparationType" type="string">
+            <column name="PreparationType" length="50" />
+        </property>
+        <property name="habitat" type="string">
+            <column name="Habitat" length="900" />
+        </property>
+        <property name="associatedTaxon" type="string">
+            <column name="AssociatedTaxon" length="900" />
+        </property>
+        <property name="questions" type="string">
+            <column name="Questions" length="900" />
+        </property>
+        <property name="inferences" type="string">
+            <column name="Inferences" length="900" />
+        </property>
+        <property name="locationInCollection" type="string">
+            <column name="LocationInCollection" />
+        </property>
+        <property name="workFlowStatus" type="string">
+            <column name="WorkFlowStatus" length="30" />
+        </property>
+        <property name="createdBy" type="string">
+            <column name="CreatedBy" />
+        </property>
+        <property name="dateLastUpdated" type="timestamp">
+            <column name="DateLastUpdated" length="0" />
+        </property>
+        <property name="lastUpdatedBy" type="string">
+            <column name="LastUpdatedBy" />
+        </property>
+        <property name="validDistributionFlag" type="java.lang.Boolean">
+            <column name="ValidDistributionFlag" />
+        </property>
+        <property name="flagInMCZbase" type="java.lang.Boolean">
+            <column name="flagInMCZbase" />
+        </property>
+        <property name="flagInBulkloader" type="java.lang.Boolean">
+            <column name="flagInBulkloader" />
+        </property>
+        <property name="flagAncilaryAlsoInMCZbase" type="java.lang.Boolean">
+            <column name="flagAncilaryAlsoInMCZbase" />
+        </property>        
+        <set name="collectors" inverse="true" cascade="save-update" fetch="subselect">
+            <key>
+                <column name="SpecimenId" not-null="true" />
+            </key>
+            <one-to-many class="edu.harvard.mcz.imagecapture.data.Collector" />
+        </set>
+        <set name="determinations" inverse="true" cascade="save-update" fetch="subselect">
+            <key>
+                <column name="SpecimenId" not-null="true" />
+            </key>
+            <one-to-many class="edu.harvard.mcz.imagecapture.data.Determination" />
+        </set>
+        <set name="trackings" inverse="true" fetch="subselect">
+            <key>
+                <column name="SpecimenId" not-null="true" />
+            </key>
+            <one-to-many class="edu.harvard.mcz.imagecapture.data.Tracking" />
+        </set>
+        <set name="numbers" inverse="true" cascade="save-update" fetch="subselect" >
+            <key>
+                <column name="SpecimenId" not-null="true" />
+            </key>
+            <one-to-many class="edu.harvard.mcz.imagecapture.data.Number" />
+        </set>
+        <set name="ICImages" inverse="true" fetch="subselect">
+            <key>
+                <column name="SpecimenId" />
+            </key>
+            <one-to-many class="edu.harvard.mcz.imagecapture.data.ICImage" />
+        </set>
+    </class>
+</hibernate-mapping>

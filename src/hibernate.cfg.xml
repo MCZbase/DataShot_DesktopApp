@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/lepidoptera</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hibernate.connection.username">LEPIDOPTERA</property>
+<!--        <property name="hibernate.connection.password"></property>-->
+<!--        <property name="hibernate.connection.driver_class">oracle.jdbc.OracleDriver</property>-->
+<!--        <property name="hibernate.connection.url">jdbc:oracle:thin:@server.mcz.harvard.edu:1521:srs</property>-->
+<!--        <property name="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</property>-->
+        <property name="connection.pool_size">1</property>
+        <property name="current_session_context_class">thread</property>
+        <property name="show_sql">true</property>  
+        <mapping resource="edu/harvard/mcz/imagecapture/data/Number.hbm.xml" />
+        <mapping resource="edu/harvard/mcz/imagecapture/data/Specimen.hbm.xml" />
+        <mapping resource="edu/harvard/mcz/imagecapture/data/Tracking.hbm.xml" />
+        <mapping resource="edu/harvard/mcz/imagecapture/data/Determination.hbm.xml" />
+        <mapping resource="edu/harvard/mcz/imagecapture/data/Collector.hbm.xml" />
+        <mapping resource="edu/harvard/mcz/imagecapture/data/Image.hbm.xml" />    
+        <mapping resource="edu/harvard/mcz/imagecapture/data/Users.hbm.xml" />
+        <mapping resource="edu/harvard/mcz/imagecapture/data/Template.hbm.xml" />  
+        <mapping resource="edu/harvard/mcz/imagecapture/data/HigherTaxon.hbm.xml" />
+        <mapping resource="edu/harvard/mcz/imagecapture/data/UnitTrayLabel.hbm.xml" />     
+    </session-factory>
+</hibernate-configuration>

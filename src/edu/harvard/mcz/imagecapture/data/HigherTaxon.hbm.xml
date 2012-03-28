@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="edu.harvard.mcz.imagecapture.data.HigherTaxon" table="HIGHER_TAXON" catalog="lepidoptera">
+        <id name="id" type="java.lang.Integer">
+            <column name="ID" />
+            <generator class="native" >
+                <param name="sequence">HIGHER_TAXON_SEQ</param> 
+            </generator>
+        </id>
+        <property name="family" type="string">
+            <column name="Family" length="255" not-null="true" />
+        </property>
+        <property name="subfamily" type="string" >
+            <column name="Subfamily" length="255" />
+        </property>
+        <property name="tribe" type="string">
+            <column name="Tribe" length="255" />
+        </property>     
+    </class>
+</hibernate-mapping>
