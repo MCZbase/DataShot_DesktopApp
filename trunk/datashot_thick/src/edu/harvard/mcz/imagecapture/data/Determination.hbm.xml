@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 23, 2009 8:12:35 AM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="edu.harvard.mcz.imagecapture.data.Determination" table="Determination" catalog="lepidoptera">
+        <id name="determinationId" type="java.lang.Long">
+            <column name="DETERMINATIONID" />
+            <generator class="native" >
+                <param name="sequence">SEQ_DETERMINATIONID</param> 
+            </generator>
+        </id>
+        <many-to-one name="specimen" class="edu.harvard.mcz.imagecapture.data.Specimen" fetch="select">
+            <column name="SpecimenId" not-null="true" />
+        </many-to-one>
+        <property name="genus" type="string">
+            <column name="Genus" length="40" />
+        </property>
+        <property name="specificEpithet" type="string">
+            <column name="SpecificEpithet" length="40" />
+        </property>
+        <property name="subspecificEpithet" type="string">
+            <column name="SubspecificEpithet" />
+        </property>
+        <property name="infraspecificEpithet" type="string">
+            <column name="InfraspecificEpithet" length="40" />
+        </property>
+        <property name="infraspecificRank" type="string">
+            <column name="InfraspecificRank" length="40" />
+        </property>
+        <property name="authorship" type="string">
+            <column name="Authorship" />
+        </property>
+        <property name="unNamedForm" type="string">
+            <column name="UnNamedForm" length="50" />
+        </property>
+        <property name="identifiedBy" type="string">
+            <column name="IdentifiedBy" />
+        </property>
+        <property name="typeStatus" type="string">
+            <column name="TypeStatus" length="50" not-null="true" />
+        </property>        
+        <property name="speciesNumber" type="string">
+            <column name="SpeciesNumber" length="50" />
+        </property>    
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 23, 2009 8:12:35 AM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="edu.harvard.mcz.imagecapture.data.Number" table="OTHER_NUMBERS" catalog="lepidoptera">
+        <id name="numberId" type="java.lang.Long">
+            <column name="NumberId" />
+            <generator class="native" >
+                <param name="sequence">SEQ_NUMBERID</param> 
+            </generator>
+        </id>
+        <many-to-one name="specimen" class="edu.harvard.mcz.imagecapture.data.Specimen" fetch="join" cascade="save-update">
+            <column name="SpecimenId" not-null="true" />
+        </many-to-one>
+        <property name="number" type="string">
+            <column name="OTHER_NUMBER" length="50" />
+        </property>
+        <property name="numberType" type="string">
+            <column name="NumberType" length="50" />
+        </property>
+    </class>
+</hibernate-mapping>

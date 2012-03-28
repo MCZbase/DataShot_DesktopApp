@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 23, 2009 8:12:35 AM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping default-lazy="false" >
+    <class name="edu.harvard.mcz.imagecapture.data.ICImage" table="Image" catalog="lepidoptera">
+        <id name="imageId" type="java.lang.Long">
+            <column name="ImageId" />
+            <generator class="native" >
+                <param name="sequence">SEQ_IMAGEID</param> 
+            </generator>
+        </id>
+        <many-to-one name="specimen" class="edu.harvard.mcz.imagecapture.data.Specimen" fetch="join" >
+            <column name="SPECIMENID" />
+        </many-to-one>
+        <property name="rawBarcode" type="string">
+            <column name="RawBarcode" />
+        </property>
+        <property name="rawExifBarcode" type="string">
+            <column name="RawExifBarcode" />
+        </property>        
+        <property name="filename" type="string">
+            <column name="Filename" />
+        </property>
+        <property name="rawOcr" type="string">
+            <column name="RawOCR" length="65535" />
+        </property>
+        <property name="path" type="string">
+            <column name="Path" length="900" />
+        </property>
+        <property name="uri" type="string">
+            <column name="URI" />
+        </property>
+        <property name="templateId" type="string">
+            <column name="TemplateId" />
+        </property>
+        <property name="drawerNumber" type="string">
+            <column name="DrawerNumber" length="10" />
+        </property>        
+    </class>
+</hibernate-mapping>

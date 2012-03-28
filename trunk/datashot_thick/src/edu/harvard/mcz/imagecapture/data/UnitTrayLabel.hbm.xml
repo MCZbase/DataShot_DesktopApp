@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-lazy="false" >
+  <class name="edu.harvard.mcz.imagecapture.data.UnitTrayLabel" table="UNIT_TRAY_LABEL" catalog="lepidoptera">
+        <id name="id" type="java.lang.Long">
+            <column name="id" />
+            <generator class="native" >
+                <param name="sequence">UNIT_TRAY_LABEL_ID_SEQ</param> 
+            </generator>
+        </id>
+        <property name="family" type="string">
+            <column name="Family" length="40"  />
+        </property>
+        <property name="subfamily" type="string">
+            <column name="Subfamily" length="40"  />
+        </property>
+        <property name="tribe" type="string">
+            <column name="Tribe" length="40" />
+        </property>
+        <property name="genus" type="string">
+            <column name="Genus" length="40" />
+        </property>
+        <property name="specificEpithet" type="string">
+            <column name="SpecificEpithet" length="40"  />
+        </property>
+        <property name="subspecificEpithet" type="string">
+            <column name="SubspecificEpithet"  />
+        </property>
+        <property name="infraspecificEpithet" type="string">
+            <column name="InfraspecificEpithet" length="40" />
+        </property>
+        <property name="infraspecificRank" type="string">
+            <column name="InfraspecificRank" length="40" />
+        </property>
+        <property name="authorship" type="string">
+            <column name="Authorship" />
+        </property>
+        <property name="unNamedForm" type="string">
+            <column name="UnNamedForm" length="50"  />
+        </property>
+        <property name="drawerNumber" type="string">
+            <column name="DrawerNumber" length="10"  />
+        </property>
+        <property name="printed" type="int">
+            <column name="Printed" />
+        </property>       
+        <property name="numberToPrint" type="int">
+            <column name="NumberToPrint" />
+        </property>  
+        <property name="dateCreated" type="timestamp">
+            <column name="DateCreated" length="0" />
+        </property>        
+        <property name="dateLastUpdated" type="date">
+            <column name="DateLastUpdated" length="0" />
+        </property>
+        <property name="collection" type="string">
+            <column name="Collection" length="255"  />
+        </property>
+        <property name="ordinal" type="int">
+            <column name="Ordinal" />
+        </property>
+  </class>
+</hibernate-mapping>
