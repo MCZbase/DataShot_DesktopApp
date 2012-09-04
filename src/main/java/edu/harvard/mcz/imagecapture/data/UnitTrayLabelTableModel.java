@@ -34,6 +34,9 @@ import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
  */
 public class UnitTrayLabelTableModel extends AbstractTableModel {
 	
+	// TODO: Add a cloning function
+	// TODO: Better support for copy and paste of multiple cells.
+	
 	private static final Log log = LogFactory.getLog(UnitTrayLabelTableModel.class);
 
 	private static final int COLUMN_TO_PRINT = 13;

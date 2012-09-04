@@ -21,6 +21,7 @@ public class Determination implements java.io.Serializable {
 	private String identifiedBy;
 	private String typeStatus;
 	private String speciesNumber;
+	private String verbatimText;
 
 	public Determination() {
 		typeStatus = Specimen.STATUS_NOT_A_TYPE;
@@ -149,6 +150,20 @@ public class Determination implements java.io.Serializable {
 	 */
 	public void setSpeciesNumber(String speciesNumber) {
 		this.speciesNumber = speciesNumber;
+	}
+
+	/**
+	 * @return the verbatimText
+	 */
+	public String getVerbatimText() {
+		return verbatimText;
+	}
+
+	/**
+	 * @param verbatimText the verbatimText to set
+	 */
+	public void setVerbatimText(String verbatimText) {
+		this.verbatimText = verbatimText;
 	}
 	
 }
