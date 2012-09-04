@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project default="all" name="Old ant Build file for Project butterflies, being replace by maven.">
+    
+    <!--Obsolete, replaced with maven build.  -->
+    
     <!--ANT 1.7 is required  -->
     <property name="junit.output.dir" value="junit"/>
     <property name="target" value="1.6"/>
