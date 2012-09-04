@@ -41,7 +41,7 @@ public class DeterminationTableModel extends AbstractTableModel {
 	private boolean showEditableId = false; 
 	// private static final int ROW_ID = 0;
 	private static final int SPECIES_NUMBER = 0;
-	private static final int ROW_SPECIMEN = 10;
+	private static final int ROW_SPECIMEN = 11;
 	
 	/**
 	 * 
@@ -74,7 +74,7 @@ public class DeterminationTableModel extends AbstractTableModel {
 	@Override
 	public int getColumnCount() {
 		// all fields in determination except identificationQualifier
-		int result = 11;
+		int result = 12;
 		return result;
 	}
 
@@ -125,6 +125,9 @@ public class DeterminationTableModel extends AbstractTableModel {
 		    break;	
 		case 9: 
 		    returnvalue = ((Determination)determinations.toArray()[rowIndex]).getUnNamedForm();
+		    break;
+		case 10: 
+		    returnvalue = ((Determination)determinations.toArray()[rowIndex]).getVerbatimText();
 		    break;
 		case ROW_SPECIMEN: 
 		    returnvalue = ((Determination)determinations.toArray()[rowIndex]).getSpecimen().getBarcode();
@@ -189,6 +192,9 @@ public class DeterminationTableModel extends AbstractTableModel {
 		case 9: 
 		    ((Determination)determinations.toArray()[rowIndex]).setUnNamedForm((String)value);
 		    break;
+		case 10: 
+		    ((Determination)determinations.toArray()[rowIndex]).setVerbatimText((String)value);
+		    break;
 		case ROW_SPECIMEN: 
 		    // do nothing, don't allow editing specimen record.
 		    break;			    
@@ -244,6 +250,9 @@ public class DeterminationTableModel extends AbstractTableModel {
 		    break;	
 		case 9: 
 		    returnvalue = "Un-named form";
+		    break;
+		case 10: 
+		    returnvalue = "Verbatim Text";
 		    break;
 		case ROW_SPECIMEN: 
 		    returnvalue = "Barcode";

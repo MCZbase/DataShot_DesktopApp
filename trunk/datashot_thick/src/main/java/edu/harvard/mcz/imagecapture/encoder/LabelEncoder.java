@@ -20,8 +20,10 @@
 package edu.harvard.mcz.imagecapture.encoder;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -34,7 +36,8 @@ import org.apache.commons.logging.LogFactory;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
-import com.google.zxing.common.ByteMatrix;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.lowagie.text.BadElementException;
@@ -49,7 +52,6 @@ import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 
-import edu.harvard.mcz.imagecapture.JobAllImageFilesScan;
 import edu.harvard.mcz.imagecapture.data.UnitTrayLabel;
 import edu.harvard.mcz.imagecapture.data.UnitTrayLabelLifeCycle;
 import edu.harvard.mcz.imagecapture.exceptions.PrintFailedException;
@@ -70,8 +72,8 @@ public class LabelEncoder {
 		label = aLabel;
 	}
 
-	private ByteMatrix getQRCodeMatrix() { 
-		ByteMatrix result = null;
+	private BitMatrix getQRCodeMatrix() { 
+		BitMatrix result = null;
 		QRCodeWriter writer = new QRCodeWriter();
 		try {
 			String data = label.toJSONString();
@@ -87,24 +89,37 @@ public class LabelEncoder {
 	}
 	
 	public Image getImage() { 
-		ByteMatrix barcode = getQRCodeMatrix();
-		byte[][] bca = barcode.getArray();
-		byte[] data = new byte[200*4*200*4];
-		int z=0;
-		for (int x=0; x<200; x++) { 
-			for (int y=0; y<200; y++)  {
-				data[z++] = bca[x][y];
-			}
-		}
+		
+		BitMatrix barcode = getQRCodeMatrix();
+		BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(barcode);
+		// ZXing now has MatrixToImageWriter to avoid looping through byte arrays.
+//		byte[][] bca = barcode.getArray();
+//		byte[] data = new byte[200*4*200*4];
+//		int z=0;
+//		for (int x=0; x<200; x++) { 
+//			for (int y=0; y<200; y++)  {
+//				data[z++] = bca[x][y];
+//			}
+//		}
+//		Image image = null;
+//		try {
+//			image = Image.getInstance(200, 200, 1, 8, data);
+//			image.scalePercent(50f);
+//		} catch (BadElementException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} 
+//		data = null;
 		Image image = null;
 		try {
-			image = Image.getInstance(200, 200, 1, 8, data);
-			image.scalePercent(50f);
+			image = Image.getInstance(bufferedImage,null);
 		} catch (BadElementException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} 
-		data = null;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return image;
 	}
 	

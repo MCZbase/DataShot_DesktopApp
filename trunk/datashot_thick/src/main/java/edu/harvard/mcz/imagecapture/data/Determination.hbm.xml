@@ -43,5 +43,8 @@
         <property name="speciesNumber" type="string">
             <column name="SpeciesNumber" length="50" />
         </property>    
+        <property name="verbatimText" type="string">
+            <column name="VerbatimText" length="255" />
+        </property>    
     </class>
 </hibernate-mapping>

@@ -39,7 +39,7 @@ import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
  */
 public class UnitTrayLabelLifeCycle  {
 	
-private static final Log log = LogFactory.getLog(UsersLifeCycle.class);
+private static final Log log = LogFactory.getLog(UnitTrayLabelLifeCycle.class);
 	
 
 	public void persist(UnitTrayLabel transientInstance) throws SaveFailedException {
