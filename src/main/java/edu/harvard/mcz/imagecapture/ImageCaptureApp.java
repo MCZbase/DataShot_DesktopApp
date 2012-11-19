@@ -17,7 +17,7 @@
  * 
  * Author: Paul J. Morris 
  * 
- * File last changed on $Date: 2012-01-06 18:51:55 -0500 (Fri, 06 Jan 2012) $ by $Author: mole $ in $Rev: 305 $.
+ * File last changed on $Date: 2012-01-06 18:51:55 -0500 (Fri, 06 Jan 2012) $ by $Author: mole $ in $Rev$.
  * $Id: ImageCaptureApp.java 305 2012-01-06 23:51:55Z mole $
  */
 package edu.harvard.mcz.imagecapture;
@@ -82,7 +82,7 @@ public class ImageCaptureApp {
     "51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.\n ";
     public static final String APP_CONTRIBUTORS = "Design: Brendan Haley, Linda Ford, Rodney Eastwood, Paul J. Morris.  Code: Paul J. Morris";
     public static final String APP_LIBRARIES = "Hibernate, Tesseract, ZXing, Log4J, drew.metadata.exif, iText";
-    public static final String APP_REV = "$Rev: 305 $";  // ImageCapture.jar file will be one revision behind latest commit. 
+    public static final String APP_REV = "$Rev$";  // ImageCapture.jar file will be one revision behind latest commit. 
     
     /** 
      * Use MCZEntBarcode class instead.
