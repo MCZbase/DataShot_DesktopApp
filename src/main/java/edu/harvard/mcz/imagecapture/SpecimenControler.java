@@ -195,7 +195,7 @@ public class SpecimenControler {
 	public void displayInEditor() { 
 		boolean isNew = false;
 		if (resultFrame==null) { 
-		    resultFrame = new ImageDisplayFrame();
+		    resultFrame = new ImageDisplayFrame(specimen);
 		    isNew = true;
 		} 
 		SpecimenDetailsViewPane p = new SpecimenDetailsViewPane(specimen, this);
@@ -225,6 +225,7 @@ public class SpecimenControler {
 			if (path == null) { path = ""; } 
 			//File fileToCheck = new File(startPointName + path + image.getFilename());
 			File fileToCheck = new File(ImageCaptureProperties.assemblePathWithBase(path, image.getFilename()));
+			log.debug(fileToCheck.getPath());
 			try {
 				PositionTemplate template = PositionTemplate.findTemplateForImage(image);
 				try {
