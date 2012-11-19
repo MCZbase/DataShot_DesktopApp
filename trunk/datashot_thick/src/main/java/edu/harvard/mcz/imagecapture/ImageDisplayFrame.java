@@ -37,6 +37,7 @@ import javax.swing.JTabbedPane;
 
 import edu.harvard.mcz.imagecapture.data.ICImage;
 import edu.harvard.mcz.imagecapture.data.ICImageLifeCycle;
+import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.exceptions.BadTemplateException;
 import edu.harvard.mcz.imagecapture.exceptions.ImageLoadException;
 
@@ -109,17 +110,28 @@ public class ImageDisplayFrame extends JFrame {
 	private JLabel jLabel1 = null;
 
 	private JPanel jPanelImagesPanel = null;
+	
+	private Specimen targetSpecimen = null;
 
 	/**
 	 * This is the default constructor
+	 * @param specimen 
 	 */
-	public ImageDisplayFrame() {
+	public ImageDisplayFrame(Specimen specimen) {
 		super();
 		this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		targetSpecimen = specimen;
 		initialize();
 		//this.center();
 	}
 	
+	public ImageDisplayFrame() {
+		super();
+		this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		targetSpecimen = null;
+		initialize();
+	}
+
 	/** Given a set of ICImages, display one of them in the tabs of the ImageDisplayFrame, and
 	 * populate the image chooser pick list with a list of all the images.  Call this method to display 
 	 * more than one image in an ImageDisplayFrame.  Single image is displayed with a call to loadImagesFromFileSingle().
@@ -129,6 +141,7 @@ public class ImageDisplayFrame extends JFrame {
 	 * @param imageFiles
 	 */
 	public void loadImagesFromFiles(Set<ICImage> imageFiles)  {
+		log.debug(imageFiles.size());
 		jComboBoxImagePicker.removeAllItems();
 		Iterator<ICImage> i = imageFiles.iterator();
 		ICImage image = null;
@@ -171,10 +184,16 @@ public class ImageDisplayFrame extends JFrame {
 	 * @throws BadTemplateException 
 	 */
 	public void loadImagesFromFile(File anImageFile, PositionTemplate template) throws ImageLoadException, BadTemplateException {
+		log.debug(anImageFile.getName());
 		loadImagesFromFileSingle(anImageFile, template);
         jLabel1.setText("(1)");
-        jComboBoxImagePicker.removeAllItems();
+        log.debug(1);
+        if (jComboBoxImagePicker.getModel().getSize()>0) { 
+            jComboBoxImagePicker.removeAllItems();
+        }
+        log.debug(2);
         jComboBoxImagePicker.addItem(anImageFile.getName());
+        log.debug(3);
         jComboBoxImagePicker.setEnabled(false);
         jTabbedPane.setSelectedIndex(0);   // move focus to full image tab
 	} 
@@ -188,10 +207,12 @@ public class ImageDisplayFrame extends JFrame {
 	 * @throws BadTemplateException
 	 */
 	protected void loadImagesFromFileSingle(File anImageFile, PositionTemplate defaultTemplate) throws ImageLoadException, BadTemplateException {
+		log.debug(anImageFile.getName());
 		boolean templateProblem = false;
 		//TODO: template detection
 		try {
 			imagefile = ImageIO.read(anImageFile);
+			log.debug(anImageFile.getPath());
 			// Display the full image
 			this.setFullImage();
 			// Show the component parts of the image as defined by the position template.
@@ -274,6 +295,7 @@ public class ImageDisplayFrame extends JFrame {
 		if (templateProblem) { 
 			throw new BadTemplateException("Template doesn't fit file " + anImageFile.getPath());
 		}
+		log.debug(anImageFile.getPath());
 	}
 
 	/**
@@ -615,33 +637,73 @@ public class ImageDisplayFrame extends JFrame {
 	private JComboBox getJComboBoxImagePicker() {
 		if (jComboBoxImagePicker == null) {
 			jComboBoxImagePicker = new JComboBox();
+			if (targetSpecimen!=null) { 
+				Iterator<ICImage> i = targetSpecimen.getICImages().iterator();
+				while (i.hasNext()) { 
+					String filename = i.next().getFilename();
+					jComboBoxImagePicker.addItem(filename);
+					log.debug(filename);
+				}
+			}
 			jComboBoxImagePicker.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					ICImage pattern = new ICImage();
-					try { 
-					pattern.setFilename(jComboBoxImagePicker.getSelectedItem().toString());
-					ICImageLifeCycle ils = new ICImageLifeCycle();
-					List<ICImage> images = ils.findByExample(pattern);
-					if (images!=null && images.size()>0) { 
-						ICImage image = images.get(0);
-						//String startPointName = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEBASE);
-						String path = image.getPath();
-						if (path == null) { path = ""; } 
-						File fileToCheck = new File(ImageCaptureProperties.assemblePathWithBase(path, image.getFilename()));
-						PositionTemplate defaultTemplate;
-						try {
-							defaultTemplate = PositionTemplate.findTemplateForImage(image);
-							loadImagesFromFileSingle(fileToCheck, defaultTemplate);
-						} catch (ImageLoadException e3) {
-							log.error(e3);
-						} catch (BadTemplateException e1) {
-							log.error(e1);
+					// Intended to be fired when picklist item is selected, is
+					// being fired on other events as well.
+					log.debug(e.getActionCommand());
+					// If there is no selection, then we shouldn't be doing anything.
+					if (jComboBoxImagePicker.getSelectedItem()==null) { 
+						log.debug("No selected item");
+					} else { 
+						ICImage pattern = new ICImage();
+						try { 
+							boolean hasParameter = false;
+							if (jComboBoxImagePicker.getSelectedItem()!=null) { 
+								pattern.setFilename(jComboBoxImagePicker.getSelectedItem().toString());
+								hasParameter = true;
+								log.debug("Parameter: " + jComboBoxImagePicker.getSelectedItem().toString());
+							}
+							if (targetSpecimen!=null) { 
+								pattern.setSpecimen(targetSpecimen);
+								hasParameter = true;
+								log.debug("Parameter: " + targetSpecimen.getBarcode());
+							}
+							if (hasParameter) { 
+								// find matching images, set first one as the display image.
+								ICImageLifeCycle ils = new ICImageLifeCycle();
+								List<ICImage> images = ils.findByExample(pattern);
+								if (images!=null && images.size()>0) { 
+									log.debug("Found: " + images.size());
+									Iterator<ICImage> ii = images.iterator();
+									boolean found = false;
+									while (ii.hasNext() && !found) { 
+										ICImage image = ii.next();
+										if (image.getSpecimen()!=null  && !image.getSpecimen().getBarcode().equals(targetSpecimen.getBarcode())) { 
+											// same filename, but wrong path.
+											log.debug("WrongFile: " + image.getPath());
+										} else { 
+											found = true;
+											//String startPointName = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEBASE);
+											String path = image.getPath();
+											if (path == null) { path = ""; } 
+											File fileToCheck = new File(ImageCaptureProperties.assemblePathWithBase(path, image.getFilename()));
+											PositionTemplate defaultTemplate;
+											try {
+												defaultTemplate = PositionTemplate.findTemplateForImage(image);
+												loadImagesFromFileSingle(fileToCheck, defaultTemplate);
+											} catch (ImageLoadException e3) {
+												log.error(e3);
+											} catch (BadTemplateException e1) {
+												log.error(e1);
+											}
+										}
+									}
+								}
+							}
+						} catch (NullPointerException e2) {
+							// Probably means an empty jComboBoxImagePicker
+							e2.printStackTrace();
+							log.error(e2.getMessage(),e2);
 						}
-
-					}
-					} catch (NullPointerException e2) {
-						// Probably means an empty jComboBoxImagePicker
-						log.error(e2);
 					}
 				}
 			});
