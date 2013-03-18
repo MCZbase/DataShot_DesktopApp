@@ -37,6 +37,7 @@ public class ImagePreprocessError {
 	public static final int TYPE_BARCODE_MISSING_FROM_SEQUENCE = 3;
 	public static final int TYPE_BAD_PARSE = 4;
 	public static final int TYPE_DUPLICATE = 5;
+	public static final int TYPE_FAILOVER_TO_OCR = 6;
 
 	private String filename;
 	private String barcode;
@@ -262,6 +263,9 @@ public class ImagePreprocessError {
 		case TYPE_DUPLICATE:
 			result = "Duplicate image record";
 			break;			
+		case TYPE_FAILOVER_TO_OCR:
+			result = "Failover to OCR";
+			break;				
 		}
 		return result;
 	}

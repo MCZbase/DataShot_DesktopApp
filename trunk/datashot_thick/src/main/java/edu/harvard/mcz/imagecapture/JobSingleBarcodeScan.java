@@ -46,6 +46,7 @@ import edu.harvard.mcz.imagecapture.exceptions.NoSuchRecordException;
 import edu.harvard.mcz.imagecapture.exceptions.NoSuchTemplateException;
 import edu.harvard.mcz.imagecapture.exceptions.OCRReadException;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
+import edu.harvard.mcz.imagecapture.exceptions.SpecimenExistsException;
 import edu.harvard.mcz.imagecapture.exceptions.UnreadableFileException;
 import edu.harvard.mcz.imagecapture.interfaces.CollectionReturner;
 import edu.harvard.mcz.imagecapture.interfaces.DrawerNameReturner;
@@ -453,8 +454,15 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 							SpecimenLifeCycle sh = new SpecimenLifeCycle();
 							try { 
 								sh.persist(s);
+							} catch (SpecimenExistsException e) {
+								log.debug(e);
+								JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), 
+										filename + " " + barcode + " \n" + e.getMessage(), 
+										"Specimen Exists", 
+								JOptionPane.ERROR_MESSAGE);
 							} catch (SaveFailedException e) { 
-								// couldn't save, might be because a specimen exists
+								// Couldn't save, but for some reason other than the
+								// specimen record already existing.
 								log.debug(e);
 								try { 
 									Specimen checkSpecimen = new Specimen();
