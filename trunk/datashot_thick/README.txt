@@ -10,9 +10,8 @@ from oracle.
 
 Add it to your local .m2 
 
-mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc14 \ 
+mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc14 \
  -Dversion=10.2.0.5.0 -Dpackaging=jar -Dfile=ojdbc14.jar -DgeneratePom=true
-
 
 (2) Create a not_vcs directory in the project root, copy the file
 src/main/java/hibernate.cfg.xml into that directory and edit it to supply 
