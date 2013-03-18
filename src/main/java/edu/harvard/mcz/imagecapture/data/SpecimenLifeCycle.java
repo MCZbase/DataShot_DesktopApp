@@ -27,6 +27,7 @@ import org.hibernate.metadata.ClassMetadata;
 import edu.harvard.mcz.imagecapture.MCZENTBarcode;
 import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
+import edu.harvard.mcz.imagecapture.exceptions.SpecimenExistsException;
 import edu.harvard.mcz.imagecapture.interfaces.BarcodeBuilder;
 
 import static org.hibernate.criterion.Example.create;
@@ -66,8 +67,9 @@ public class SpecimenLifeCycle {
 	 * database record which is to be saved as a new record in the database.
 	 * 
 	 * @throws SaveFailedException
+	 * @throws SpecimenExistsException 
 	 */
-	public void persist(Specimen transientInstance) throws SaveFailedException {
+	public void persist(Specimen transientInstance) throws SaveFailedException, SpecimenExistsException {
 		log.debug("persisting Specimen instance");
 		try {
 			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
@@ -80,7 +82,11 @@ public class SpecimenLifeCycle {
 			} catch (HibernateException e) { 
 				session.getTransaction().rollback();
 				log.error("persist failed", e);
-				throw new SaveFailedException("Unable to save specimen " + transientInstance.getBarcode());
+				if (e.getMessage().matches("^Duplicate entry '.*' for key 'Barcode'$")) { 
+					 throw new SpecimenExistsException("Specimen record exists for " + transientInstance.getBarcode());
+				} else { 
+				     throw new SaveFailedException("Unable to save specimen " + transientInstance.getBarcode());
+				}
 			}
 			try { session.close(); } catch (SessionException e) { }
 		} catch (RuntimeException re) {

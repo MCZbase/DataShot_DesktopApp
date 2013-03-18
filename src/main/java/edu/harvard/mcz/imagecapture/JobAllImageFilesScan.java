@@ -49,6 +49,7 @@ import edu.harvard.mcz.imagecapture.data.WorkFlowStatus;
 import edu.harvard.mcz.imagecapture.exceptions.NoSuchTemplateException;
 import edu.harvard.mcz.imagecapture.exceptions.OCRReadException;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
+import edu.harvard.mcz.imagecapture.exceptions.SpecimenExistsException;
 import edu.harvard.mcz.imagecapture.exceptions.UnreadableFileException;
 import edu.harvard.mcz.imagecapture.interfaces.CollectionReturner;
 import edu.harvard.mcz.imagecapture.interfaces.DrawerNameReturner;
@@ -493,11 +494,16 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 													barcode, exifComment, "Couldn't find text to OCR",
 													null, null,
 													e, ImagePreprocessError.TYPE_NO_TEMPLATE);
+											counter.appendError(error);
 										}
 										if (labelRead==null) { 
 										    if (rawOCR==null) { rawOCR = ""; } 
 										    state = WorkFlowStatus.STAGE_0;
 										    parser = new UnitTrayLabelParser(rawOCR);
+											ImagePreprocessError error =  new ImagePreprocessError(filename, "Failover to OCR.",
+													barcode, exifComment, "Couldn't read Taxon barcode, failed over to OCR only.",
+													(TaxonNameReturner)parser, null,
+											null, ImagePreprocessError.TYPE_FAILOVER_TO_OCR);
 										}  else { 
 											state = WorkFlowStatus.STAGE_1;
 											parser = labelRead;
@@ -636,8 +642,14 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 											// *** Save a database record of the specimen.
 											sh.persist(s);
 											counter.incrementSpecimens();
+										} catch (SpecimenExistsException e) {
+											log.debug(e);
+											// Expected case on scanning a second image for a specimen.
+											// Doesn't need to be reported as a parsing error.
 										} catch (SaveFailedException e) { 
-											// couldn't save, might be because a specimen exists
+											// Couldn't save for some reason other than the
+											// specimen record already existing.  Check for possible 
+											// save problems resulting from parsing errors.
 											log.debug(e);
 											try { 
 												Specimen checkSpecimen = new Specimen();

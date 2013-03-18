@@ -43,6 +43,7 @@ import edu.harvard.mcz.imagecapture.exceptions.BadTemplateException;
 import edu.harvard.mcz.imagecapture.exceptions.ImageLoadException;
 import edu.harvard.mcz.imagecapture.exceptions.NoSuchRecordException;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
+import edu.harvard.mcz.imagecapture.exceptions.SpecimenExistsException;
 import edu.harvard.mcz.imagecapture.interfaces.DataChangeListener;
 
 /**
@@ -183,7 +184,12 @@ public class SpecimenControler {
 		if (specimen.getSpecimenId()!=null) { 
 		    s.attachDirty(specimen);
 		} else { 
-			s.persist(specimen);
+			try {
+				s.persist(specimen);
+			} catch (SpecimenExistsException e) {
+				// convert special case used in preprocessing back to a save failed exception.
+				throw new SaveFailedException(e.getMessage(),e);
+			}
 		}
 		notifyListeners();
     	// reload the specimen
