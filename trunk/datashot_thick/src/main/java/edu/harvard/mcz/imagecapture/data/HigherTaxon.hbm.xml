@@ -18,5 +18,8 @@
         <property name="tribe" type="string">
             <column name="Tribe" length="255" />
         </property>     
+        <property name="hasCastes" type="int">
+            <column name="hasCastes" />
+        </property>     
     </class>
 </hibernate-mapping>

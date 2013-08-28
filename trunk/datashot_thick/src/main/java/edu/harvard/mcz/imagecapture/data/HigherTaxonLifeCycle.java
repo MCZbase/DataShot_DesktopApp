@@ -477,4 +477,20 @@ public class HigherTaxonLifeCycle {
 		}
 	}
 	
+	public boolean isFamilyWithCastes(String family) {
+		boolean result = false;
+		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+		Query q = session.createQuery("select count(h) from HigherTaxon h where h.hasCaste = 1 and h.Family = ? ");
+		q.setParameter(0, family);
+		Iterator results = q.list().iterator();
+		while (results.hasNext()) {
+			Object[] row = (Object[]) results.next();
+			Integer value = (Integer)row[0];
+			if (value > 0 ) {
+				result = true;
+			}
+		}
+		return result;
+	}	
+	
 }

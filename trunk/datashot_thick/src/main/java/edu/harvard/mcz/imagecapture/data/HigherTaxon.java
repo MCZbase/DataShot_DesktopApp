@@ -13,6 +13,7 @@ public class HigherTaxon implements java.io.Serializable {
 	private String family;
 	private String subfamily;
 	private String tribe;
+	private int hasCastes;
 
 	public HigherTaxon() {
 	}
@@ -53,6 +54,14 @@ public class HigherTaxon implements java.io.Serializable {
 
 	public void setTribe(String tribe) {
 		this.tribe = tribe;
+	}
+
+	public int getHasCastes() {
+		return hasCastes;
+	}
+
+	public void setHasCastes(int hasCastes) {
+		this.hasCastes = hasCastes;
 	}
 
 

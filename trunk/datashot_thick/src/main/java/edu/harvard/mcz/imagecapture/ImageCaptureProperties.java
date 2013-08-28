@@ -50,6 +50,7 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 	public static final String KEY_MOGRIFY_EXECUTABLE = "program.mogrify";
 	public static final String KEY_CONVERT_PARAMETERS = "convert.parameters";
 	public static final String KEY_DETAILS_SCROLL = "details.scroll";
+	public static final String KEY_ENABLE_BROWSE = "browse.enabled";
 	
 	public static final String VALUE_DETAILS_SCROLL_FORCE_ON = "on";
 	
@@ -321,6 +322,10 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 		if (!properties.containsKey(KEY_DETAILS_SCROLL)) { 
 			// default value is no scroll bars for SpecimenDetailsViewPane.
 			properties.setProperty(KEY_DETAILS_SCROLL, "none");
+		}
+		if (!properties.containsKey(KEY_ENABLE_BROWSE)) { 
+			// default value is disabled browse on main menu.
+			properties.setProperty(KEY_ENABLE_BROWSE, "false");
 		}
 		
 	}
