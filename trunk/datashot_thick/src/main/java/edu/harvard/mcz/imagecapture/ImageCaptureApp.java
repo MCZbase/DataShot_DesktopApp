@@ -64,10 +64,10 @@ public class ImageCaptureApp {
 	
 	private static final Log log = LogFactory.getLog(ImageCaptureApp.class);
 	
-	public static final String APP_VERSION = "0.3.13";
+	public static final String APP_VERSION = "0.3.14";
 	public static final String APP_NAME = "RapidCapture";
 	public static final String APP_DESCRIPTION = "Rapid capture of data from images of pin Labels and pinned insect \nspecimens developed for the MCZ Lepidoptera collection";
-	public static final String APP_COPYRIGHT = "Copyright © 2009-2012 President and Fellows of Harvard College";
+	public static final String APP_COPYRIGHT = "Copyright © 2009-2013 President and Fellows of Harvard College";
 	public static final String APP_LICENSE = "This program is free software; you can redistribute it and/or modify \n " + 
     "it under the terms of Version 2 of the GNU General Public License \n" +
     "as published by the Free Software Foundation" +
