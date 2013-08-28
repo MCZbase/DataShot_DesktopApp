@@ -914,6 +914,10 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuData.add(getJMenuItemSearch());
 			jMenuData.add(getJMenuItemBrowseImages());
 			jMenuData.add(getJMenuItemBrowseSpecimens());
+			if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_ENABLE_BROWSE).equals("true")) { 
+				getJMenuItemBrowseImages().setEnabled(false);
+				getJMenuItemBrowseSpecimens().setEnabled(false);
+			}
 		}
 		return jMenuData;
 	}
