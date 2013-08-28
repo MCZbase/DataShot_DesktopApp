@@ -749,8 +749,13 @@ public class MainFrame extends JFrame implements RunnerListener {
 		jPanelCenter.add(slb, BorderLayout.CENTER);
 		jPanelCenter.revalidate();
 		jPanelCenter.repaint();
-		jMenuItemBrowseSpecimens.setEnabled(true);
-		jMenuItemBrowseImages.setEnabled(true);
+		if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_ENABLE_BROWSE).equals("false")) { 
+		    jMenuItemBrowseSpecimens.setEnabled(false);
+		    jMenuItemBrowseImages.setEnabled(false);
+		} else { 
+		    jMenuItemBrowseSpecimens.setEnabled(true);
+		    jMenuItemBrowseImages.setEnabled(true);
+		}
         setStatusMessage("Found " + slb.getRowCount() + " matching specimens");
 		Singleton.getSingletonInstance().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
@@ -784,13 +789,21 @@ public class MainFrame extends JFrame implements RunnerListener {
 					jPanelCenter.add(slb, BorderLayout.CENTER);
 					jPanelCenter.revalidate();
 					jPanelCenter.repaint();
-					jMenuItemBrowseSpecimens.setEnabled(true);
-					jMenuItemBrowseImages.setEnabled(true);
+					if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_ENABLE_BROWSE).equals("false")) { 
+					    jMenuItemBrowseSpecimens.setEnabled(true);
+					    jMenuItemBrowseImages.setEnabled(true);
+					} else { 
+					    jMenuItemBrowseSpecimens.setEnabled(true);
+					    jMenuItemBrowseImages.setEnabled(true);
+					}
 					setStatusMessage("Found " + slb.getRowCount() + " specimens");
 					Singleton.getSingletonInstance().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 					System.gc();
 				}
 			});
+		}
+		if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_ENABLE_BROWSE).equals("false")) { 
+			jMenuItemBrowseSpecimens.setEnabled(false);
 		}
 		return jMenuItemBrowseSpecimens;
 	}
@@ -867,13 +880,21 @@ public class MainFrame extends JFrame implements RunnerListener {
 					jPanelCenter.add(ilb, BorderLayout.CENTER);
 					jPanelCenter.revalidate();
 					jPanelCenter.repaint();
-					jMenuItemBrowseSpecimens.setEnabled(true);
-					jMenuItemBrowseImages.setEnabled(true);
+					if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_ENABLE_BROWSE).equals("false")) { 
+					    jMenuItemBrowseSpecimens.setEnabled(false);
+					    jMenuItemBrowseImages.setEnabled(false);
+					} else { 
+					    jMenuItemBrowseSpecimens.setEnabled(true);
+					    jMenuItemBrowseImages.setEnabled(true);
+					}
 					setStatusMessage("Found " + ilb.getRowCount() + " images.");
 					Singleton.getSingletonInstance().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 					System.gc();
 				}
 			});
+		}
+		if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_ENABLE_BROWSE).equals("false")) { 
+			jMenuItemBrowseImages.setEnabled(false);
 		}
 		return jMenuItemBrowseImages;
 	}
@@ -914,10 +935,6 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuData.add(getJMenuItemSearch());
 			jMenuData.add(getJMenuItemBrowseImages());
 			jMenuData.add(getJMenuItemBrowseSpecimens());
-			if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_ENABLE_BROWSE).equals("true")) { 
-				getJMenuItemBrowseImages().setEnabled(false);
-				getJMenuItemBrowseSpecimens().setEnabled(false);
-			}
 		}
 		return jMenuData;
 	}
