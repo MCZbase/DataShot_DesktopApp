@@ -51,6 +51,7 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 	public static final String KEY_CONVERT_PARAMETERS = "convert.parameters";
 	public static final String KEY_DETAILS_SCROLL = "details.scroll";
 	public static final String KEY_ENABLE_BROWSE = "browse.enabled";
+	public static final String KEY_DEFAULT_PREPARATION = "default.preparation";
 	
 	public static final String VALUE_DETAILS_SCROLL_FORCE_ON = "on";
 	
@@ -327,6 +328,10 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 			// default value is disabled browse on main menu.
 			properties.setProperty(KEY_ENABLE_BROWSE, "false");
 		}
+		if (!properties.containsKey(KEY_DEFAULT_PREPARATION)) { 
+			// default value is disabled browse on main menu.
+			properties.setProperty(KEY_DEFAULT_PREPARATION, "pinned");
+		}		
 		
 	}
 	

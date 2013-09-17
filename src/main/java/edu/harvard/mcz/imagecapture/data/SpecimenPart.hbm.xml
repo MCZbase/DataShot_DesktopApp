@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 23, 2009 8:12:35 AM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="edu.harvard.mcz.imagecapture.data.SpecimenPart" table="Specimen_Part" catalog="lepidoptera">
+        <id name="specimenPartId" type="java.lang.Long">
+            <column name="SpecimenPartId" />
+            <generator class="native" >
+                <param name="sequence">SPECIMEN_PART_SEQ</param> 
+            </generator>
+        </id>
+        <many-to-one name="specimenId" class="edu.harvard.mcz.imagecapture.data.Specimen">
+            <column name="SpecimenId" not-null="true" />
+        </many-to-one>        
+        <property name="partName" type="string">
+            <column name="Part_Name" not-null="true" length="255" default="whole animal" />
+        </property>
+        <property name="preserveMethod" type="string">
+            <column name="Preserve_Method" length="60" />
+        </property>
+        <property name="lotCount" type="int">
+            <column name="Lot_Count" />
+        </property>
+        <property name="lotCountModifier" type="string">
+            <column name="Lot_Count_Modifier" length="5" />
+        </property>
+    </class>
+</hibernate-mapping>

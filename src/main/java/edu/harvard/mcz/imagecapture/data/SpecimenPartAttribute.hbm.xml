@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 23, 2009 8:12:35 AM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping default-lazy="false" >
+    <class name="edu.harvard.mcz.imagecapture.data.SpecimenPartAttribute" table="Specimen_Part_Attribute" catalog="lepidoptera">
+        <id name="specimenPartAttributeId" type="java.lang.Long">
+            <column name="SpecimenPartAttributeId" />
+            <generator class="native" >
+                <param name="sequence">SPECIMEN_PART_ATTRIBUTE_SEQ</param> 
+            </generator>
+        </id>
+        <timestamp
+        column="Attribute_Date"                                    
+        name="attributeDate"                                          
+        source="db" 
+        generated="always" 
+        node="dateCreated" />
+        <many-to-one name="specimenPartId" class="edu.harvard.mcz.imagecapture.data.SpecimenPart">
+            <column name="SpecimenPartId" not-null="true" />
+        </many-to-one>        
+        <property name="attributeType" type="string">
+            <column name="Attribute_Type" not-null="true" length="30" default="caste" />
+        </property>        
+        <property name="attributeValue" type="string">
+            <column name="Attribute_Value" not-null="true" length="255" default="caste" />
+        </property>        
+        <property name="attributeUnits" type="string">
+            <column name="Attribute_Units" length="30" default="caste" />
+        </property>        
+        <property name="attributeRemark" type="string">
+            <column name="Attribute_Remark" length="4000" default="caste" />
+        </property>        
+        <property name="attributeDeterminer" type="string">
+            <column name="Attribute_Determiner" not-null="true" length="255" default="caste" />
+        </property>        
+    </class>
+</hibernate-mapping>

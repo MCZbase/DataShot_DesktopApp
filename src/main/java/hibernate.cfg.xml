@@ -17,6 +17,8 @@
         <property name="show_sql">true</property>  
         <mapping resource="edu/harvard/mcz/imagecapture/data/Number.hbm.xml" />
         <mapping resource="edu/harvard/mcz/imagecapture/data/Specimen.hbm.xml" />
+        <mapping resource="edu/harvard/mcz/imagecapture/data/SpecimenPart.hbm.xml" />
+        <mapping resource="edu/harvard/mcz/imagecapture/data/SpecimenPartAttribute.hbm.xml" />
         <mapping resource="edu/harvard/mcz/imagecapture/data/Tracking.hbm.xml" />
         <mapping resource="edu/harvard/mcz/imagecapture/data/Determination.hbm.xml" />
         <mapping resource="edu/harvard/mcz/imagecapture/data/Collector.hbm.xml" />

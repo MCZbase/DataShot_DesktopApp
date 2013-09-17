@@ -454,6 +454,7 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 							SpecimenLifeCycle sh = new SpecimenLifeCycle();
 							try { 
 								sh.persist(s);
+							    s.attachNewPart();
 							} catch (SpecimenExistsException e) {
 								log.debug(e);
 								JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), 

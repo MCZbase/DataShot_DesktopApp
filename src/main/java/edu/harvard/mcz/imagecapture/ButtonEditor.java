@@ -36,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.SpecimenListTableModel;
+import edu.harvard.mcz.imagecapture.data.SpecimenPart;
 import edu.harvard.mcz.imagecapture.data.Users;
 import edu.harvard.mcz.imagecapture.exceptions.NoSuchRecordException;
 import edu.harvard.mcz.imagecapture.exceptions.NoSuchTemplateException;
@@ -72,6 +73,7 @@ public class ButtonEditor extends AbstractCellEditor implements TableCellEditor,
 	public static final int OPEN_TEMPLATE = 1;
 	public static final int OPEN_USER = 2;
 	public static final int ACTION_CANCEL_JOB = 3;
+	public static final int OPEN_SPECIMENPARTATTRIBUTES = 4;
 
 	private JButton button;  // the button to display
 	private Object targetId = null;    // value for the cell (primary key value for tuple displayed in row).
@@ -242,6 +244,10 @@ public class ButtonEditor extends AbstractCellEditor implements TableCellEditor,
 				log.debug("Action Cancel requested on job " + targetId);
 				Singleton.getSingletonInstance().getJobList().getJobAt((Integer)targetId).cancel();
 			    break;
+			case OPEN_SPECIMENPARTATTRIBUTES: 
+				SpecimenPartAttributeDialog attrDialog = new SpecimenPartAttributeDialog((SpecimenPart)targetId);
+				attrDialog.setVisible(true);
+				break;
 			}
 			Singleton.getSingletonInstance().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			System.gc();
