@@ -642,6 +642,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 											// *** Save a database record of the specimen.
 											sh.persist(s);
 											counter.incrementSpecimens();
+	                						s.attachNewPart();
 										} catch (SpecimenExistsException e) {
 											log.debug(e);
 											// Expected case on scanning a second image for a specimen.

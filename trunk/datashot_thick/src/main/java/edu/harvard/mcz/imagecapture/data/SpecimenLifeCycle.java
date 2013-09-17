@@ -127,14 +127,22 @@ public class SpecimenLifeCycle {
 	 * @param instance
 	 */
 	public void attachClean(Specimen instance) {
+		log.debug(instance.getSpecimenParts().size());
+		try { 
+		     log.debug(((SpecimenPart)instance.getSpecimenParts().toArray()[0]).getPartAttributeValuesConcat());
+		} catch (Exception e) {
+			 log.debug(e.getMessage());
+		} 
 		log.debug("attaching clean Specimen instance");
 		try {
 			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
 			try { 
 			    session.lock(instance, LockMode.NONE);
+			    session.flush();
 			    session.getTransaction().commit();
 			    log.debug("attach successful");
+				log.debug(instance.getSpecimenParts().size());
 			} catch (HibernateException e) { 
 				session.getTransaction().rollback();
 				log.error("attach failed", e);
@@ -143,6 +151,12 @@ public class SpecimenLifeCycle {
 		} catch (RuntimeException re) {
 			log.error("attach failed", re);
 			throw re;
+		}				
+		try { 
+		    log.debug(instance.getSpecimenParts().size());
+		    log.debug(((SpecimenPart)instance.getSpecimenParts().toArray()[0]).getPartAttributeValuesConcat());
+		} catch (Exception e) { 
+			log.debug(e.getMessage());
 		}
 	}
 
@@ -208,6 +222,7 @@ public class SpecimenLifeCycle {
 					log.debug("get successful, no instance found");
 				} else {
 					log.debug("get successful, instance found");
+					log.debug(instance.getSpecimenParts().size());
 				}
 			} catch (HibernateException e) { 
 				session.getTransaction().rollback();
@@ -289,6 +304,7 @@ public class SpecimenLifeCycle {
 				Criteria criteria = session.createCriteria("edu.harvard.mcz.imagecapture.data.Specimen");
 				criteria.add(create(instance).enableLike().ignoreCase());
 				criteria.setFetchMode("trackings", FetchMode.SELECT);
+				criteria.setFetchMode("specimenParts", FetchMode.SELECT);
 				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 				if (instance.getTrackings()!=null && instance.getTrackings().size()>0) {
 					criteria.createCriteria("trackings",Criteria.INNER_JOIN).add(create(instance.getTrackings().toArray()[0]).enableLike());
@@ -307,6 +323,15 @@ public class SpecimenLifeCycle {
 		    	log.error("find by example failed", e);	
 		    }
 		    try { session.close(); } catch (SessionException e) { }
+for (int i=0; i<results.size(); i++) { 		    
+   try {
+      log.debug("Parts: " + results.get(i).getSpecimenParts().size());
+      log.debug("Parts: " + ((SpecimenPart)results.get(i).getSpecimenParts().toArray()[0]).getPartAttributeValuesConcat());
+      log.debug("Part Attribute: " + ((SpecimenPartAttribute)((SpecimenPart)results.get(i).getSpecimenParts().toArray()[0]).getAttributeCollection().toArray()[0]).getSpecimenPartAttributeId());
+   } catch (Exception e) {
+	   log.debug(e.getMessage());
+   }
+}
 			return results;
 		} catch (RuntimeException re) {
 			log.error("find by example failed", re);

@@ -38,10 +38,16 @@ import edu.harvard.mcz.imagecapture.data.NumberTableModel;
 import edu.harvard.mcz.imagecapture.data.Sex;
 import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
+import edu.harvard.mcz.imagecapture.data.SpecimenPart;
+import edu.harvard.mcz.imagecapture.data.SpecimenPartAttribute;
+import edu.harvard.mcz.imagecapture.data.SpecimenPartAttributeLifeCycle;
+import edu.harvard.mcz.imagecapture.data.SpecimenPartLifeCycle;
+import edu.harvard.mcz.imagecapture.data.SpecimenPartsTableModel;
 import edu.harvard.mcz.imagecapture.data.Tracking;
 import edu.harvard.mcz.imagecapture.data.TrackingLifeCycle;
 import edu.harvard.mcz.imagecapture.data.WorkFlowStatus;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
+import edu.harvard.mcz.imagecapture.exceptions.SpecimenExistsException;
 
 import java.awt.Dimension;
 import javax.swing.JTextField;
@@ -51,6 +57,7 @@ import java.awt.GridBagConstraints;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
@@ -64,6 +71,7 @@ import java.net.URL;
 
 import javax.swing.JTextArea;
 import javax.swing.JCheckBox;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
@@ -110,6 +118,8 @@ public class SpecimenDetailsViewPane extends JPanel {
 	private JTextField jTextFieldLastUpdatedBy = null;
 	private JScrollPane jScrollPaneCollectors = null;
 	private JTable jTableCollectors = null;
+	private JScrollPane jScrollPaneSpecimenParts = null;
+	private JTable jTableSpecimenParts = null;
 	private JLabel jLabel7 = null;
 	private JLabel jLabel8 = null;
 	private JTextField jTextFieldDateLastUpdated = null;
@@ -175,7 +185,8 @@ public class SpecimenDetailsViewPane extends JPanel {
 	private JLabel jLabel40 = null;
 	private JTextField jLabelMigrationStatus = null;
 	private JTextField jTextFieldQuestions = null;
-	private JTextField jTextFieldPreparationType = null;
+	// private JTextField jTextFieldPreparationType = null;
+	private JButton jButtonAddPreparationType;
 	private JTextField jTextFieldAssociatedTaxon = null;
 	private JTextField jTextFieldHabitat = null;
 	private JLabel jLabel41 = null;
@@ -210,6 +221,22 @@ public class SpecimenDetailsViewPane extends JPanel {
 		specimen = aSpecimenInstance;
 		SpecimenLifeCycle s = new SpecimenLifeCycle();
 		setStateToClean();
+//		SpecimenPartAttributeLifeCycle spals = new SpecimenPartAttributeLifeCycle();
+//		Iterator<SpecimenPart> i = specimen.getSpecimenParts().iterator();
+//		while (i.hasNext()) { 
+//			Iterator<SpecimenPartAttribute> ia = i.next().getAttributeCollection().iterator();
+//			while (ia.hasNext()) { 
+//				try {
+//					SpecimenPartAttribute spa = ia.next();
+//					log.debug(spa.getSpecimenPartAttributeId());
+//					spals.attachDirty(spa);
+//					log.debug(spa.getSpecimenPartAttributeId());
+//				} catch (SaveFailedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//		}
 		s.attachClean(specimen);
 	    myControler = aControler;
 		initialize();
@@ -250,6 +277,9 @@ public class SpecimenDetailsViewPane extends JPanel {
 		if (jTableCollectors.isEditing()) { 
 		    jTableCollectors.getCellEditor().stopCellEditing();
 		}
+		if (jTableSpecimenParts.isEditing()) { 
+		    jTableSpecimenParts.getCellEditor().stopCellEditing();
+		}		
 		if (jTableNumbers.isEditing()) { 
 		    jTableNumbers.getCellEditor().stopCellEditing();
 		}
@@ -311,7 +341,7 @@ public class SpecimenDetailsViewPane extends JPanel {
         log.debug("sex=" + specimen.getSex()); 
         
         specimen.setCitedInPublication(jTextFieldCitedInPub.getText());
-	    specimen.setPreparationType(jTextFieldPreparationType.getText());
+	    //specimen.setPreparationType(jTextFieldPreparationType.getText());
 	    specimen.setAssociatedTaxon(jTextFieldAssociatedTaxon.getText());
 	    specimen.setHabitat(jTextFieldHabitat.getText());
 	    specimen.setSpecimenNotes(jTextAreaSpecimenNotes.getText());
@@ -378,7 +408,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 		jTextFieldDateCollectedIndicator.setText(specimen.getDateCollectedIndicator());
 		jTextFieldDateEmergedIndicator.setText(specimen.getDateEmergedIndicator());
 		jComboBoxCollection.setSelectedItem(specimen.getCollection());
-		jTextFieldPreparationType.setText(specimen.getPreparationType());
+		//jTextFieldPreparationType.setText(specimen.getPreparationType());
 		jTextFieldAssociatedTaxon.setText(specimen.getAssociatedTaxon());
 		jTextFieldHabitat.setText(specimen.getHabitat());
 		jTextAreaSpecimenNotes.setText(specimen.getSpecimenNotes());
@@ -423,6 +453,9 @@ public class SpecimenDetailsViewPane extends JPanel {
 		field.setVerifyInputWhenFocusTarget(true);
 		jTableCollectors.getColumnModel().getColumn(0).setCellEditor(new ValidatingTableCellEditor(field));
 		
+		jTableSpecimenParts.setModel(new SpecimenPartsTableModel(specimen.getSpecimenParts()));
+		setSpecimenPartsTableCellEditors();
+		
 		updateDeterminationCount();
 		
 		if (specimen.getICImages()!=null) { 
@@ -463,6 +496,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 		this.setSize(new Dimension(594, 900));
 		//this.setPreferredSize(new Dimension(490, 917));
 	    this.add(getJTextFieldStatus(), BorderLayout.SOUTH);
+	    // this.add(getJPanel(), BorderLayout.CENTER);
 	    if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(
 	    		 ImageCaptureProperties.KEY_DETAILS_SCROLL).equals(ImageCaptureProperties.VALUE_DETAILS_SCROLL_FORCE_ON)) { 
 	    JScrollPane scrollPane = new JScrollPane(getJPanel(),
@@ -500,103 +534,122 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints216.weightx = 1.0;
 			gridBagConstraints216.anchor = GridBagConstraints.WEST;
 			gridBagConstraints216.gridwidth = 2;
-			gridBagConstraints216.insets = new Insets(0, 3, 0, 0);
+			gridBagConstraints216.insets = new Insets(0, 3, 5, 5);
 			gridBagConstraints216.ipadx = 3;
 			gridBagConstraints216.gridx = 4;
 			GridBagConstraints gridBagConstraints124 = new GridBagConstraints();
+			gridBagConstraints124.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints124.gridx = 0;
 			gridBagConstraints124.anchor = GridBagConstraints.EAST;
 			gridBagConstraints124.gridy = 19;
 			GridBagConstraints gridBagConstraints38 = new GridBagConstraints();
+			gridBagConstraints38.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints38.gridx = 0;
 			gridBagConstraints38.anchor = GridBagConstraints.EAST;
-			gridBagConstraints38.gridy = 27;
+			gridBagConstraints38.gridy = 25;
 			GridBagConstraints gridBagConstraints215 = new GridBagConstraints();
+			gridBagConstraints215.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints215.gridx = 0;
 			gridBagConstraints215.anchor = GridBagConstraints.EAST;
-			gridBagConstraints215.gridy = 26;
+			gridBagConstraints215.gridy = 24;
 			GridBagConstraints gridBagConstraints120 = new GridBagConstraints();
+			gridBagConstraints120.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints120.gridx = 3;
 			gridBagConstraints120.weightx = 1.0;
-			gridBagConstraints120.gridy = 25;
+			gridBagConstraints120.gridy = 23;
 			jLabel44 = new JLabel();
 			jLabel44.setText("yyyy/mm/dd");
 			GridBagConstraints gridBagConstraints49 = new GridBagConstraints();
+			gridBagConstraints49.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints49.fill = GridBagConstraints.BOTH;
 			gridBagConstraints49.weighty = 1.0;
 			gridBagConstraints49.weightx = 1.0;
 			gridBagConstraints49.gridx = 1;
 			gridBagConstraints49.gridwidth = 5;
-			gridBagConstraints49.gridy = 34;
+			gridBagConstraints49.gridy = 33;
 			GridBagConstraints gridBagConstraints214 = new GridBagConstraints();
+			gridBagConstraints214.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints214.anchor = GridBagConstraints.EAST;
 			gridBagConstraints214.gridx = 4;
-			gridBagConstraints214.gridy = 41;
+			gridBagConstraints214.gridy = 40;
 			gridBagConstraints214.weightx = 0.0;
 			gridBagConstraints214.weighty = 0.0;
 			gridBagConstraints214.fill = GridBagConstraints.NONE;
 			GridBagConstraints gridBagConstraints119 = new GridBagConstraints();
+			gridBagConstraints119.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints119.anchor = GridBagConstraints.WEST;
 			gridBagConstraints119.gridx = 5;
-			gridBagConstraints119.gridy = 41;
+			gridBagConstraints119.gridy = 40;
 			gridBagConstraints119.weightx = 0.0;
 			gridBagConstraints119.weighty = 0.0;
 			gridBagConstraints119.fill = GridBagConstraints.NONE;
 			GridBagConstraints gridBagConstraints213 = new GridBagConstraints();
+			gridBagConstraints213.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints213.fill = GridBagConstraints.BOTH;
-			gridBagConstraints213.gridy = 30;
+			gridBagConstraints213.gridy = 29;
 			gridBagConstraints213.weightx = 0.0;
 			gridBagConstraints213.gridwidth = 5;
 			gridBagConstraints213.anchor = GridBagConstraints.WEST;
 			gridBagConstraints213.gridx = 1;
 			GridBagConstraints gridBagConstraints118 = new GridBagConstraints();
+			gridBagConstraints118.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints118.gridx = 0;
 			gridBagConstraints118.anchor = GridBagConstraints.EAST;
 			gridBagConstraints118.gridwidth = 1;
-			gridBagConstraints118.gridy = 30;
+			gridBagConstraints118.gridy = 29;
 			jLabel31 = new JLabel();
 			jLabel31.setText("Publications");
 			GridBagConstraints gridBagConstraints212 = new GridBagConstraints();
+			gridBagConstraints212.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints212.gridx = 3;
 			gridBagConstraints212.fill = GridBagConstraints.HORIZONTAL;
 			gridBagConstraints212.gridwidth = 2;
 			gridBagConstraints212.gridy = 15;
 			GridBagConstraints gridBagConstraints117 = new GridBagConstraints();
+			gridBagConstraints117.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints117.fill = GridBagConstraints.BOTH;
-			gridBagConstraints117.gridy = 25;
+			gridBagConstraints117.gridy = 23;
 			gridBagConstraints117.weightx = 0.0;
 			gridBagConstraints117.gridwidth = 2;
 			gridBagConstraints117.anchor = GridBagConstraints.WEST;
 			gridBagConstraints117.gridx = 4;
 			GridBagConstraints gridBagConstraints211 = new GridBagConstraints();
+			gridBagConstraints211.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints211.gridx = 3;
 			gridBagConstraints211.gridwidth = 2;
 			gridBagConstraints211.weighty = 1.0;
-			gridBagConstraints211.gridy = 43;
+			gridBagConstraints211.gridy = 42;
 			GridBagConstraints gridBagConstraintsMS = new GridBagConstraints();
+			gridBagConstraintsMS.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraintsMS.fill = GridBagConstraints.BOTH;
 			gridBagConstraintsMS.gridx = 0;
 			gridBagConstraintsMS.gridwidth = 6;
 			gridBagConstraintsMS.weighty = 1.0;
-			gridBagConstraintsMS.gridy = 44;			
+			gridBagConstraintsMS.gridy = 43;			
+			gridBagConstraintsMS.gridx = 0;
+			
 			GridBagConstraints gridBagConstraints116 = new GridBagConstraints();
+			gridBagConstraints116.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints116.gridx = 4;
 			gridBagConstraints116.anchor = GridBagConstraints.EAST;
-			gridBagConstraints116.gridy = 40;
+			gridBagConstraints116.gridy = 39;
 			GridBagConstraints gridBagConstraints66 = new GridBagConstraints();
+			gridBagConstraints66.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints66.fill = GridBagConstraints.BOTH;
-			gridBagConstraints66.gridy = 35;
+			gridBagConstraints66.gridy = 34;
 			gridBagConstraints66.weightx = 1.0;
 			gridBagConstraints66.anchor = GridBagConstraints.WEST;
 			gridBagConstraints66.gridwidth = 5;
 			gridBagConstraints66.gridx = 1;
 			GridBagConstraints gridBagConstraints56 = new GridBagConstraints();
+			gridBagConstraints56.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints56.gridx = 0;
 			gridBagConstraints56.anchor = GridBagConstraints.EAST;
-			gridBagConstraints56.gridy = 35;
+			gridBagConstraints56.gridy = 34;
 			jLabel43 = new JLabel();
 			jLabel43.setText("Inferences");
 			GridBagConstraints gridBagConstraints48 = new GridBagConstraints();
+			gridBagConstraints48.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints48.fill = GridBagConstraints.VERTICAL;
 			gridBagConstraints48.gridy = 0;
 			gridBagConstraints48.weightx = 1.0;
@@ -604,77 +657,74 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints48.gridwidth = 2;
 			gridBagConstraints48.gridx = 4;
 			GridBagConstraints gridBagConstraints37 = new GridBagConstraints();
+			gridBagConstraints37.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints37.gridx = 3;
 			gridBagConstraints37.anchor = GridBagConstraints.NORTHEAST;
 			gridBagConstraints37.gridy = 0;
 			jLabel42 = new JLabel();
 			jLabel42.setText("Collection");
 			GridBagConstraints gridBagConstraints29 = new GridBagConstraints();
+			gridBagConstraints29.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints29.fill = GridBagConstraints.BOTH;
-			gridBagConstraints29.gridy = 40;
+			gridBagConstraints29.gridy = 39;
 			gridBagConstraints29.weightx = 1.0;
 			gridBagConstraints29.anchor = GridBagConstraints.WEST;
 			gridBagConstraints29.gridwidth = 3;
 			gridBagConstraints29.gridx = 1;
 			GridBagConstraints gridBagConstraints115 = new GridBagConstraints();
+			gridBagConstraints115.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints115.gridx = 0;
-			gridBagConstraints115.gridy = 40;
+			gridBagConstraints115.gridy = 39;
 			jLabel41 = new JLabel();
 			jLabel41.setText("Workflow Status");
 			GridBagConstraints gridBagConstraints172 = new GridBagConstraints();
+			gridBagConstraints172.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints172.fill = GridBagConstraints.BOTH;
-			gridBagConstraints172.gridy = 32;
+			gridBagConstraints172.gridy = 31;
 			gridBagConstraints172.weightx = 1.0;
 			gridBagConstraints172.anchor = GridBagConstraints.WEST;
 			gridBagConstraints172.gridwidth = 3;
 			gridBagConstraints172.gridx = 4;
 			GridBagConstraints gridBagConstraints162 = new GridBagConstraints();
+			gridBagConstraints162.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints162.fill = GridBagConstraints.BOTH;
-			gridBagConstraints162.gridy = 32;
+			gridBagConstraints162.gridy = 31;
 			gridBagConstraints162.weightx = 1.0;
 			gridBagConstraints162.anchor = GridBagConstraints.WEST;
 			gridBagConstraints162.gridwidth = 2;
 			gridBagConstraints162.gridx = 1;
-			GridBagConstraints gridBagConstraints152 = new GridBagConstraints();
-			gridBagConstraints152.fill = GridBagConstraints.BOTH;
-			gridBagConstraints152.gridy = 28;
-			gridBagConstraints152.weightx = 1.0;
-			gridBagConstraints152.anchor = GridBagConstraints.WEST;
-			gridBagConstraints152.gridwidth = 3;
-			gridBagConstraints152.gridx = 4;
 			GridBagConstraints gridBagConstraints142 = new GridBagConstraints();
+			gridBagConstraints142.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints142.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints142.gridy = 41;
+			gridBagConstraints142.gridy = 40;
 			gridBagConstraints142.weightx = 1.0;
 			gridBagConstraints142.anchor = GridBagConstraints.NORTHWEST;
 			gridBagConstraints142.gridwidth = 3;
 			gridBagConstraints142.ipady = 2;
 			gridBagConstraints142.gridx = 1;
 			GridBagConstraints gridBagConstraints133 = new GridBagConstraints();
+			gridBagConstraints133.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints133.gridx = 0;
 			gridBagConstraints133.anchor = GridBagConstraints.NORTHEAST;
-			gridBagConstraints133.gridy = 41;
+			gridBagConstraints133.gridy = 40;
 			jLabel40 = new JLabel();
 			jLabel40.setText("Questions");
 			GridBagConstraints gridBagConstraints123 = new GridBagConstraints();
+			gridBagConstraints123.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints123.gridx = 3;
 			gridBagConstraints123.anchor = GridBagConstraints.EAST;
-			gridBagConstraints123.gridy = 32;
+			gridBagConstraints123.gridy = 31;
 			jLabel39 = new JLabel();
 			jLabel39.setText("Habitat");
 			GridBagConstraints gridBagConstraints114 = new GridBagConstraints();
+			gridBagConstraints114.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints114.gridx = 0;
 			gridBagConstraints114.anchor = GridBagConstraints.EAST;
-			gridBagConstraints114.gridy = 32;
+			gridBagConstraints114.gridy = 31;
 			jLabel38 = new JLabel();
 			jLabel38.setText("Associated Taxon");
-			GridBagConstraints gridBagConstraints104 = new GridBagConstraints();
-			gridBagConstraints104.gridx = 3;
-			gridBagConstraints104.anchor = GridBagConstraints.EAST;
-			gridBagConstraints104.gridy = 28;
-			jLabel37 = new JLabel();
-			jLabel37.setText("Prep Type");
 			GridBagConstraints gridBagConstraints94 = new GridBagConstraints();
+			gridBagConstraints94.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints94.gridx = 4;
 			gridBagConstraints94.anchor = GridBagConstraints.WEST;
 			gridBagConstraints94.gridy = 17;
@@ -683,16 +733,18 @@ public class SpecimenDetailsViewPane extends JPanel {
 			GridBagConstraints gridBagConstraints83 = new GridBagConstraints();
 			gridBagConstraints83.gridx = 3;
 			gridBagConstraints83.anchor = GridBagConstraints.EAST;
-			gridBagConstraints83.insets = new Insets(0, 0, 0, 2);
+			gridBagConstraints83.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints83.weightx = 1.0;
 			gridBagConstraints83.gridy = 17;
 			GridBagConstraints gridBagConstraints65 = new GridBagConstraints();
+			gridBagConstraints65.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints65.gridx = 0;
 			gridBagConstraints65.anchor = GridBagConstraints.NORTHEAST;
-			gridBagConstraints65.gridy = 34;
+			gridBagConstraints65.gridy = 33;
 			jLabel35 = new JLabel();
 			jLabel35.setText("Specimen Notes");
 			GridBagConstraints gridBagConstraints47 = new GridBagConstraints();
+			gridBagConstraints47.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints47.gridx = 0;
 			gridBagConstraints47.fill = GridBagConstraints.VERTICAL;
 			gridBagConstraints47.ipady = 12;
@@ -700,20 +752,23 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel34 = new JLabel();
 			jLabel34.setText("     ");
 			GridBagConstraints gridBagConstraints28 = new GridBagConstraints();
+			gridBagConstraints28.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints28.gridx = 4;
 			gridBagConstraints28.anchor = GridBagConstraints.WEST;
 			gridBagConstraints28.fill = GridBagConstraints.NONE;
-			gridBagConstraints28.gridy = 22;
+			gridBagConstraints28.gridy = 21;
 			jLabel33 = new JLabel();
 			jLabel33.setText("Collecting Method");
 			GridBagConstraints gridBagConstraints19 = new GridBagConstraints();
+			gridBagConstraints19.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints19.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints19.gridy = 23;
+			gridBagConstraints19.gridy = 22;
 			gridBagConstraints19.weightx = 1.0;
 			gridBagConstraints19.anchor = GridBagConstraints.NORTHWEST;
 			gridBagConstraints19.gridwidth = 2;
 			gridBagConstraints19.gridx = 4;
 			GridBagConstraints gridBagConstraints18 = new GridBagConstraints();
+			gridBagConstraints18.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints18.fill = GridBagConstraints.BOTH;
 			gridBagConstraints18.gridy = 18;
 			gridBagConstraints18.weightx = 1.0;
@@ -721,6 +776,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints18.gridwidth = 2;
 			gridBagConstraints18.gridx = 4;
 			GridBagConstraints gridBagConstraints171 = new GridBagConstraints();
+			gridBagConstraints171.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints171.gridx = 3;
 			gridBagConstraints171.anchor = GridBagConstraints.EAST;
 			gridBagConstraints171.gridy = 18;
@@ -735,34 +791,41 @@ public class SpecimenDetailsViewPane extends JPanel {
 			GridBagConstraints gridBagConstraints161 = new GridBagConstraints();
 			gridBagConstraints161.gridx = 0;
 			GridBagConstraints gridBagConstraints151 = new GridBagConstraints();
+			gridBagConstraints151.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints151.fill = GridBagConstraints.BOTH;
-			gridBagConstraints151.gridy = 27;
+			gridBagConstraints151.gridy = 25;
 			gridBagConstraints151.weightx = 1.0;
 			gridBagConstraints151.gridx = 1;
 			GridBagConstraints gridBagConstraints141 = new GridBagConstraints();
+			gridBagConstraints141.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints141.fill = GridBagConstraints.BOTH;
-			gridBagConstraints141.gridy = 26;
+			gridBagConstraints141.gridy = 24;
 			gridBagConstraints141.weightx = 1.0;
 			gridBagConstraints141.gridx = 1;
 			GridBagConstraints gridBagConstraints132 = new GridBagConstraints();
+			gridBagConstraints132.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints132.fill = GridBagConstraints.BOTH;
-			gridBagConstraints132.gridy = 27;
+			gridBagConstraints132.gridy = 25;
 			gridBagConstraints132.weightx = 1.0;
 			gridBagConstraints132.gridx = 4;
 			GridBagConstraints gridBagConstraints122 = new GridBagConstraints();
+			gridBagConstraints122.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints122.fill = GridBagConstraints.BOTH;
-			gridBagConstraints122.gridy = 26;
+			gridBagConstraints122.gridy = 24;
 			gridBagConstraints122.weightx = 1.0;
 			gridBagConstraints122.gridx = 4;
 			GridBagConstraints gridBagConstraints113 = new GridBagConstraints();
+			gridBagConstraints113.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints113.gridx = 3;
 			gridBagConstraints113.anchor = GridBagConstraints.EAST;
-			gridBagConstraints113.gridy = 27;
+			gridBagConstraints113.gridy = 25;
 			GridBagConstraints gridBagConstraints103 = new GridBagConstraints();
+			gridBagConstraints103.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints103.gridx = 3;
 			gridBagConstraints103.anchor = GridBagConstraints.EAST;
-			gridBagConstraints103.gridy = 26;
+			gridBagConstraints103.gridy = 24;
 			GridBagConstraints gridBagConstraints93 = new GridBagConstraints();
+			gridBagConstraints93.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints93.fill = GridBagConstraints.BOTH;
 			gridBagConstraints93.gridy = 12;
 			gridBagConstraints93.weightx = 1.0;
@@ -772,9 +835,10 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints84.gridy = 12;
 			gridBagConstraints84.weightx = 1.0;
 			gridBagConstraints84.anchor = GridBagConstraints.WEST;
-			gridBagConstraints84.insets = new Insets(0, 0, 0, 0);
+			gridBagConstraints84.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints84.gridx = 4;
 			GridBagConstraints gridBagConstraints74 = new GridBagConstraints();
+			gridBagConstraints74.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints74.gridx = 3;
 			gridBagConstraints74.anchor = GridBagConstraints.EAST;
 			gridBagConstraints74.weightx = 0.0;
@@ -790,6 +854,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			//jLabel31 = new JLabel();
 			//jLabel31.setText("Qual.");
 			GridBagConstraints gridBagConstraints46 = new GridBagConstraints();
+			gridBagConstraints46.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints46.fill = GridBagConstraints.BOTH;
 			gridBagConstraints46.gridy = 14;
 			gridBagConstraints46.weightx = 1.0;
@@ -797,12 +862,14 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints46.gridx = 1;
 			gridBagConstraints46.gridwidth = 3;
 			GridBagConstraints gridBagConstraints36 = new GridBagConstraints();
+			gridBagConstraints36.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints36.gridx = 0;
 			gridBagConstraints36.anchor = GridBagConstraints.EAST;
 			gridBagConstraints36.gridy = 14;
 			jLabel30 = new JLabel();
 			jLabel30.setText("Unnamed Form");
 			GridBagConstraints gridBagConstraints210 = new GridBagConstraints();
+			gridBagConstraints210.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints210.fill = GridBagConstraints.BOTH;
 			gridBagConstraints210.gridy = 13;
 			gridBagConstraints210.weightx = 1.0;
@@ -810,66 +877,63 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints210.gridwidth = 3;
 			gridBagConstraints210.gridx = 1;
 			GridBagConstraints gridBagConstraints112 = new GridBagConstraints();
+			gridBagConstraints112.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints112.gridx = 0;
 			gridBagConstraints112.anchor = GridBagConstraints.EAST;
 			gridBagConstraints112.gridy = 13;
 			jLabel29 = new JLabel();
 			jLabel29.setText("Author");
 			GridBagConstraints gridBagConstraints110 = new GridBagConstraints();
+			gridBagConstraints110.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints110.gridx = 0;
 			gridBagConstraints110.gridy = 12;
 			jLabel27 = new JLabel();
 			jLabel27.setText("Infrasubspecifc Name");
 			GridBagConstraints gridBagConstraints63 = new GridBagConstraints();
+			gridBagConstraints63.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints63.fill = GridBagConstraints.BOTH;
-			gridBagConstraints63.gridy = 25;
+			gridBagConstraints63.gridy = 23;
 			gridBagConstraints63.weightx = 1.0;
 			gridBagConstraints63.anchor = GridBagConstraints.WEST;
 			gridBagConstraints63.gridx = 1;
 			GridBagConstraints gridBagConstraints35 = new GridBagConstraints();
+			gridBagConstraints35.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints35.gridx = 0;
 			gridBagConstraints35.anchor = GridBagConstraints.EAST;
-			gridBagConstraints35.gridy = 25;
+			gridBagConstraints35.gridy = 23;
 			jLabel22 = new JLabel();
 			jLabel22.setText("Verbatim Date");
 			GridBagConstraints gridBagConstraints27 = new GridBagConstraints();
+			gridBagConstraints27.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints27.fill = GridBagConstraints.BOTH;
-			gridBagConstraints27.gridy = 29;
+			gridBagConstraints27.gridy = 28;
 			gridBagConstraints27.weightx = 1.0;
 			gridBagConstraints27.anchor = GridBagConstraints.WEST;
 			gridBagConstraints27.gridx = 1;
-			GridBagConstraints gridBagConstraints17 = new GridBagConstraints();
-			gridBagConstraints17.fill = GridBagConstraints.VERTICAL;
-			gridBagConstraints17.gridy = 28;
-			gridBagConstraints17.weightx = 1.0;
-			gridBagConstraints17.anchor = GridBagConstraints.WEST;
-			gridBagConstraints17.gridx = 1;
 			GridBagConstraints gridBagConstraints102 = new GridBagConstraints();
+			gridBagConstraints102.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints102.fill = GridBagConstraints.VERTICAL;
-			gridBagConstraints102.gridy = 29;
+			gridBagConstraints102.gridy = 28;
 			gridBagConstraints102.weightx = 1.0;
 			gridBagConstraints102.anchor = GridBagConstraints.WEST;
 			gridBagConstraints102.gridwidth = 2;
 			gridBagConstraints102.gridx = 4;
 			GridBagConstraints gridBagConstraints92 = new GridBagConstraints();
+			gridBagConstraints92.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints92.gridx = 3;
 			gridBagConstraints92.anchor = GridBagConstraints.EAST;
-			gridBagConstraints92.gridy = 29;
+			gridBagConstraints92.gridy = 28;
 			jLabel21 = new JLabel();
 			jLabel21.setText("Sex");
 			GridBagConstraints gridBagConstraints82 = new GridBagConstraints();
+			gridBagConstraints82.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints82.gridx = 0;
 			gridBagConstraints82.anchor = GridBagConstraints.EAST;
-			gridBagConstraints82.gridy = 29;
+			gridBagConstraints82.gridy = 28;
 			jLabel20 = new JLabel();
 			jLabel20.setText("LifeStage");
-			GridBagConstraints gridBagConstraints72 = new GridBagConstraints();
-			gridBagConstraints72.gridx = 0;
-			gridBagConstraints72.anchor = GridBagConstraints.EAST;
-			gridBagConstraints72.gridy = 28;
-			jLabel19 = new JLabel();
-			jLabel19.setText("Features");
 			GridBagConstraints gridBagConstraints62 = new GridBagConstraints();
+			gridBagConstraints62.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints62.fill = GridBagConstraints.BOTH;
 			gridBagConstraints62.gridy = 8;
 			gridBagConstraints62.weightx = 1.0;
@@ -877,6 +941,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints62.gridwidth = 3;
 			gridBagConstraints62.gridx = 1;
 			GridBagConstraints gridBagConstraints53 = new GridBagConstraints();
+			gridBagConstraints53.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints53.fill = GridBagConstraints.BOTH;
 			gridBagConstraints53.gridy = 7;
 			gridBagConstraints53.weightx = 1.0;
@@ -884,6 +949,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints53.gridwidth = 3;
 			gridBagConstraints53.gridx = 1;
 			GridBagConstraints gridBagConstraints44 = new GridBagConstraints();
+			gridBagConstraints44.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints44.fill = GridBagConstraints.BOTH;
 			gridBagConstraints44.gridy = 6;
 			gridBagConstraints44.weightx = 1.0;
@@ -891,24 +957,28 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints44.gridwidth = 3;
 			gridBagConstraints44.gridx = 1;
 			GridBagConstraints gridBagConstraints34 = new GridBagConstraints();
+			gridBagConstraints34.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints34.gridx = 0;
 			gridBagConstraints34.anchor = GridBagConstraints.EAST;
 			gridBagConstraints34.gridy = 8;
 			jLabel18 = new JLabel();
 			jLabel18.setText("Tribe");
 			GridBagConstraints gridBagConstraints26 = new GridBagConstraints();
+			gridBagConstraints26.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints26.gridx = 0;
 			gridBagConstraints26.anchor = GridBagConstraints.EAST;
 			gridBagConstraints26.gridy = 7;
 			jLabel17 = new JLabel();
 			jLabel17.setText("Subfamily");
 			GridBagConstraints gridBagConstraints16 = new GridBagConstraints();
+			gridBagConstraints16.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints16.gridx = 0;
 			gridBagConstraints16.anchor = GridBagConstraints.EAST;
 			gridBagConstraints16.gridy = 6;
 			jLabel16 = new JLabel();
 			jLabel16.setText("Family");
 			GridBagConstraints gridBagConstraints131 = new GridBagConstraints();
+			gridBagConstraints131.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints131.fill = GridBagConstraints.BOTH;
 			gridBagConstraints131.gridy = 18;
 			gridBagConstraints131.weightx = 1.0;
@@ -916,6 +986,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints131.gridwidth = 2;
 			gridBagConstraints131.gridx = 1;
 			GridBagConstraints gridBagConstraints121 = new GridBagConstraints();
+			gridBagConstraints121.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints121.fill = GridBagConstraints.BOTH;
 			gridBagConstraints121.gridy = 17;
 			gridBagConstraints121.weightx = 1.0;
@@ -923,6 +994,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints121.gridwidth = 1;
 			gridBagConstraints121.gridx = 1;
 			GridBagConstraints gridBagConstraints111 = new GridBagConstraints();
+			gridBagConstraints111.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints111.fill = GridBagConstraints.BOTH;
 			gridBagConstraints111.gridy = 16;
 			gridBagConstraints111.weightx = 1.0;
@@ -930,38 +1002,44 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints111.gridwidth = 5;
 			gridBagConstraints111.gridx = 1;
 			GridBagConstraints gridBagConstraints101 = new GridBagConstraints();
+			gridBagConstraints101.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints101.gridx = 0;
 			gridBagConstraints101.anchor = GridBagConstraints.EAST;
 			gridBagConstraints101.gridy = 18;
 			jLabel15 = new JLabel();
 			jLabel15.setText("State/Province");
 			GridBagConstraints gridBagConstraints91 = new GridBagConstraints();
+			gridBagConstraints91.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints91.gridx = 0;
 			gridBagConstraints91.anchor = GridBagConstraints.EAST;
 			gridBagConstraints91.gridy = 17;
 			jLabel14 = new JLabel();
 			jLabel14.setText("Country");
 			GridBagConstraints gridBagConstraints81 = new GridBagConstraints();
+			gridBagConstraints81.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints81.gridx = 0;
 			gridBagConstraints81.anchor = GridBagConstraints.EAST;
 			gridBagConstraints81.gridy = 16;
 			jLabel13 = new JLabel();
 			jLabel13.setText("Verbatim Locality");
 			GridBagConstraints gridBagConstraints71 = new GridBagConstraints();
+			gridBagConstraints71.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints71.fill = GridBagConstraints.BOTH;
 			gridBagConstraints71.gridy = 15;
 			gridBagConstraints71.weightx = 1.0;
 			gridBagConstraints71.anchor = GridBagConstraints.WEST;
 			gridBagConstraints71.gridx = 1;
 			GridBagConstraints gridBagConstraints61 = new GridBagConstraints();
+			gridBagConstraints61.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints61.gridx = 0;
 			gridBagConstraints61.anchor = GridBagConstraints.EAST;
 			gridBagConstraints61.gridy = 15;
 			jLabel12 = new JLabel();
 			jLabel12.setText("DrawerNumber");
 			GridBagConstraints gridBagConstraints52 = new GridBagConstraints();
+			gridBagConstraints52.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints52.fill = GridBagConstraints.BOTH;
-			gridBagConstraints52.gridy = 42;
+			gridBagConstraints52.gridy = 41;
 			gridBagConstraints52.weightx = 1.0;
 			gridBagConstraints52.weighty = 1.0;
 			gridBagConstraints52.gridwidth = 6;
@@ -970,13 +1048,15 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints43.gridx = 0;
 			gridBagConstraints43.anchor = GridBagConstraints.NORTHEAST;
 			gridBagConstraints43.ipady = 0;
-			gridBagConstraints43.insets = new Insets(0, 0, 22, 0);
-			gridBagConstraints43.gridy = 23;
+			gridBagConstraints43.insets = new Insets(0, 0, 22, 5);
+			gridBagConstraints43.gridy = 22;
 			GridBagConstraints gridBagConstraints33 = new GridBagConstraints();
+			gridBagConstraints33.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints33.gridx = 0;
 			gridBagConstraints33.anchor = GridBagConstraints.NORTHEAST;
 			gridBagConstraints33.gridy = 4;
 			GridBagConstraints gridBagConstraints25 = new GridBagConstraints();
+			gridBagConstraints25.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints25.fill = GridBagConstraints.BOTH;
 			gridBagConstraints25.gridy = 3;
 			gridBagConstraints25.weightx = 1.0;
@@ -985,107 +1065,124 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints25.gridwidth = 4;
 			gridBagConstraints25.gridx = 1;
 			GridBagConstraints gridBagConstraints15 = new GridBagConstraints();
+			gridBagConstraints15.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints15.gridx = 0;
 			gridBagConstraints15.anchor = GridBagConstraints.NORTHEAST;
 			gridBagConstraints15.gridy = 3;
 			jLabel11 = new JLabel();
 			jLabel11.setText("Numbers");
 			GridBagConstraints gridBagConstraints42 = new GridBagConstraints();
+			gridBagConstraints42.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints42.gridx = 3;
 			gridBagConstraints42.anchor = GridBagConstraints.EAST;
-			gridBagConstraints42.gridy = 36;
+			gridBagConstraints42.gridy = 35;
 			jLabel10 = new JLabel();
 			jLabel10.setText("Date Created");
 			GridBagConstraints gridBagConstraints32 = new GridBagConstraints();
+			gridBagConstraints32.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints32.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints32.gridy = 36;
+			gridBagConstraints32.gridy = 35;
 			gridBagConstraints32.weightx = 1.0;
 			gridBagConstraints32.anchor = GridBagConstraints.WEST;
 			gridBagConstraints32.gridwidth = 2;
 			gridBagConstraints32.gridx = 4;
 			GridBagConstraints gridBagConstraints24 = new GridBagConstraints();
+			gridBagConstraints24.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints24.gridx = 0;
 			gridBagConstraints24.anchor = GridBagConstraints.EAST;
-			gridBagConstraints24.gridy = 36;
+			gridBagConstraints24.gridy = 35;
 			jLabel9 = new JLabel();
 			jLabel9.setText("CreatedBy");
 			GridBagConstraints gridBagConstraints14 = new GridBagConstraints();
+			gridBagConstraints14.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints14.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints14.gridy = 36;
+			gridBagConstraints14.gridy = 35;
 			gridBagConstraints14.weightx = 1.0;
 			gridBagConstraints14.anchor = GridBagConstraints.WEST;
 			gridBagConstraints14.gridx = 1;
 			GridBagConstraints gridBagConstraints23 = new GridBagConstraints();
+			gridBagConstraints23.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints23.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints23.gridy = 38;
+			gridBagConstraints23.gridy = 37;
 			gridBagConstraints23.weightx = 1.0;
 			gridBagConstraints23.anchor = GridBagConstraints.WEST;
 			gridBagConstraints23.gridwidth = 2;
 			gridBagConstraints23.gridx = 4;
 			GridBagConstraints gridBagConstraints13 = new GridBagConstraints();
+			gridBagConstraints13.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints13.gridx = 3;
 			gridBagConstraints13.anchor = GridBagConstraints.EAST;
-			gridBagConstraints13.gridy = 38;
+			gridBagConstraints13.gridy = 37;
 			jLabel8 = new JLabel();
 			jLabel8.setText("Last Updated");
 			GridBagConstraints gridBagConstraints22 = new GridBagConstraints();
+			gridBagConstraints22.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints22.gridx = 0;
 			gridBagConstraints22.anchor = GridBagConstraints.NORTHEAST;
-			gridBagConstraints22.gridy = 22;
+			gridBagConstraints22.gridy = 21;
 			jLabel7 = new JLabel();
 			jLabel7.setText("Collectors");
 			GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
+			gridBagConstraints12.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints12.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints12.gridy = 38;
+			gridBagConstraints12.gridy = 37;
 			gridBagConstraints12.weightx = 1.0;
 			gridBagConstraints12.anchor = GridBagConstraints.NORTHWEST;
 			gridBagConstraints12.gridx = 1;
 			GridBagConstraints gridBagConstraints51 = new GridBagConstraints();
+			gridBagConstraints51.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints51.fill = GridBagConstraints.BOTH;
-			gridBagConstraints51.gridy = 22;
+			gridBagConstraints51.gridy = 21;
 			gridBagConstraints51.weightx = 1.0;
 			gridBagConstraints51.anchor = GridBagConstraints.WEST;
 			gridBagConstraints51.gridheight = 2;
 			gridBagConstraints51.gridwidth = 3;
 			gridBagConstraints51.gridx = 1;
 			GridBagConstraints gridBagConstraints41 = new GridBagConstraints();
+			gridBagConstraints41.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints41.gridx = 0;
 			gridBagConstraints41.fill = GridBagConstraints.NONE;
 			gridBagConstraints41.anchor = GridBagConstraints.NORTHEAST;
-			gridBagConstraints41.gridy = 38;
+			gridBagConstraints41.gridy = 37;
 			jLabel6 = new JLabel();
 			jLabel6.setText("LastUpdatedBy");
 			GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
+			gridBagConstraints31.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints31.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints31.gridy = 21;
+			gridBagConstraints31.gridy = 20;
 			gridBagConstraints31.weightx = 1.0;
 			gridBagConstraints31.anchor = GridBagConstraints.WEST;
 			gridBagConstraints31.gridwidth = 4;
 			gridBagConstraints31.gridx = 1;
 			GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
+			gridBagConstraints21.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints21.gridx = 0;
 			gridBagConstraints21.anchor = GridBagConstraints.EAST;
-			gridBagConstraints21.gridy = 21;
+			gridBagConstraints21.gridy = 20;
 			jLabel5 = new JLabel();
 			jLabel5.setText("Collection");
 			GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
+			gridBagConstraints10.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints10.gridx = 5;
 			gridBagConstraints10.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints10.gridy = 40;
+			gridBagConstraints10.gridy = 39;
 			gridBagConstraints10.weighty = 0.0;
 			GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
+			gridBagConstraints9.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints9.gridx = 0;
 			gridBagConstraints9.anchor = GridBagConstraints.EAST;
 			gridBagConstraints9.gridy = 11;
 			jLabel4 = new JLabel();
 			jLabel4.setText("Subspecies");
 			GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
+			gridBagConstraints8.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints8.gridx = 0;
 			gridBagConstraints8.anchor = GridBagConstraints.EAST;
 			gridBagConstraints8.gridy = 10;
 			jLabel3 = new JLabel();
 			jLabel3.setText("Species");
 			GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+			gridBagConstraints7.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints7.fill = GridBagConstraints.BOTH;
 			gridBagConstraints7.gridy = 19;
 			gridBagConstraints7.weightx = 1.0;
@@ -1093,6 +1190,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints7.gridwidth = 5;
 			gridBagConstraints7.gridx = 1;
 			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
+			gridBagConstraints5.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints5.fill = GridBagConstraints.BOTH;
 			gridBagConstraints5.gridy = 11;
 			gridBagConstraints5.weightx = 1.0;
@@ -1100,6 +1198,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints5.gridwidth = 3;
 			gridBagConstraints5.gridx = 1;
 			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
+			gridBagConstraints4.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints4.fill = GridBagConstraints.BOTH;
 			gridBagConstraints4.gridy = 10;
 			gridBagConstraints4.weightx = 1.0;
@@ -1107,6 +1206,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints4.gridwidth = 3;
 			gridBagConstraints4.gridx = 1;
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+			gridBagConstraints3.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints3.fill = GridBagConstraints.BOTH;
 			gridBagConstraints3.gridy = 9;
 			gridBagConstraints3.weightx = 1.0;
@@ -1114,6 +1214,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints3.gridwidth = 3;
 			gridBagConstraints3.gridx = 1;
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+			gridBagConstraints2.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints2.gridx = 0;
 			gridBagConstraints2.anchor = GridBagConstraints.EAST;
 			gridBagConstraints2.gridy = 9;
@@ -1123,12 +1224,14 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints11.gridx = 0;
 			gridBagConstraints11.gridy = 1;
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+			gridBagConstraints1.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints1.fill = GridBagConstraints.BOTH;
 			gridBagConstraints1.gridy = 0;
 			gridBagConstraints1.weightx = 1.0;
 			gridBagConstraints1.anchor = GridBagConstraints.WEST;
 			gridBagConstraints1.gridx = 1;
 			GridBagConstraints gridBagConstraints = new GridBagConstraints();
+			gridBagConstraints.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints.gridx = 0;
 			gridBagConstraints.anchor = GridBagConstraints.EAST;
 			gridBagConstraints.gridy = 0;
@@ -1145,6 +1248,49 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jPanel.add(getJTextField3(), gridBagConstraints7);
 			jPanel.add(jLabel3, gridBagConstraints8);
 			jPanel.add(jLabel4, gridBagConstraints9);
+			GridBagConstraints gridBagConstraints72 = new GridBagConstraints();
+			gridBagConstraints72.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints72.gridx = 0;
+			gridBagConstraints72.anchor = GridBagConstraints.EAST;
+			gridBagConstraints72.gridy = 26;
+			jLabel19 = new JLabel();
+			jLabel19.setText("Features");
+			jPanel.add(jLabel19, gridBagConstraints72);
+			GridBagConstraints gridBagConstraints17 = new GridBagConstraints();
+			gridBagConstraints17.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints17.fill = GridBagConstraints.VERTICAL;
+			gridBagConstraints17.gridy = 26;
+			gridBagConstraints17.weightx = 1.0;
+			gridBagConstraints17.anchor = GridBagConstraints.WEST;
+			gridBagConstraints17.gridx = 1;
+			jPanel.add(getJComboBoxFeatures(), gridBagConstraints17);
+			GridBagConstraints gridBagConstraints104 = new GridBagConstraints();
+			gridBagConstraints104.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints104.gridx = 3;
+			gridBagConstraints104.anchor = GridBagConstraints.EAST;
+			gridBagConstraints104.gridy = 26;
+			jLabel37 = new JLabel();
+			jLabel37.setText("Prep Type");
+			jPanel.add(jLabel37, gridBagConstraints104);
+			GridBagConstraints gridBagConstraints152 = new GridBagConstraints();
+			gridBagConstraints152.insets = new Insets(0, 0, 5, 0);
+			gridBagConstraints152.fill = GridBagConstraints.BOTH;
+			gridBagConstraints152.gridy = 26;
+			gridBagConstraints152.weightx = 1.0;
+			gridBagConstraints152.anchor = GridBagConstraints.WEST;
+			gridBagConstraints152.gridwidth = 3;
+			gridBagConstraints152.gridx = 4;
+			jPanel.add(getJTextFieldPrepType(), gridBagConstraints152);
+			
+			GridBagConstraints gridBagConstraintsPR = new GridBagConstraints();
+			gridBagConstraintsPR.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraintsPR.gridx = 0;
+			gridBagConstraintsPR.fill = GridBagConstraints.BOTH;
+			gridBagConstraintsPR.gridwidth = 6;
+			gridBagConstraintsPR.weighty = 1.0;
+			gridBagConstraintsPR.gridy = 27;	
+			
+			jPanel.add(getJScrollPaneSpecimenParts(),gridBagConstraintsPR);
 			jPanel.add(getJButton(), gridBagConstraints10);
 			jPanel.add(jLabel5, gridBagConstraints21);
 			jPanel.add(getJTextFieldCollection(), gridBagConstraints31);
@@ -1177,11 +1323,9 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jPanel.add(getJTextField5(), gridBagConstraints44);
 			jPanel.add(getJTextField15(), gridBagConstraints53);
 			jPanel.add(getJTextField24(), gridBagConstraints62);
-			jPanel.add(jLabel19, gridBagConstraints72);
 			jPanel.add(jLabel20, gridBagConstraints82);
 			jPanel.add(jLabel21, gridBagConstraints92);
 			jPanel.add(getJComboBoxSex(), gridBagConstraints102);
-			jPanel.add(getJComboBoxFeatures(), gridBagConstraints17);
 			jPanel.add(getJComboBoxLifeStage(), gridBagConstraints27);
 			jPanel.add(jLabel22, gridBagConstraints35);
 			jPanel.add(getJTextField6(), gridBagConstraints63);
@@ -1207,12 +1351,10 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jPanel.add(jLabel35, gridBagConstraints65);
 			jPanel.add(getJCheckBox(), gridBagConstraints83);
 			jPanel.add(jLabel36, gridBagConstraints94);
-			jPanel.add(jLabel37, gridBagConstraints104);
 			jPanel.add(jLabel38, gridBagConstraints114);
 			jPanel.add(jLabel39, gridBagConstraints123);
 			jPanel.add(jLabel40, gridBagConstraints133);
 			jPanel.add(getJTextField20(), gridBagConstraints142);
-			jPanel.add(getJTextField110(), gridBagConstraints152);
 			jPanel.add(getJTextField26(), gridBagConstraints162);
 			jPanel.add(getJTextField34(), gridBagConstraints172);
 			jPanel.add(jLabel41, gridBagConstraints115);
@@ -1444,6 +1586,52 @@ public class SpecimenDetailsViewPane extends JPanel {
 		}
 		return jTableCollectors;
 	}
+	
+	private JScrollPane getJScrollPaneSpecimenParts() {
+		if (jScrollPaneSpecimenParts == null) {
+			jScrollPaneSpecimenParts = new JScrollPane();
+			jScrollPaneSpecimenParts.setViewportView(getJTableSpecimenParts());
+			jScrollPaneSpecimenParts.setPreferredSize(new Dimension(0, 150));
+			jScrollPaneSpecimenParts.addKeyListener(new java.awt.event.KeyAdapter() {
+				public void keyTyped(java.awt.event.KeyEvent e) {
+					thisPane.setStateToDirty();
+				}
+			});
+		}
+		return jScrollPaneSpecimenParts;
+	}	
+	
+	private JTable getJTableSpecimenParts() { 
+		if (jTableSpecimenParts == null) {
+			try { 
+		        jTableSpecimenParts = new JTable(new SpecimenPartsTableModel(specimen.getSpecimenParts()));
+			} catch (NullPointerException e) { 
+			    jTableSpecimenParts = new JTable(new SpecimenPartsTableModel());
+			}
+			setSpecimenPartsTableCellEditors();
+		    log.debug(specimen.getSpecimenParts().size());
+		}
+		return jTableSpecimenParts;
+	}
+	
+    private void setSpecimenPartsTableCellEditors() { 
+        log.debug("Setting cell editors");
+		JComboBox comboBoxPart = new JComboBox();
+		comboBoxPart.addItem("whole animal");
+		comboBoxPart.addItem("partial animal");
+		getJTableSpecimenParts().getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(comboBoxPart));
+		JComboBox comboBoxPrep = new JComboBox();
+		comboBoxPrep.addItem("pinned");
+		comboBoxPrep.addItem("pointed");
+		comboBoxPrep.addItem("carded");
+		comboBoxPrep.addItem("capsule");
+		comboBoxPrep.addItem("envelope");
+		getJTableSpecimenParts().getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(comboBoxPrep));
+		
+		getJTableSpecimenParts().getColumnModel().getColumn(4).setCellRenderer(new ButtonRenderer());
+		getJTableSpecimenParts().getColumnModel().getColumn(4).setCellEditor(new ButtonEditor(ButtonEditor.OPEN_SPECIMENPARTATTRIBUTES, this));
+	    	
+    }
 
 	/**
 	 * This method initializes jTextField1	
@@ -2102,19 +2290,32 @@ public class SpecimenDetailsViewPane extends JPanel {
 	 * 	
 	 * @return javax.swing.JTextField	
 	 */
-	private JTextField getJTextField110() {
-		if (jTextFieldPreparationType == null) {
-			jTextFieldPreparationType = new JTextField();
-			jTextFieldPreparationType.setInputVerifier(
-					MetadataRetriever.getInputVerifier(Specimen.class, "PreparationType", jTextFieldPreparationType));
-			jTextFieldPreparationType.setToolTipText(MetadataRetriever.getFieldHelp(Specimen.class, "PreparationType"));
-			jTextFieldPreparationType.addKeyListener(new java.awt.event.KeyAdapter() {
-				public void keyTyped(java.awt.event.KeyEvent e) {
-					thisPane.setStateToDirty();
+	private JButton getJTextFieldPrepType() {
+		if (jButtonAddPreparationType == null) {
+			jButtonAddPreparationType = new JButton("Add Prep");
+			jButtonAddPreparationType.setMnemonic(KeyEvent.VK_P);
+			
+			jButtonAddPreparationType.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					log.debug("Adding new SpecimenPart");
+					SpecimenPart newPart = new SpecimenPart();
+					newPart.setPreserveMethod(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_DEFAULT_PREPARATION));
+					newPart.setSpecimenId(specimen);
+					SpecimenPartLifeCycle spls = new SpecimenPartLifeCycle();
+                    log.debug("Attaching new SpecimenPart");
+					try {
+						spls.persist(newPart);
+					    specimen.getSpecimenParts().add(newPart);
+					    ((AbstractTableModel)jTableSpecimenParts.getModel()).fireTableDataChanged();
+					    log.debug("Added new SpecimenPart");
+					} catch (SaveFailedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
-			});
+			});			
 		}
-		return jTextFieldPreparationType;
+		return jButtonAddPreparationType;
 	}
 
 	/**

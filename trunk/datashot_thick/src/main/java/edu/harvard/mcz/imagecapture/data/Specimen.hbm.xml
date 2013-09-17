@@ -115,9 +115,6 @@
         <property name="sex" type="string">
             <column name="Sex" length="50" />
         </property>        
-        <property name="preparationType" type="string">
-            <column name="PreparationType" length="50" />
-        </property>
         <property name="habitat" type="string">
             <column name="Habitat" length="900" />
         </property>
@@ -186,6 +183,12 @@
                 <column name="SpecimenId" />
             </key>
             <one-to-many class="edu.harvard.mcz.imagecapture.data.ICImage" />
+        </set>
+        <set name="specimenParts" inverse="true" cascade="all" fetch="subselect" lazy="false">
+            <key>
+                <column name="SpecimenId" />
+            </key>
+            <one-to-many class="edu.harvard.mcz.imagecapture.data.SpecimenPart" />
         </set>
     </class>
 </hibernate-mapping>
