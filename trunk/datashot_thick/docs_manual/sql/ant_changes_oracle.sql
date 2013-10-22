@@ -72,3 +72,17 @@ BEGIN
 END;
 /
 ALTER TRIGGER "LEPIDOPTERA"."TRG_SPATTR_TIMESTAMP" ENABLE;
+
+insert into Specimen_Part (SpecimenId, Part_name, Preserve_Method, Lot_Count)
+     select specimenid, 'whole animal', lcase(PreparationType), 1 from Specimen;
+
+alter table Specimen drop column PreparationType;
+alter table Specimen change column ISODate ISODate varchar(32 CHAR) default '';
+
+
+--  create public synonym mczbase_geog_auth_rec for geog_auth_rec@mczbase_auth;
+create synonym lepidoptera.mczbase_geog_auth_rec for geog_auth_rec@mczbase_auth;
+
+
+ALTER TABLE LEPIDOPTERA.SPECIMEN 
+ADD (HIGHER_GEOGRAPHY VARCHAR2(255 CHAR) );

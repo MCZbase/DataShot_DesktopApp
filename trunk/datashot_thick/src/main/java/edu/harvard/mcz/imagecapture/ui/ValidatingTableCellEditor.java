@@ -17,7 +17,7 @@
  * 
  * Author: Paul J. Morris
  */
-package edu.harvard.mcz.imagecapture;
+package edu.harvard.mcz.imagecapture.ui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -25,6 +25,8 @@ import java.awt.Component;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+
+import edu.harvard.mcz.imagecapture.MainFrame;
 
 
 /** ValidatingTableCellEditor provides a JTextField with an inputVerifier as a

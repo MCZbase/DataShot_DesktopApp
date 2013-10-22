@@ -262,24 +262,29 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 					}
 				}
 
+				UnitTrayLabel labelRead = null;
 				try {
-					// OCR and parse UnitTray Label
+					// Read unitTrayLabelBarcode, failover to OCR and parse UnitTray Label
 					rawOCR = "";
-					UnitTrayLabel labelRead = null;
-					try { 
-						labelRead = scannableFile.getLabelQRText(new PositionTemplate("Test template 2"));
-					} catch (NoSuchTemplateException e) {
+					labelRead = scannableFile.getLabelQRText(defaultTemplate);
+					if (labelRead==null) { 
 						try { 
-						    labelRead = scannableFile.getLabelQRText(new PositionTemplate("Small template 2"));
+							labelRead = scannableFile.getLabelQRText(new PositionTemplate("Test template 2"));
 						} catch (NoSuchTemplateException e1) {
-							log.error("Neither Test template 2 nor Small template 2 found");
+							try { 
+								labelRead = scannableFile.getLabelQRText(new PositionTemplate("Small template 2"));
+							} catch (NoSuchTemplateException e2) {
+							     log.error("None of " + defaultTemplate.getName() + " Test template 2 or Small template 2 were found");
+							}
 						}
+					} else { 
+						log.debug("Translated UnitTrayBarcode to: " + labelRead.toJSONString());
 					}
 					if (labelRead!=null) { 
 						rawOCR = labelRead.toJSONString();
 					} else { 
 						log.debug("Failing over to OCR with tesseract");
-					   rawOCR = scannableFile.getLabelOCRText(defaultTemplate);
+					    rawOCR = scannableFile.getLabelOCRText(defaultTemplate);
 					}
 					log.debug(rawOCR);
 					resultFrame.setRawOCRLabel(rawOCR);
@@ -309,16 +314,6 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 					Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Connecting to database.");
 					// try to parse the raw OCR					
 					TaxonNameReturner parser = null;
-					UnitTrayLabel labelRead = null;
-					try { 
-						labelRead = scannableFile.getLabelQRText(new PositionTemplate("Test template 2"));
-					} catch (NoSuchTemplateException e) {
-						try { 
-						    labelRead = scannableFile.getLabelQRText(new PositionTemplate("Small template 2"));
-						} catch (NoSuchTemplateException e1) {
-							log.error("Neither Test template 2 nor Small template 2 found");
-						}
-					}
 					if (labelRead!=null) { 
 						rawOCR = labelRead.toJSONString();
 						state = WorkFlowStatus.STAGE_1;
@@ -563,11 +558,13 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 							e.printStackTrace();
 						}
 						if (isSpecimenImage) { 
-							System.out.println(existing.getSpecimen().getBarcode());
 							SpecimenControler controler = null;
 							try {
 								controler = new SpecimenControler(existing.getSpecimen());
 								controler.setTargetFrame(resultFrame);
+								System.out.println(existing.getSpecimen().getBarcode());
+							} catch (NullPointerException e1) { 
+								log.debug("Specimen barcode not set");
 							} catch (NoSuchRecordException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();

@@ -31,6 +31,9 @@ import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.Users;
 import edu.harvard.mcz.imagecapture.data.UsersLifeCycle;
 import edu.harvard.mcz.imagecapture.data.UsersTableModel;
+import edu.harvard.mcz.imagecapture.ui.ButtonEditor;
+import edu.harvard.mcz.imagecapture.ui.ButtonRenderer;
+
 import javax.swing.JButton;
 import javax.swing.JToolBar;
 

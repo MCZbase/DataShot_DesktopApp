@@ -17,7 +17,7 @@
  * 
  * Author: Paul J. Morris
  */
-package edu.harvard.mcz.imagecapture;
+package edu.harvard.mcz.imagecapture.ui;
 
 import java.awt.Component;
 import java.awt.Cursor;
@@ -34,6 +34,12 @@ import javax.swing.table.TableCellEditor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.harvard.mcz.imagecapture.PositionTemplateEditor;
+import edu.harvard.mcz.imagecapture.Singleton;
+import edu.harvard.mcz.imagecapture.SpecimenBrowser;
+import edu.harvard.mcz.imagecapture.SpecimenControler;
+import edu.harvard.mcz.imagecapture.SpecimenPartAttributeDialog;
+import edu.harvard.mcz.imagecapture.UserListBrowser;
 import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.SpecimenListTableModel;
 import edu.harvard.mcz.imagecapture.data.SpecimenPart;
@@ -57,7 +63,7 @@ import edu.harvard.mcz.imagecapture.interfaces.DataChangeListener;
  *
  * @see edu.harvard.mcz.imagecapture.data.SpecimenListTableModel#isCellEditable(int, int)
  * @see edu.harvard.mcz.imagecapture.data.SpecimenListTableModel#getColumnClass(int)
- * @see edu.harvard.mcz.imagecapture.ButtonRenderer 
+ * @see edu.harvard.mcz.imagecapture.ui.ButtonRenderer 
  * 
  * @author Paul J. Morris
  *

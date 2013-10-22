@@ -358,6 +358,8 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 					        String message = "Finished creating thumbnails in: " + startPoint.getPath();
 					        Singleton.getSingletonInstance().getMainFrame().setStatusMessage(message); 
 					        log.debug(message);
+						} else { 
+							log.error("Error returned running " + runCommand);
 						}
 					} catch (IOException e) {
 						log.error("Error running: " + runCommand);
@@ -405,7 +407,9 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 					}
 				} else { 
 					// check JPEG files for barcodes 
-					if (fileToCheck.getName().matches(ImageCaptureApp.REGEX_IMAGEFILE)) {
+					if (!fileToCheck.getName().matches(ImageCaptureApp.REGEX_IMAGEFILE)) {
+						log.debug("Skipping file [" + fileToCheck.getName() +  "], doesn't match expected filename pattern " + ImageCaptureApp.REGEX_IMAGEFILE );
+					} else { 
 						if (firstFile==null) { firstFile = fileToCheck.getName(); } 
 						lastFile = fileToCheck.getName();
 						Singleton.getSingletonInstance().getProperties().getProperties().setProperty(ImageCaptureProperties.KEY_LASTPATH, fileToCheck.getPath());
@@ -427,9 +431,9 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 								tryMe.setPath(path);
 								List <ICImage> matches = imageCont.findByExample(tryMe);
 								if (matches!=null && matches.size()==0) {
+									// No database record for this file.
 									String templateId = detector.detectTemplateForImage(fileToCheck);
 									log.debug("Template: " + templateId);
-									// No database record for this file.
 									PositionTemplate template = new PositionTemplate(templateId);
 									// Found a barcode in a templated position in the image.
 									// Scan the file based on this template.
@@ -445,13 +449,16 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 									String rawOCR = "";
 									UnitTrayLabel labelRead = null;
 									String state = WorkFlowStatus.STAGE_0;
-									try { 
-										labelRead = scannableFile.getLabelQRText(new PositionTemplate("Test template 2"));
-									} catch (NoSuchTemplateException e) {
+									labelRead = scannableFile.getLabelQRText(template);
+									if (labelRead==null) { 
 										try { 
-											labelRead = scannableFile.getLabelQRText(new PositionTemplate("Small template 2"));
-										} catch (NoSuchTemplateException e1) {
-											log.error("Neither Test template 2 nor Small template 2 found");
+											labelRead = scannableFile.getLabelQRText(new PositionTemplate("Test template 2"));
+										} catch (NoSuchTemplateException e) {
+											try { 
+												labelRead = scannableFile.getLabelQRText(new PositionTemplate("Small template 2"));
+											} catch (NoSuchTemplateException e1) {
+												log.error("Neither Test template 2 nor Small template 2 found");
+											}
 										}
 									}
 									if (labelRead!=null) { 
@@ -644,14 +651,14 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 											counter.incrementSpecimens();
 	                						s.attachNewPart();
 										} catch (SpecimenExistsException e) {
-											log.debug(e);
+											log.debug(e.getMessage());
 											// Expected case on scanning a second image for a specimen.
 											// Doesn't need to be reported as a parsing error.
 										} catch (SaveFailedException e) { 
 											// Couldn't save for some reason other than the
 											// specimen record already existing.  Check for possible 
 											// save problems resulting from parsing errors.
-											log.debug(e);
+											log.debug(e.getMessage());
 											try { 
 												Specimen checkSpecimen = new Specimen();
 												checkSpecimen.setBarcode(barcode);

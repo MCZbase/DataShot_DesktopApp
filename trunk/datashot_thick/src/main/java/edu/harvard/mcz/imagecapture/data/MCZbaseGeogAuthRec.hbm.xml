@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 23, 2009 8:12:35 AM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="edu.harvard.mcz.imagecapture.data.MCZbaseGeogAuthRec" table="MCZBASE_GEOG_AUTH_REC" catalog="lepidoptera">
+        <id name="geog_auth_rec_id" type="java.lang.Long">
+            <column name="GEOG_AUTH_REC_ID" />
+            <generator class="native" >
+            </generator>
+        </id>
+        <property name="continent_ocean" type="string">
+            <column name="CONTINENT_OCEAN"  length="70" />
+        </property>
+        <property name="country" type="string">
+            <column name="COUNTRY" length="70" />
+        </property>
+        <property name="state_prov" type="string">
+            <column name="STATE_PROV" length="75" />
+        </property>
+        <property name="county" type="string">
+            <column name="COUNTY" length="70" />
+        </property>
+        <property name="quad" type="string">
+            <column name="QUAD" length="30" />
+        </property>
+        <property name="feature" type="string">
+            <column name="FEATURE" length="50" />
+        </property>
+        <property name="island" type="string">
+            <column name="ISLAND" length="50" />
+        </property>
+        <property name="island_group" type="string">
+            <column name="ISLAND_GROUP" length="50" />
+        </property>
+        <property name="sea" type="string">
+            <column name="SEA" length="50" />
+        </property>
+        <property name="valid_catalog_term_fg" type="int">
+            <column name="VALID_CATALOG_TERM_FG" />
+        </property>
+        <property name="source_authority" type="string">
+            <column name="" length="45" />
+        </property>
+        <property name="higher_geog" type="string">
+            <column name="HIGHER_GEOG" length="255" />
+        </property>
+        <property name="ocean_region" type="string">
+            <column name="OCEAN_REGION" length="50" />
+        </property>
+        <property name="ocean_subregion" type="string">
+            <column name="OCEAN_SUBREGION" length="50" />
+        </property>
+    </class>
+</hibernate-mapping> 

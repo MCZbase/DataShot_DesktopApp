@@ -44,6 +44,7 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 	
 	public static final String KEY_LASTPATH = "scanonebarcode.lastpath";
 	public static final String KEY_IMAGEBASE = "images.basedirectory";
+	public static final String KEY_IMAGERESCALE = "images.barcoderescalesize";
 	public static final String KEY_TEMPLATEDEFAULT = "template.default";
 	public static final String KEY_TESSERACT_EXECUTABLE = "program.tesseract";
 	public static final String KEY_CONVERT_EXECUTABLE = "program.convert";
@@ -52,6 +53,7 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 	public static final String KEY_DETAILS_SCROLL = "details.scroll";
 	public static final String KEY_ENABLE_BROWSE = "browse.enabled";
 	public static final String KEY_DEFAULT_PREPARATION = "default.preparation";
+	public static final String KEY_FILTER_LENGTH_THRESHOLD = "picklist.filterlength";
 	
 	public static final String VALUE_DETAILS_SCROLL_FORCE_ON = "on";
 	
@@ -301,6 +303,10 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 			// Root of the path of the place where all image files should be stored.
 			properties.setProperty(KEY_IMAGEBASE,"/mount/lepidopteraimages");	
 		}
+		if (!properties.containsKey(KEY_IMAGERESCALE))  {
+			// Size to which to rescale width of unit tray label barcode to on retry.
+			properties.setProperty(KEY_IMAGERESCALE,"400");	
+		}
 		if (!properties.containsKey(KEY_TEMPLATEDEFAULT)) {
 			// PostitionTemplate to use by default
 		    properties.setProperty(KEY_TEMPLATEDEFAULT, PositionTemplate.TEMPLATE_DEFAULT);
@@ -331,6 +337,10 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 		if (!properties.containsKey(KEY_DEFAULT_PREPARATION)) { 
 			// default value is disabled browse on main menu.
 			properties.setProperty(KEY_DEFAULT_PREPARATION, "pinned");
+		}		
+		if (!properties.containsKey(KEY_FILTER_LENGTH_THRESHOLD)) { 
+			// default value is disabled browse on main menu.
+			properties.setProperty(KEY_FILTER_LENGTH_THRESHOLD, "3");
 		}		
 		
 	}

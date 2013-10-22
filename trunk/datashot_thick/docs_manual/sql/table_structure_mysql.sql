@@ -42,7 +42,7 @@ CREATE TABLE Specimen
     SpecimenNotes            TEXT,
     LifeStage                VARCHAR(50),
     Sex                      VARCHAR(50),
-    PreparationType          VARCHAR(50),
+--    PreparationType          VARCHAR(50),
     Habitat                  VARCHAR(900),
     AssociatedTaxon          VARCHAR(900),
     Questions                VARCHAR(900),

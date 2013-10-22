@@ -260,11 +260,16 @@ public class UnitTrayLabel implements TaxonNameReturner, DrawerNameReturner, Col
 				log.debug(jsonEncodedLabel);
 				result = new UnitTrayLabel();
 				// Beginning and end are special case for split on '", "'
-				// remove leading ' "' and trailing '" ' 
-				jsonEncodedLabel = jsonEncodedLabel.replaceFirst("^ \"", "");  // Strip off leading space quote
-				jsonEncodedLabel = jsonEncodedLabel.replaceFirst("\" $", "");  // Strip off trailing quote space
-				// split into key value parts by '", "'
-			    String[] pairs = jsonEncodedLabel.split("\", \"");
+				// remove leading quotes and spaces (e.g. either trailing '" ' or trailing '"').
+				jsonEncodedLabel = jsonEncodedLabel.replaceFirst("^ ", "");  // Strip off leading space 
+				jsonEncodedLabel = jsonEncodedLabel.replaceFirst(" $", "");  // Strip off trailing space
+				jsonEncodedLabel = jsonEncodedLabel.replaceFirst("^\"", "");  // Strip off leading quote
+				jsonEncodedLabel = jsonEncodedLabel.replaceFirst("\"$", "");  // Strip off trailing quote
+				// Convert any ", " into "," then split on ","
+				jsonEncodedLabel = jsonEncodedLabel.replaceAll("\",\\s\"", "\",\"");
+				log.debug(jsonEncodedLabel);
+				// split into key value parts by '","'
+			    String[] pairs = jsonEncodedLabel.split("\",\"");
 			    for (int x=0; x< pairs.length; x++) {
 			    	// split each key value pair
 			    	String[] keyValuePair = pairs[x].split("\":\"");
@@ -291,6 +296,7 @@ public class UnitTrayLabel implements TaxonNameReturner, DrawerNameReturner, Col
 			    		} 
 			    	}
 			    }
+			    log.debug(result.toJSONString());
 		    }
 	    } else {
 	    	log.debug("JSON not matched to { }");

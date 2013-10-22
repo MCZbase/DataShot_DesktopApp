@@ -67,6 +67,9 @@
         <property name="identifiedBy" type="string">
             <column name="IdentifiedBy" />
         </property>
+        <property name="higherGeography" type="string">
+            <column name="higher_geography" length="255" />
+        </property>        
         <property name="country" type="string">
             <column name="Country" />
         </property>
@@ -86,7 +89,7 @@
             <column name="CollectingMethod" />
         </property>
         <property name="isoDate" type="string">
-            <column name="ISODate" length="10" />
+            <column name="ISODate" length="32" />
         </property>
         <property name="dateNos" type="string">
             <column name="DateNOS" length="32" />
