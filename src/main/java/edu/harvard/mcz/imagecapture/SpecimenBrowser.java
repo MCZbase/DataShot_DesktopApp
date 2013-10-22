@@ -34,6 +34,8 @@ import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
 import edu.harvard.mcz.imagecapture.data.SpecimenListTableModel;
 import edu.harvard.mcz.imagecapture.data.WorkFlowStatus;
 import edu.harvard.mcz.imagecapture.interfaces.DataChangeListener;
+import edu.harvard.mcz.imagecapture.ui.ButtonEditor;
+import edu.harvard.mcz.imagecapture.ui.ButtonRenderer;
 
 import java.awt.GridBagLayout;
 import javax.swing.JLabel;

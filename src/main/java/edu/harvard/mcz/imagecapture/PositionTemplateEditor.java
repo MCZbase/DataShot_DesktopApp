@@ -58,6 +58,8 @@ import edu.harvard.mcz.imagecapture.data.ICImageLifeCycle;
 import edu.harvard.mcz.imagecapture.exceptions.BadTemplateException;
 import edu.harvard.mcz.imagecapture.exceptions.NoSuchTemplateException;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
+import edu.harvard.mcz.imagecapture.ui.ButtonEditor;
+import edu.harvard.mcz.imagecapture.ui.ButtonRenderer;
 
 /** PositionTemplateEditor allows viewing and creation of position templates indicating which portions 
  * of an image file contain a barcode, OCR text, a specimen, labels from the unit tray, and labels from

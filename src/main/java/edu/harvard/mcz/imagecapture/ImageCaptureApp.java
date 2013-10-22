@@ -63,7 +63,7 @@ public class ImageCaptureApp {
 	
 	private static final Log log = LogFactory.getLog(ImageCaptureApp.class);
 	
-	public static final String APP_VERSION = "0.4.0";
+	public static final String APP_VERSION = "0.4.2";
 	public static final String APP_NAME = "RapidCapture";
 	public static final String APP_DESCRIPTION = "Rapid capture of data from images of pin Labels and pinned insect \nspecimens developed for the MCZ Lepidoptera collection";
 	public static final String APP_COPYRIGHT = "Copyright © 2009-2013 President and Fellows of Harvard College";
@@ -98,10 +98,12 @@ public class ImageCaptureApp {
      */
     public static final String REGEX_IMAGEFILE = "^IMG_[0-9]{6}\\.JPG$";
     
+    // ^([12][0-9]{3}((/[01][0-9]){1}(/[0-3][0-9])?)?)?\-?([12][0-9]{3}((/[01][0-9]){1}(/[0-3][0-9])?)?)??$
+    
     /**
      * Match blank, or year or year/month or year/month/day.
      */
-    public static final String REGEX_DATE = "^([12][0-9]{3}((/[01][0-9]){1}(/[0-3][0-9])?)?)??$";
+    public static final String REGEX_DATE = "^([12][0-9]{3}((/[01][0-9]){1}(/[0-3][0-9])?)?)?(\\-([12][0-9]{3}((/[01][0-9]){1}(/[0-3][0-9])?)?)?)??$";
       
     /**
      * Code for a normal exit, pass to ImageCaptureApp.exit(EXIT_NORMAL).

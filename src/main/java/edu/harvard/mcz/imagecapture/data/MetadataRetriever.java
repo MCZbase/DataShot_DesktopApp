@@ -190,7 +190,7 @@ public class MetadataRetriever {
             if (fieldname.equalsIgnoreCase("VerbatimLocality")) { length=65535; }
             if (fieldname.equalsIgnoreCase("VerbatimElevation")) { length=255; }
             if (fieldname.equalsIgnoreCase("CollectingMethod")) { length=255; }
-            if (fieldname.equalsIgnoreCase("ISODate")) { length=10; }
+            if (fieldname.equalsIgnoreCase("ISODate")) { length=21; }
             if (fieldname.equalsIgnoreCase("DateNOS")) { length=32; }
             if (fieldname.equalsIgnoreCase("DateEmerged")) { length=32; }
             if (fieldname.equalsIgnoreCase("DateEmergedIndicator")) { length=50; }
@@ -283,12 +283,12 @@ public class MetadataRetriever {
             if (fieldname.equalsIgnoreCase("IdentifiedBy")) { help="Name of the person, if known, who made this identification."; }
             if (fieldname.equalsIgnoreCase("Country")) { help="The country from which this specimen was collected.  Infer if you have specialist knowledge and annotate in Inferences"; }
             if (fieldname.equalsIgnoreCase("PrimaryDivison")) { help="The state, province, or other primary geopolitical division of the country from which this specimen was collected.  Infer if you have specialist knowlege and annotate in Inferences"; }
-            if (fieldname.equalsIgnoreCase("SpecificLocality")) { help="Placenames, offsets, and other text describing where this specimen was collected."; }
+            if (fieldname.equalsIgnoreCase("SpecificLocality")) { help="Placenames, offsets, and other text describing where this specimen was collected.  Press button to use '[no specific locality data]' when there are no specific locality data."; }
             if (fieldname.equalsIgnoreCase("VerbatimLocality")) { help="Verbatim transcription of locality information found on this specimen's labels."; }
             if (fieldname.equalsIgnoreCase("VerbatimElevation")) { help="Verbatim transcription of elevation information, including units, found on this specimen's labels"; }
             if (fieldname.equalsIgnoreCase("CollectingMethod")) { help="If specified on a label, the method by which this specimen was collected."; }
             if (fieldname.equalsIgnoreCase("DateNOS")) { help="The default date field, a verbatim date associated with this specimen that isn't marked as either a date collected or date emerged, and might be either of these or some other date."; }
-            if (fieldname.equalsIgnoreCase("ISODate")) { help="The date collected or the default date in ISO date format yyyy/mm/dd."; }
+            if (fieldname.equalsIgnoreCase("ISODate")) { help="The date collected or the default date in ISO date format yyyy/mm/dd. Optionally, a range yyyy/mm/dd-yyyy/mm/dd"; }
             if (fieldname.equalsIgnoreCase("DateEmerged")) { help="The date at which this butterfly emerged."; }
             if (fieldname.equalsIgnoreCase("DateEmergedIndicator")) { help="The verbatim text from the label that indicates that this is a date emerged."; }
             if (fieldname.equalsIgnoreCase("DateCollected")) { help="The date at which this butterfly was collected from the wild."; }

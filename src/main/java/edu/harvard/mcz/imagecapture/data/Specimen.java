@@ -41,6 +41,7 @@ public class Specimen implements java.io.Serializable {
 	private String unNamedForm;
 	//private String identificationQualifier;
 	private String identifiedBy;
+	private String higherGeography;
 	private String country;
 	private String primaryDivison;
 	private String specificLocality;
@@ -383,6 +384,20 @@ public class Specimen implements java.io.Serializable {
 
 	public void setIdentifiedBy(String identifiedBy) {
 		this.identifiedBy = identifiedBy;
+	}
+
+	/**
+	 * @return the higherGeography
+	 */
+	public String getHigherGeography() {
+		return higherGeography;
+	}
+
+	/**
+	 * @param higherGeography the higherGeography to set
+	 */
+	public void setHigherGeography(String higherGeography) {
+		this.higherGeography = higherGeography;
 	}
 
 	public String getCountry() {
@@ -745,6 +760,15 @@ public class Specimen implements java.io.Serializable {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Set the value of specificLocality to a string that has a meaning
+	 * of there being no specific locality data.  MCZbase requires a 
+	 * non-null value for specific locality on bulkloader ingest.
+	 */
+	public void noSpecificLocalityData() { 
+		this.specificLocality = "[no specific locality data]";
 	}
 
 }

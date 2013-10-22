@@ -30,6 +30,9 @@ import java.awt.GridBagConstraints;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import edu.harvard.mcz.imagecapture.ui.ButtonEditor;
+import edu.harvard.mcz.imagecapture.ui.ButtonRenderer;
+
 /** RunnableJobFrame
  * 
  * @author Paul J. Morris

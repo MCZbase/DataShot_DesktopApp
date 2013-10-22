@@ -35,6 +35,8 @@ import edu.harvard.mcz.imagecapture.data.ICImage;
 import edu.harvard.mcz.imagecapture.data.ICImageListTableModel;
 import edu.harvard.mcz.imagecapture.data.ICImageLifeCycle;
 import edu.harvard.mcz.imagecapture.data.Specimen;
+import edu.harvard.mcz.imagecapture.ui.ButtonEditor;
+import edu.harvard.mcz.imagecapture.ui.ButtonRenderer;
 
 import java.awt.GridBagLayout;
 import javax.swing.JLabel;

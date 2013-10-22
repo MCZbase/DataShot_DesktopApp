@@ -127,9 +127,9 @@ public class SpecimenLifeCycle {
 	 * @param instance
 	 */
 	public void attachClean(Specimen instance) {
-		log.debug(instance.getSpecimenParts().size());
 		try { 
-		     log.debug(((SpecimenPart)instance.getSpecimenParts().toArray()[0]).getPartAttributeValuesConcat());
+			log.debug(instance.getSpecimenParts().size());
+		    log.debug(((SpecimenPart)instance.getSpecimenParts().toArray()[0]).getPartAttributeValuesConcat());
 		} catch (Exception e) {
 			 log.debug(e.getMessage());
 		} 
