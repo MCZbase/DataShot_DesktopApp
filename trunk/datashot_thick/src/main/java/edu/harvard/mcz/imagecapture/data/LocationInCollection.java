@@ -11,9 +11,10 @@ package edu.harvard.mcz.imagecapture.data;
 public class LocationInCollection {
 
 	public static final String GENERAL = "General Lepidoptera Collection";
+	public static final String GENERALANT = "General Ant Collection";
 	
 	public static String[] getLocationInCollectionValues() { 
-		String [] values = {GENERAL, "Type Collection", "Nabokov Collection", "Slide Collection"}; 
+		String [] values = {GENERAL, GENERALANT, "Type Collection", "Nabokov Collection", "Slide Collection"}; 
 		return values;
 	}
 }

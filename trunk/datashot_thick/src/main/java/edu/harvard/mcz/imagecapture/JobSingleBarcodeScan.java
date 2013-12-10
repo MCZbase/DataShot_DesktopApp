@@ -395,37 +395,39 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 							    s.setBarcode(barcode);
 							}
 							s.setWorkFlowStatus(state);
-							// Look up likely matches for the OCR of the higher taxa in the HigherTaxon authority file.
-							HigherTaxonLifeCycle hls = new HigherTaxonLifeCycle();
-							if (parser.getTribe().trim().equals("")) {	
-								if (hls.isMatched(parser.getFamily(), parser.getSubfamily()))  {
-									// If there is a match, use it.
-									String[] higher = hls.findMatch(parser.getFamily(), parser.getSubfamily());
-									s.setFamily(higher[0]);
-									s.setSubfamily(higher[1]);
+							if (state.equals(WorkFlowStatus.STAGE_0)) { 
+								// Look up likely matches for the OCR of the higher taxa in the HigherTaxon authority file.
+								HigherTaxonLifeCycle hls = new HigherTaxonLifeCycle();
+								if (parser.getTribe().trim().equals("")) {	
+									if (hls.isMatched(parser.getFamily(), parser.getSubfamily()))  {
+										// If there is a match, use it.
+										String[] higher = hls.findMatch(parser.getFamily(), parser.getSubfamily());
+										s.setFamily(higher[0]);
+										s.setSubfamily(higher[1]);
+									} else { 
+										// otherwise use the raw OCR output.
+										s.setFamily(parser.getFamily());
+										s.setSubfamily(parser.getSubfamily());
+									}
+									s.setTribe("");
 								} else { 
-									// otherwise use the raw OCR output.
-									s.setFamily(parser.getFamily());
-									s.setSubfamily(parser.getSubfamily());
+									if (hls.isMatched(parser.getFamily(), parser.getSubfamily(),parser.getTribe()))  {
+										String[] higher = hls.findMatch(parser.getFamily(), parser.getSubfamily(),parser.getTribe());
+										s.setFamily(higher[0]);
+										s.setSubfamily(higher[1]);
+										s.setTribe(higher[2]);
+									} else { 
+										s.setFamily(parser.getFamily());
+										s.setSubfamily(parser.getSubfamily());
+										s.setTribe(parser.getTribe());
+									}					
 								}
-								s.setTribe("");
-							} else { 
-								if (hls.isMatched(parser.getFamily(), parser.getSubfamily(),parser.getTribe()))  {
-									String[] higher = hls.findMatch(parser.getFamily(), parser.getSubfamily(),parser.getTribe());
-									s.setFamily(higher[0]);
-									s.setSubfamily(higher[1]);
-									s.setTribe(higher[2]);
-								} else { 
-									s.setFamily(parser.getFamily());
-									s.setSubfamily(parser.getSubfamily());
-									s.setTribe(parser.getTribe());
-								}					
-							}
-							if (!parser.getFamily().equals(""))  {
-								// check family against database (with a soundex match)
-								String match = hls.findMatch(parser.getFamily()); 
-								if (match!=null && !match.trim().equals("")) { 
-									s.setFamily(match);
+								if (!parser.getFamily().equals(""))  {
+									// check family against database (with a soundex match)
+									String match = hls.findMatch(parser.getFamily()); 
+									if (match!=null && !match.trim().equals("")) { 
+										s.setFamily(match);
+									}
 								}
 							}
 							// trim family to fit (in case multiple parts of taxon name weren't parsed
@@ -433,6 +435,7 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 							if (s.getFamily().length()>40) { 
 								s.setFamily(s.getFamily().substring(0,40));
 							}
+							
 							s.setGenus(parser.getGenus());
 							s.setSpecificEpithet(parser.getSpecificEpithet());
 							s.setSubspecificEpithet(parser.getSubspecificEpithet());
@@ -444,7 +447,22 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 							log.debug(s.getCollection());
 
 							// TODO: non-general workflows
+							
+							// ********* Special Cases **********
+							if (s.getWorkFlowStatus().equals(WorkFlowStatus.STAGE_0)) { 
+								// ***** Special case, images in ent-formicidae 
+								//       get family set to Formicidae if in state OCR.
+								if (path.contains("formicidae")) { 
+									s.setFamily("Formicidae");
+								}
+							}
 							s.setLocationInCollection(LocationInCollection.GENERAL);
+							if (s.getFamily().equals("Formicidae")) { 
+								// ***** Special case, families in Formicidae are in Ant collection
+							    s.setLocationInCollection(LocationInCollection.GENERALANT);
+							}
+							// ********* End Special Cases **********
+							
 							s.setCreatedBy(ImageCaptureApp.APP_NAME + " " + ImageCaptureApp.APP_VERSION);
 							SpecimenLifeCycle sh = new SpecimenLifeCycle();
 							try { 

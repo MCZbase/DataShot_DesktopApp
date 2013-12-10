@@ -419,7 +419,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 						// scan file for barcodes and ocr of unit tray label text
 						CandidateImageFile scannableFile = null;
 						try {
-							PositionTemplateDetector detector = new DefaultPositionTemplateDetector();
+							PositionTemplateDetector detector = new MCZBarcodePositionTemplateDetector();
 							boolean isSpecimenImage = false;
 							boolean isDrawerImage = false;
 							try {
@@ -432,11 +432,13 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 								List <ICImage> matches = imageCont.findByExample(tryMe);
 								if (matches!=null && matches.size()==0) {
 									// No database record for this file.
+									
+									// ** Identify the template.
 									String templateId = detector.detectTemplateForImage(fileToCheck);
-									log.debug("Template: " + templateId);
+									log.debug("Detected Template: " + templateId);
 									PositionTemplate template = new PositionTemplate(templateId);
 									// Found a barcode in a templated position in the image.
-									// Scan the file based on this template.
+									// ** Scan the file based on this template.
 									scannableFile = new CandidateImageFile(fileToCheck, template);
 									String barcode = scannableFile.getBarcodeText(template);
 									if (scannableFile.getBarcodeStatus()!=CandidateImageFile.RESULT_BARCODE_SCANNED) {
@@ -590,39 +592,43 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 											s.setBarcode(barcode);
 										}
 										s.setWorkFlowStatus(state);
-										// Look up likely matches for the OCR of the higher taxa in the HigherTaxon authority file.
-										if (parser.getTribe().trim().equals("")) {	
-											HigherTaxonLifeCycle hls = new HigherTaxonLifeCycle();
-											if (hls.isMatched(parser.getFamily(), parser.getSubfamily()))  {
-												// If there is a match, use it.
-												String[] higher = hls.findMatch(parser.getFamily(), parser.getSubfamily());
-												s.setFamily(higher[0]);
-												s.setSubfamily(higher[1]);
+										
+										if (state.equals(WorkFlowStatus.STAGE_0)) { 
+											// Look up likely matches for the OCR of the higher taxa in the HigherTaxon authority file.
+
+											if (parser.getTribe().trim().equals("")) {	
+												HigherTaxonLifeCycle hls = new HigherTaxonLifeCycle();
+												if (hls.isMatched(parser.getFamily(), parser.getSubfamily()))  {
+													// If there is a match, use it.
+													String[] higher = hls.findMatch(parser.getFamily(), parser.getSubfamily());
+													s.setFamily(higher[0]);
+													s.setSubfamily(higher[1]);
+												} else { 
+													// otherwise use the raw OCR output.
+													s.setFamily(parser.getFamily());
+													s.setSubfamily(parser.getSubfamily());
+												}
+												s.setTribe("");
 											} else { 
-												// otherwise use the raw OCR output.
-												s.setFamily(parser.getFamily());
-												s.setSubfamily(parser.getSubfamily());
+												HigherTaxonLifeCycle hls = new HigherTaxonLifeCycle();
+												if (hls.isMatched(parser.getFamily(), parser.getSubfamily(),parser.getTribe()))  {
+													String[] higher = hls.findMatch(parser.getFamily(), parser.getSubfamily(),parser.getTribe());
+													s.setFamily(higher[0]);
+													s.setSubfamily(higher[1]);
+													s.setTribe(higher[2]);
+												} else { 
+													s.setFamily(parser.getFamily());
+													s.setSubfamily(parser.getSubfamily());
+													s.setTribe(parser.getTribe());
+												}					
 											}
-											s.setTribe("");
-										} else { 
-											HigherTaxonLifeCycle hls = new HigherTaxonLifeCycle();
-											if (hls.isMatched(parser.getFamily(), parser.getSubfamily(),parser.getTribe()))  {
-												String[] higher = hls.findMatch(parser.getFamily(), parser.getSubfamily(),parser.getTribe());
-												s.setFamily(higher[0]);
-												s.setSubfamily(higher[1]);
-												s.setTribe(higher[2]);
-											} else { 
-												s.setFamily(parser.getFamily());
-												s.setSubfamily(parser.getSubfamily());
-												s.setTribe(parser.getTribe());
-											}					
-										}
-										if (!parser.getFamily().equals(""))  {
-											// check family against database (with a soundex match)
-											HigherTaxonLifeCycle hls = new HigherTaxonLifeCycle();
-											String match = hls.findMatch(parser.getFamily()); 
-											if (match!=null && !match.trim().equals("")) { 
-												s.setFamily(match);
+											if (!parser.getFamily().equals(""))  {
+												// check family against database (with a soundex match)
+												HigherTaxonLifeCycle hls = new HigherTaxonLifeCycle();
+												String match = hls.findMatch(parser.getFamily()); 
+												if (match!=null && !match.trim().equals("")) { 
+													s.setFamily(match);
+												}
 											}
 										}
 										// trim family to fit (in case multiple parts of taxon name weren't parsed
@@ -642,7 +648,25 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 										log.debug(s.getCollection());
 
 										// TODO: non-general workflows
+										
+										// TODO: Refactor special case handling of non-general workflows
+										
+										// ********* Special Cases **********
+										if (s.getWorkFlowStatus().equals(WorkFlowStatus.STAGE_0)) { 
+											// ***** Special case, images in ent-formicidae 
+											//       get family set to Formicidae if in state OCR.
+											if (path.contains("formicidae")) { 
+												s.setFamily("Formicidae");
+											}
+										}
 										s.setLocationInCollection(LocationInCollection.GENERAL);
+										if (s.getFamily().equals("Formicidae")) { 
+											// ***** Special case, families in Formicidae are in Ant collection
+										    s.setLocationInCollection(LocationInCollection.GENERALANT);
+										}
+										// ********* End Special Cases **********
+										
+										
 										s.setCreatedBy(ImageCaptureApp.APP_NAME + " " + ImageCaptureApp.APP_VERSION);
 										SpecimenLifeCycle sh = new SpecimenLifeCycle();
 										try { 

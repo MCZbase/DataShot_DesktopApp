@@ -82,9 +82,17 @@
         <property name="verbatimLocality" type="string">
             <column name="VerbatimLocality" length="65535" />
         </property>
-        <property name="verbatimElevation" type="string">
-            <column name="VerbatimElevation" />
+        
+        <property name="minimum_elevation" type="java.lang.Long">
+            <column name="minimum_elevation" />
+        </property>        
+        <property name="maximum_elevation" type="java.lang.Long">
+            <column name="maximum_elevation" />
+        </property>        
+        <property name="elev_units" type="string">
+            <column name="elev_units" length="5" />
         </property>
+        
         <property name="collectingMethod" type="string">
             <column name="CollectingMethod" />
         </property>
@@ -121,6 +129,9 @@
         <property name="habitat" type="string">
             <column name="Habitat" length="900" />
         </property>
+        <property name="microhabitat" type="string">
+            <column name="Microhabitat" length="900" />
+        </property>        
         <property name="associatedTaxon" type="string">
             <column name="AssociatedTaxon" length="900" />
         </property>

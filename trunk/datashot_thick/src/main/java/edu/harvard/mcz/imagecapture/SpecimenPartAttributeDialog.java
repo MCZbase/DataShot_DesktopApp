@@ -66,6 +66,14 @@ public class SpecimenPartAttributeDialog extends JDialog {
 
 	private static final Log log = LogFactory.getLog(SpecimenPartAttributeDialog.class);
 	
+	private static final String[] CASTES = new String[] {
+        "1st instar larva", "2nd instar larva", "3rd instar larva", 
+        "dealiated adult", "drone", "female", "female alate", "female reproductive", 
+        "juvenile", "larva", "larval case", "major", "male", "male alate", 
+        "minor", "nymph", "other", "pupa", "queen", "slave", "slave-maker", 
+        "soldier", "unknown", "worker",			
+         };
+	
 	private SpecimenPartAttributeDialog thisDialog;
 	private final JPanel contentPanel = new JPanel();
 	private JTable table;
@@ -141,7 +149,9 @@ public class SpecimenPartAttributeDialog extends JDialog {
 			}
 			{
 				comboBoxValue = new JComboBox();
-				comboBoxValue.setModel(new DefaultComboBoxModel(new String[] {"drone", "worker", "soldier", "queen", "unknown"}));
+				
+				comboBoxValue.setModel(new DefaultComboBoxModel(CASTES));
+				
 				panel.add(comboBoxValue, "4, 4, fill, default");
 			}
 			{
@@ -198,11 +208,9 @@ public class SpecimenPartAttributeDialog extends JDialog {
 			JComboBox comboBox = new JComboBox();
 			comboBox.addItem("caste");
 			JComboBox comboBox1 = new JComboBox();
-			comboBox1.addItem("drone");
-			comboBox1.addItem("worker");
-			comboBox1.addItem("soldier");
-			comboBox1.addItem("queen");
-			comboBox1.addItem("unknonwn");
+			for (int i=0; i<CASTES.length; i++) { 
+				comboBox1.addItem(CASTES[i]);
+			}
 			JScrollPane scrollPane = new JScrollPane();
 			
 		    table = new JTable(new SpecimenPartsAttrTableModel((Collection<SpecimenPartAttribute>) parentPart.getAttributeCollection()));

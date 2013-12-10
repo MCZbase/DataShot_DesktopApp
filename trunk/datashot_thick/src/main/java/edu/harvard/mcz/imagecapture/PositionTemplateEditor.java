@@ -117,7 +117,7 @@ public class PositionTemplateEditor extends JFrame {
 	private JButton jButtonUnitTrayBarcode = null;
 	private JTextField jTextFieldUnitTrayBarcode = null;
 	private JLabel jLabel9 = null;
-	private JTextField controlUTBarcode = null;
+	private JButton controlUTBarcode = null;
 	
 	
 	/**
@@ -172,12 +172,7 @@ public class PositionTemplateEditor extends JFrame {
             	controlUTBarcode.setText("No Value");
             } else {  
             	jTextField2.setText("Width="+template.getImageSize().width+" Height="+template.getImageSize().height);
-            	controlBarcode.setText("UL="+template.getBarcodePosition().width + "," + template.getBarcodePosition().height + " W/H="+template.getBarcodeSize().width + "," + template.getBarcodeSize().height );
-            	controlText.setText("UL="+template.getTextPosition().width + "," + template.getTextPosition().height  + " W/H="+template.getTextSize().width + "," + template.getTextSize().height);
-            	controlLabel.setText("UL="+template.getLabelPosition().width + "," + template.getLabelPosition().height  + " W/H="+template.getLabelSize().width + "," + template.getLabelSize().height);
-            	controlUTLabels.setText("UL="+template.getUTLabelsPosition().width + "," + template.getUTLabelsPosition().height  + " W/H="+template.getUTLabelsSize().width + "," + template.getUTLabelsSize().height);
-            	controlSpecimen.setText("UL="+template.getSpecimenPosition().width + "," + template.getSpecimenPosition().height  + " W/H="+template.getSpecimenSize().width + "," + template.getSpecimenSize().height);
-            	controlUTBarcode.setText("UL="+template.getUtBarcodePosition().width + "," + template.getUtBarcodePosition().height  + " W/H="+template.getUtBarcodeSize().width + "," + template.getUtBarcodeSize().height);
+            	setButtonTexts();
             	if (template.getReferenceImage()!=null) { 
             		try {
 						setImageFile(new File(template.getReferenceImageFilePath()));
@@ -194,6 +189,7 @@ public class PositionTemplateEditor extends JFrame {
     	    controlLabel.setEnabled(template.isEditable());
     	    controlUTLabels.setEnabled(template.isEditable());
     	    controlSpecimen.setEnabled(template.isEditable());
+    	    controlUTBarcode.setEnabled(template.isEditable());
     	    drawLayers();
 	}
 	
@@ -577,7 +573,20 @@ public class PositionTemplateEditor extends JFrame {
 		}
 		return jMenu;
 	}
-
+	
+	/**
+	 * Set the text for each button as the position and size of the relevant portion of the template.
+	 * 
+	 */
+	private void setButtonTexts() { 
+	    controlBarcode.setText("UL="+template.getBarcodePosition().width + "," + template.getBarcodePosition().height + " W/H="+template.getBarcodeSize().width + "," + template.getBarcodeSize().height );
+	    controlText.setText("UL="+template.getTextPosition().width + "," + template.getTextPosition().height  + " W/H="+template.getTextSize().width + "," + template.getTextSize().height);
+	    controlLabel.setText("UL="+template.getLabelPosition().width + "," + template.getLabelPosition().height  + " W/H="+template.getLabelSize().width + "," + template.getLabelSize().height);
+	    controlUTLabels.setText("UL="+template.getUTLabelsPosition().width + "," + template.getUTLabelsPosition().height  + " W/H="+template.getUTLabelsSize().width + "," + template.getUTLabelsSize().height);
+	    controlSpecimen.setText("UL="+template.getSpecimenPosition().width + "," + template.getSpecimenPosition().height  + " W/H="+template.getSpecimenSize().width + "," + template.getSpecimenSize().height);
+        controlUTBarcode.setText("UL="+template.getUtBarcodePosition().width + "," + template.getUtBarcodePosition().height  + " W/H="+template.getUtBarcodeSize().width + "," + template.getUtBarcodeSize().height);
+	}        	    
+                	    
 	/**
 	 * This method initializes jMenuItem	
 	 * 	
@@ -594,11 +603,7 @@ public class PositionTemplateEditor extends JFrame {
 					template = new PositionTemplate(true);
 					template.setImageSize(imagePanelForDrawing.getImageSize());
 	            	jTextField2.setText("Width="+template.getImageSize().width+" Height="+template.getImageSize().height);
-	            	controlBarcode.setText("UL="+template.getBarcodePosition().width + "," + template.getBarcodePosition().height + " W/H="+template.getBarcodeSize().width + "," + template.getBarcodeSize().height );
-	            	controlText.setText("UL="+template.getTextPosition().width + "," + template.getTextPosition().height  + " W/H="+template.getTextSize().width + "," + template.getTextSize().height);
-	            	controlLabel.setText("UL="+template.getLabelPosition().width + "," + template.getLabelPosition().height  + " W/H="+template.getLabelSize().width + "," + template.getLabelSize().height);
-	            	controlUTLabels.setText("UL="+template.getUTLabelsPosition().width + "," + template.getUTLabelsPosition().height  + " W/H="+template.getUTLabelsSize().width + "," + template.getUTLabelsSize().height);
-	            	controlSpecimen.setText("UL="+template.getSpecimenPosition().width + "," + template.getSpecimenPosition().height  + " W/H="+template.getSpecimenSize().width + "," + template.getSpecimenSize().height);
+					setButtonTexts();
 	        	    drawLayers();
 	        	    jButtonSave.setEnabled(template.isEditable());
 	        	    controlBarcode.setEnabled(template.isEditable());
@@ -606,6 +611,7 @@ public class PositionTemplateEditor extends JFrame {
 	        	    controlLabel.setEnabled(template.isEditable());
 	        	    controlUTLabels.setEnabled(template.isEditable());
 	        	    controlSpecimen.setEnabled(template.isEditable());
+	        	    controlUTBarcode.setEnabled(template.isEditable());
 	        	    drawLayers();
 				}
 			});
@@ -715,6 +721,7 @@ public class PositionTemplateEditor extends JFrame {
 						if (template.isEditable()) { 
 							template.setBarcodePosition(dialog.getUL());
 							template.setBarcodeSize(dialog.getSize());
+							setButtonTexts();
 						}
 					} catch (BadTemplateException e1) {
 						JOptionPane.showMessageDialog(thisFrame,
@@ -752,6 +759,7 @@ public class PositionTemplateEditor extends JFrame {
 						if (template.isEditable()) { 
 							template.setTextPosition(dialog.getUL());
 							template.setTextSize(dialog.getSize());
+							setButtonTexts();
 						}
 					} catch (BadTemplateException e1) {
 						JOptionPane.showMessageDialog(thisFrame,
@@ -789,6 +797,7 @@ public class PositionTemplateEditor extends JFrame {
 						if (template.isEditable()) { 
 							template.setLabelPosition(dialog.getUL());
 							template.setLabelSize(dialog.getSize());
+							setButtonTexts();
 						}
 					} catch (BadTemplateException e1) {
 						JOptionPane.showMessageDialog(thisFrame,
@@ -826,6 +835,7 @@ public class PositionTemplateEditor extends JFrame {
 						if (template.isEditable()) { 
 							template.setUTLabelsPosition(dialog.getUL());
 							template.setUTLabelsSize(dialog.getSize());
+							setButtonTexts();
 						}
 					} catch (BadTemplateException e1) {
 						JOptionPane.showMessageDialog(thisFrame,
@@ -863,6 +873,7 @@ public class PositionTemplateEditor extends JFrame {
 						if (template.isEditable()) { 
 							template.setSpecimenPosition(dialog.getUL());
 							template.setSpecimenSize(dialog.getSize());
+							setButtonTexts();
 						}
 					} catch (BadTemplateException e1) {
 						JOptionPane.showMessageDialog(thisFrame,
@@ -1096,11 +1107,38 @@ public class PositionTemplateEditor extends JFrame {
 	 * 	
 	 * @return javax.swing.JTextField	
 	 */
-	private JTextField getJTextField9() {
+	private JButton getJTextField9() {
+		
 		if (controlUTBarcode == null) {
-			controlUTBarcode = new JTextField();
-			controlUTBarcode.setEditable(false);
+			controlUTBarcode = new JButton();
+			controlUTBarcode.setEnabled(false);
+			controlUTBarcode.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					try {
+						PositionTemplateBoxDialog dialog = 
+							new PositionTemplateBoxDialog(
+									thisFrame,template.getImageSize(),
+									template.getUtBarcodePosition(),
+									template.getUtBarcodeSize(),
+									"UnitTray/Taxon Barcode in " +template.getTemplateId());
+						dialog.setVisible(true);
+						if (template.isEditable()) { 
+							template.setUtBarcodePosition(dialog.getUL());
+							template.setUtBarcodeSize(dialog.getSize());
+							setButtonTexts();
+						}
+					} catch (BadTemplateException e1) {
+						JOptionPane.showMessageDialog(thisFrame,
+							    "Error. Unable to edit, invalid template data. " + e1.getMessage(),
+							    "Error:BadTemplate",
+							    JOptionPane.ERROR_MESSAGE);
+						log.error(e1);
+					}
+					drawLayers();
+				}
+			});
 		}
+		
 		return controlUTBarcode;
 	}
 
