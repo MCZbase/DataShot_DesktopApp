@@ -104,6 +104,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 	private static final int STATE_CLEAN = 0;
 	private static final int STATE_DIRTY = 1;
 	
+	
 	private Specimen specimen;  //  @jve:decl-index=0:
 	private SpecimenControler myControler = null;
 	private int state;   // dirty if data in controls has been changed and not saved to specimen.
@@ -181,7 +182,10 @@ public class SpecimenDetailsViewPane extends JPanel {
 	private JLabel jLabel30 = null;
 	private JTextField jTextFieldUnnamedForm = null;
 	private JLabel jLabel32 = null;
-	private JTextField jTextFieldVerbatimElevation = null;
+	private JLabel jLabelElevation;
+	private JTextField jTextFieldMinElevation = null;
+	private JTextField textFieldMaxElev = null;
+	private JComboBox comboBoxElevUnits = null;
 	private JTextField jTextFieldCollectingMethod = null;
 	private JLabel jLabel33 = null;
 	private JLabel jLabel34 = null;
@@ -214,12 +218,15 @@ public class SpecimenDetailsViewPane extends JPanel {
 	private JButton jButtonDeterminations = null;
 	private JLabel jLabel31 = null;
 	private JTextField jTextFieldCitedInPub = null;
-	private JScrollPane jScrollPane1 = null;
+	private JScrollPane jScrollPaneNotes = null;
 	private JLabel jLabel44 = null;
 	private JButton jButton1 = null;
 	private JButton jButton2 = null;
 	private JButton jButtonSpecificLocality = null;
 	private JLabel jTextFieldImageCount = null;
+	private JLabel lblTo;
+	private JLabel lblMicrohabitat;
+	private JTextField textField;
 
 	/**
 	 * Construct an instance of a SpecimenDetailsViewPane showing the data present
@@ -293,6 +300,9 @@ public class SpecimenDetailsViewPane extends JPanel {
 		if (jTableNumbers.isEditing()) { 
 		    jTableNumbers.getCellEditor().stopCellEditing();
 		}
+		if (specimen.getTypeStatus()==null) { 
+			specimen.setTypeStatus(Specimen.STATUS_NOT_A_TYPE);
+		}
 		specimen.setLocationInCollection(jComboBoxLocationInCollection.getSelectedItem().toString());
 		specimen.setDrawerNumber(jTextFieldDrawerNumber.getText());
 	    if (jComboBoxFamily.getSelectedIndex()==-1 && jComboBoxFamily.getSelectedItem()==null) { 
@@ -324,7 +334,36 @@ public class SpecimenDetailsViewPane extends JPanel {
 	    specimen.setValidDistributionFlag(jCheckBoxValidDistributionFlag.isSelected());
 	    specimen.setPrimaryDivison(jTextFieldPrimaryDivision.getText());
 	    specimen.setSpecificLocality(jTextFieldLocality.getText());
-	    specimen.setVerbatimElevation(jTextFieldVerbatimElevation.getText());
+	    
+	    // Elevations
+	    Long min_elev;
+	    if (jTextFieldMinElevation.getText().trim().length()==0)  {
+	    	min_elev = null;
+	    } else { 
+	        try { 
+	            min_elev = Long.parseLong(jTextFieldMinElevation.getText());
+	        } catch (NumberFormatException e) { 
+    	    	min_elev = null;
+	        }
+	    }
+	    specimen.setMinimum_elevation(min_elev);
+	    Long max_elev;
+	    if (textFieldMaxElev.getText().trim().length()==0)  {
+	    	max_elev = null;
+	    } else { 
+	        try { 
+	            max_elev = Long.parseLong(textFieldMaxElev.getText());
+	        } catch (NumberFormatException e) { 
+    	    	max_elev = null;
+	        }
+	    }	    
+	    specimen.setMaximum_elevation(max_elev);
+	    if (this.comboBoxElevUnits.getSelectedIndex()==-1 && comboBoxElevUnits.getSelectedItem()==null) { 
+	    	specimen.setElev_units("");
+	    } else { 
+	    	specimen.setElev_units(comboBoxElevUnits.getSelectedItem().toString());
+	    }
+	    
 	    specimen.setCollectingMethod(jTextFieldCollectingMethod.getText());
 	    specimen.setIsoDate(jTextFieldISODate.getText());
 	    specimen.setDateNos(jTextFieldDateNos.getText());
@@ -421,7 +460,24 @@ public class SpecimenDetailsViewPane extends JPanel {
 		}
 		jTextFieldPrimaryDivision.setText(specimen.getPrimaryDivison());
 		jTextFieldLocality.setText(specimen.getSpecificLocality());
-		jTextFieldVerbatimElevation.setText(specimen.getVerbatimElevation());
+		
+	    // Elevations  **********************************************************************
+		try { 
+		    jTextFieldMinElevation.setText(Long.toString(specimen.getMinimum_elevation()));
+		} catch (Exception e) { 
+		    jTextFieldMinElevation.setText("");
+		}
+		try { 
+		    textFieldMaxElev.setText(Long.toString(specimen.getMaximum_elevation()));
+		} catch (Exception e) { 
+			textFieldMaxElev.setText("");
+		}
+		if (specimen.getElev_units()!=null) { 
+		    comboBoxElevUnits.setSelectedItem(specimen.getElev_units());
+		} else {
+			comboBoxElevUnits.setSelectedItem("");
+		}
+		
 		jTextFieldCollectingMethod.setText(specimen.getCollectingMethod());
 		jTextFieldISODate.setText(specimen.getIsoDate());
 		jTextFieldDateNos.setText(specimen.getDateNos());
@@ -519,7 +575,11 @@ public class SpecimenDetailsViewPane extends JPanel {
 		this.setSize(new Dimension(594, 900));
 		//this.setPreferredSize(new Dimension(490, 917));
 	    this.add(getJTextFieldStatus(), BorderLayout.SOUTH);
+	    
+	    // Comment this line in to use design tool.
 	    // this.add(getJPanel(), BorderLayout.CENTER);
+	    
+	    // Comment this block out to use design tool.
 	    if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(
 	    		 ImageCaptureProperties.KEY_DETAILS_SCROLL).equals(ImageCaptureProperties.VALUE_DETAILS_SCROLL_FORCE_ON)) { 
 	    JScrollPane scrollPane = new JScrollPane(getJPanel(),
@@ -529,6 +589,9 @@ public class SpecimenDetailsViewPane extends JPanel {
 	    } else { 
 	    	this.add(getJPanel(), BorderLayout.CENTER);
 	    }
+	    //**
+	    
+	    
 	}
 	/**
 	 * This method initializes jTextField	
@@ -556,8 +619,8 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints216.gridy = 6;
 			gridBagConstraints216.weightx = 1.0;
 			gridBagConstraints216.anchor = GridBagConstraints.WEST;
-			gridBagConstraints216.gridwidth = 2;
-			gridBagConstraints216.insets = new Insets(0, 3, 5, 5);
+			gridBagConstraints216.gridwidth = 4;
+			gridBagConstraints216.insets = new Insets(0, 3, 5, 0);
 			gridBagConstraints216.ipadx = 3;
 			gridBagConstraints216.gridx = 4;
 			GridBagConstraints gridBagConstraints124 = new GridBagConstraints();
@@ -588,9 +651,10 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints49.weighty = 1.0;
 			gridBagConstraints49.weightx = 1.0;
 			gridBagConstraints49.gridx = 1;
-			gridBagConstraints49.gridwidth = 5;
+			gridBagConstraints49.gridwidth = 7;
 			gridBagConstraints49.gridy = 34;
 			GridBagConstraints gridBagConstraints214 = new GridBagConstraints();
+			gridBagConstraints214.gridwidth = 3;
 			gridBagConstraints214.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints214.anchor = GridBagConstraints.EAST;
 			gridBagConstraints214.gridx = 4;
@@ -601,7 +665,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			GridBagConstraints gridBagConstraints119 = new GridBagConstraints();
 			gridBagConstraints119.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints119.anchor = GridBagConstraints.WEST;
-			gridBagConstraints119.gridx = 5;
+			gridBagConstraints119.gridx = 7;
 			gridBagConstraints119.gridy = 41;
 			gridBagConstraints119.weightx = 0.0;
 			gridBagConstraints119.weighty = 0.0;
@@ -611,7 +675,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints213.fill = GridBagConstraints.BOTH;
 			gridBagConstraints213.gridy = 30;
 			gridBagConstraints213.weightx = 0.0;
-			gridBagConstraints213.gridwidth = 5;
+			gridBagConstraints213.gridwidth = 7;
 			gridBagConstraints213.anchor = GridBagConstraints.WEST;
 			gridBagConstraints213.gridx = 1;
 			GridBagConstraints gridBagConstraints118 = new GridBagConstraints();
@@ -626,32 +690,32 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints212.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints212.gridx = 3;
 			gridBagConstraints212.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints212.gridwidth = 2;
+			gridBagConstraints212.gridwidth = 4;
 			gridBagConstraints212.gridy = 15;
 			GridBagConstraints gridBagConstraints117 = new GridBagConstraints();
 			gridBagConstraints117.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints117.fill = GridBagConstraints.BOTH;
 			gridBagConstraints117.gridy = 24;
 			gridBagConstraints117.weightx = 0.0;
-			gridBagConstraints117.gridwidth = 2;
+			gridBagConstraints117.gridwidth = 4;
 			gridBagConstraints117.anchor = GridBagConstraints.WEST;
 			gridBagConstraints117.gridx = 4;
 			GridBagConstraints gridBagConstraints211 = new GridBagConstraints();
 			gridBagConstraints211.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints211.gridx = 3;
-			gridBagConstraints211.gridwidth = 2;
+			gridBagConstraints211.gridwidth = 4;
 			gridBagConstraints211.weighty = 1.0;
 			gridBagConstraints211.gridy = 43;
 			GridBagConstraints gridBagConstraintsMS = new GridBagConstraints();
-			gridBagConstraintsMS.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraintsMS.fill = GridBagConstraints.BOTH;
 			gridBagConstraintsMS.gridx = 0;
-			gridBagConstraintsMS.gridwidth = 6;
+			gridBagConstraintsMS.gridwidth = 8;
 			gridBagConstraintsMS.weighty = 1.0;
 			gridBagConstraintsMS.gridy = 44;			
 			gridBagConstraintsMS.gridx = 0;
 			
 			GridBagConstraints gridBagConstraints116 = new GridBagConstraints();
+			gridBagConstraints116.gridwidth = 3;
 			gridBagConstraints116.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints116.gridx = 4;
 			gridBagConstraints116.anchor = GridBagConstraints.EAST;
@@ -662,7 +726,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints66.gridy = 35;
 			gridBagConstraints66.weightx = 1.0;
 			gridBagConstraints66.anchor = GridBagConstraints.WEST;
-			gridBagConstraints66.gridwidth = 5;
+			gridBagConstraints66.gridwidth = 7;
 			gridBagConstraints66.gridx = 1;
 			GridBagConstraints gridBagConstraints56 = new GridBagConstraints();
 			gridBagConstraints56.insets = new Insets(0, 0, 0, 5);
@@ -677,7 +741,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints48.gridy = 0;
 			gridBagConstraints48.weightx = 1.0;
 			gridBagConstraints48.anchor = GridBagConstraints.WEST;
-			gridBagConstraints48.gridwidth = 2;
+			gridBagConstraints48.gridwidth = 4;
 			gridBagConstraints48.gridx = 4;
 			GridBagConstraints gridBagConstraints37 = new GridBagConstraints();
 			gridBagConstraints37.insets = new Insets(0, 0, 0, 5);
@@ -701,12 +765,12 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel41 = new JLabel();
 			jLabel41.setText("Workflow Status");
 			GridBagConstraints gridBagConstraints172 = new GridBagConstraints();
-			gridBagConstraints172.insets = new Insets(0, 0, 5, 0);
+			gridBagConstraints172.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints172.fill = GridBagConstraints.BOTH;
 			gridBagConstraints172.gridy = 32;
 			gridBagConstraints172.weightx = 1.0;
 			gridBagConstraints172.anchor = GridBagConstraints.WEST;
-			gridBagConstraints172.gridwidth = 3;
+			gridBagConstraints172.gridwidth = 4;
 			gridBagConstraints172.gridx = 4;
 			GridBagConstraints gridBagConstraints162 = new GridBagConstraints();
 			gridBagConstraints162.insets = new Insets(0, 0, 0, 5);
@@ -747,6 +811,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel38 = new JLabel();
 			jLabel38.setText("Associated Taxon");
 			GridBagConstraints gridBagConstraints94 = new GridBagConstraints();
+			gridBagConstraints94.gridwidth = 3;
 			gridBagConstraints94.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints94.gridx = 4;
 			gridBagConstraints94.anchor = GridBagConstraints.WEST;
@@ -774,37 +839,28 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints47.gridy = 5;
 			jLabel34 = new JLabel();
 			jLabel34.setText("     ");
-			GridBagConstraints gridBagConstraints28 = new GridBagConstraints();
-			gridBagConstraints28.insets = new Insets(0, 0, 0, 5);
-			gridBagConstraints28.gridx = 4;
-			gridBagConstraints28.anchor = GridBagConstraints.WEST;
-			gridBagConstraints28.fill = GridBagConstraints.NONE;
-			gridBagConstraints28.gridy = 22;
-			jLabel33 = new JLabel();
-			jLabel33.setText("Collecting Method");
 			GridBagConstraints gridBagConstraints19 = new GridBagConstraints();
 			gridBagConstraints19.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints19.fill = GridBagConstraints.HORIZONTAL;
 			gridBagConstraints19.gridy = 23;
 			gridBagConstraints19.weightx = 1.0;
 			gridBagConstraints19.anchor = GridBagConstraints.NORTHWEST;
-			gridBagConstraints19.gridwidth = 2;
-			gridBagConstraints19.gridx = 4;
+			gridBagConstraints19.gridwidth = 5;
+			gridBagConstraints19.gridx = 3;
 			GridBagConstraints gridBagConstraints18 = new GridBagConstraints();
 			gridBagConstraints18.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints18.fill = GridBagConstraints.BOTH;
 			gridBagConstraints18.gridy = 19;
 			gridBagConstraints18.weightx = 1.0;
 			gridBagConstraints18.anchor = GridBagConstraints.WEST;
-			gridBagConstraints18.gridwidth = 2;
 			gridBagConstraints18.gridx = 4;
-			GridBagConstraints gridBagConstraints171 = new GridBagConstraints();
-			gridBagConstraints171.insets = new Insets(0, 0, 0, 5);
-			gridBagConstraints171.gridx = 3;
-			gridBagConstraints171.anchor = GridBagConstraints.EAST;
-			gridBagConstraints171.gridy = 19;
-			jLabel32 = new JLabel();
-			jLabel32.setText("Elevation");
+			GridBagConstraints gbc_jLabelElevation = new GridBagConstraints();
+			gbc_jLabelElevation.insets = new Insets(0, 0, 0, 5);
+			gbc_jLabelElevation.gridx = 3;
+			gbc_jLabelElevation.anchor = GridBagConstraints.EAST;
+			gbc_jLabelElevation.gridy = 19;
+			jLabelElevation = new JLabel();
+			jLabelElevation.setText("Elevation");
 			jLabel25 = new JLabel();
 			jLabel25.setText("Text");
 			jLabel26 = new JLabel();
@@ -826,12 +882,14 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints141.weightx = 1.0;
 			gridBagConstraints141.gridx = 1;
 			GridBagConstraints gridBagConstraints132 = new GridBagConstraints();
+			gridBagConstraints132.gridwidth = 3;
 			gridBagConstraints132.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints132.fill = GridBagConstraints.BOTH;
 			gridBagConstraints132.gridy = 26;
 			gridBagConstraints132.weightx = 1.0;
 			gridBagConstraints132.gridx = 4;
 			GridBagConstraints gridBagConstraints122 = new GridBagConstraints();
+			gridBagConstraints122.gridwidth = 3;
 			gridBagConstraints122.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints122.fill = GridBagConstraints.BOTH;
 			gridBagConstraints122.gridy = 25;
@@ -854,6 +912,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints93.weightx = 1.0;
 			gridBagConstraints93.gridx = 1;
 			GridBagConstraints gridBagConstraints84 = new GridBagConstraints();
+			gridBagConstraints84.gridwidth = 3;
 			gridBagConstraints84.fill = GridBagConstraints.BOTH;
 			gridBagConstraints84.gridy = 12;
 			gridBagConstraints84.weightx = 1.0;
@@ -939,7 +998,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints102.gridy = 29;
 			gridBagConstraints102.weightx = 1.0;
 			gridBagConstraints102.anchor = GridBagConstraints.WEST;
-			gridBagConstraints102.gridwidth = 2;
+			gridBagConstraints102.gridwidth = 4;
 			gridBagConstraints102.gridx = 4;
 			GridBagConstraints gridBagConstraints92 = new GridBagConstraints();
 			gridBagConstraints92.insets = new Insets(0, 0, 0, 5);
@@ -1022,7 +1081,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints111.gridy = 16;
 			gridBagConstraints111.weightx = 1.0;
 			gridBagConstraints111.anchor = GridBagConstraints.WEST;
-			gridBagConstraints111.gridwidth = 5;
+			gridBagConstraints111.gridwidth = 7;
 			gridBagConstraints111.gridx = 1;
 			GridBagConstraints gridBagConstraints101 = new GridBagConstraints();
 			gridBagConstraints101.insets = new Insets(0, 0, 0, 5);
@@ -1065,7 +1124,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints52.gridy = 42;
 			gridBagConstraints52.weightx = 1.0;
 			gridBagConstraints52.weighty = 1.0;
-			gridBagConstraints52.gridwidth = 6;
+			gridBagConstraints52.gridwidth = 8;
 			gridBagConstraints52.gridx = 0;
 			GridBagConstraints gridBagConstraints43 = new GridBagConstraints();
 			gridBagConstraints43.gridx = 0;
@@ -1085,7 +1144,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints25.weightx = 1.0;
 			gridBagConstraints25.weighty = 0.0;
 			gridBagConstraints25.gridheight = 3;
-			gridBagConstraints25.gridwidth = 4;
+			gridBagConstraints25.gridwidth = 6;
 			gridBagConstraints25.gridx = 1;
 			GridBagConstraints gridBagConstraints15 = new GridBagConstraints();
 			gridBagConstraints15.insets = new Insets(0, 0, 0, 5);
@@ -1107,7 +1166,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints32.gridy = 36;
 			gridBagConstraints32.weightx = 1.0;
 			gridBagConstraints32.anchor = GridBagConstraints.WEST;
-			gridBagConstraints32.gridwidth = 2;
+			gridBagConstraints32.gridwidth = 4;
 			gridBagConstraints32.gridx = 4;
 			GridBagConstraints gridBagConstraints24 = new GridBagConstraints();
 			gridBagConstraints24.insets = new Insets(0, 0, 0, 5);
@@ -1129,7 +1188,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints23.gridy = 38;
 			gridBagConstraints23.weightx = 1.0;
 			gridBagConstraints23.anchor = GridBagConstraints.WEST;
-			gridBagConstraints23.gridwidth = 2;
+			gridBagConstraints23.gridwidth = 4;
 			gridBagConstraints23.gridx = 4;
 			GridBagConstraints gridBagConstraints13 = new GridBagConstraints();
 			gridBagConstraints13.insets = new Insets(0, 0, 0, 5);
@@ -1159,7 +1218,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints51.weightx = 1.0;
 			gridBagConstraints51.anchor = GridBagConstraints.WEST;
 			gridBagConstraints51.gridheight = 2;
-			gridBagConstraints51.gridwidth = 3;
+			gridBagConstraints51.gridwidth = 2;
 			gridBagConstraints51.gridx = 1;
 			GridBagConstraints gridBagConstraints41 = new GridBagConstraints();
 			gridBagConstraints41.insets = new Insets(0, 0, 0, 5);
@@ -1175,7 +1234,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints31.gridy = 21;
 			gridBagConstraints31.weightx = 1.0;
 			gridBagConstraints31.anchor = GridBagConstraints.WEST;
-			gridBagConstraints31.gridwidth = 4;
+			gridBagConstraints31.gridwidth = 6;
 			gridBagConstraints31.gridx = 1;
 			GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
 			gridBagConstraints21.insets = new Insets(0, 0, 0, 5);
@@ -1186,7 +1245,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel5.setText("Collection");
 			GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
 			gridBagConstraints10.insets = new Insets(0, 0, 0, 5);
-			gridBagConstraints10.gridx = 5;
+			gridBagConstraints10.gridx = 7;
 			gridBagConstraints10.anchor = GridBagConstraints.NORTHWEST;
 			gridBagConstraints10.gridy = 40;
 			gridBagConstraints10.weighty = 0.0;
@@ -1210,7 +1269,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints7.gridy = 20;
 			gridBagConstraints7.weightx = 1.0;
 			gridBagConstraints7.anchor = GridBagConstraints.WEST;
-			gridBagConstraints7.gridwidth = 5;
+			gridBagConstraints7.gridwidth = 7;
 			gridBagConstraints7.gridx = 1;
 			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
 			gridBagConstraints5.insets = new Insets(0, 0, 0, 5);
@@ -1262,7 +1321,8 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel.setText("Barcode");
 			jPanel = new JPanel();
 			GridBagLayout gbl_jPanel = new GridBagLayout();
-			gbl_jPanel.columnWeights = new double[]{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+			gbl_jPanel.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
+			gbl_jPanel.columnWeights = new double[]{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0};
 			jPanel.setLayout(gbl_jPanel);
 			jPanel.add(jLabel, gridBagConstraints);
 			jPanel.add(getJTextFieldBarcode(), gridBagConstraints1);
@@ -1276,16 +1336,44 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gbc_lblHigherGeography.gridx = 0;
 			gbc_lblHigherGeography.gridy = 17;
 			jPanel.add(getLblHigherGeography(), gbc_lblHigherGeography);
-			GridBagConstraints gbc_comboBox = new GridBagConstraints();
-			gbc_comboBox.gridwidth = 5;
-			gbc_comboBox.insets = new Insets(0, 0, 0, 5);
-			gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
-			gbc_comboBox.gridx = 1;
-			gbc_comboBox.gridy = 17;
-			jPanel.add(getComboBox(), gbc_comboBox);
+			GridBagConstraints gbc_comboBoxElevUnits = new GridBagConstraints();
+			gbc_comboBoxElevUnits.insets = new Insets(0, 0, 0, 5);
+			gbc_comboBoxElevUnits.gridwidth = 7;
+			gbc_comboBoxElevUnits.fill = GridBagConstraints.HORIZONTAL;
+			gbc_comboBoxElevUnits.gridx = 1;
+			gbc_comboBoxElevUnits.gridy = 17;
+			jPanel.add(getComboBoxHighGeog(), gbc_comboBoxElevUnits);
+			GridBagConstraints gbc_lblTo = new GridBagConstraints();
+			gbc_lblTo.insets = new Insets(0, 0, 0, 5);
+			gbc_lblTo.anchor = GridBagConstraints.EAST;
+			gbc_lblTo.gridx = 5;
+			gbc_lblTo.gridy = 19;
+			jPanel.add(getLblTo(), gbc_lblTo);
+			GridBagConstraints gbc_textFieldMaxElev = new GridBagConstraints();
+			gbc_textFieldMaxElev.insets = new Insets(0, 0, 0, 5);
+			gbc_textFieldMaxElev.fill = GridBagConstraints.BOTH;
+			gbc_textFieldMaxElev.gridx = 6;
+			gbc_textFieldMaxElev.gridy = 19;
+			jPanel.add(getTextFieldMaxElev(), gbc_textFieldMaxElev);
+			GridBagConstraints gbc_comboBoxMaxElev = new GridBagConstraints();
+			gbc_comboBoxMaxElev.insets = new Insets(0, 0, 0, 5);
+			gbc_comboBoxMaxElev.fill = GridBagConstraints.HORIZONTAL;
+			gbc_comboBoxMaxElev.gridx = 7;
+			gbc_comboBoxMaxElev.gridy = 19;
+			jPanel.add(getComboBoxElevUnits(), gbc_comboBoxMaxElev);
 			jPanel.add(getJTextField3(), gridBagConstraints7);
 			jPanel.add(jLabel3, gridBagConstraints8);
 			jPanel.add(jLabel4, gridBagConstraints9);
+			GridBagConstraints gridBagConstraints28 = new GridBagConstraints();
+			gridBagConstraints28.gridwidth = 4;
+			gridBagConstraints28.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints28.gridx = 3;
+			gridBagConstraints28.anchor = GridBagConstraints.WEST;
+			gridBagConstraints28.fill = GridBagConstraints.NONE;
+			gridBagConstraints28.gridy = 22;
+			jLabel33 = new JLabel();
+			jLabel33.setText("Collecting Method");
+			jPanel.add(jLabel33, gridBagConstraints28);
 			GridBagConstraints gridBagConstraints72 = new GridBagConstraints();
 			gridBagConstraints72.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints72.gridx = 0;
@@ -1311,12 +1399,12 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel37.setText("Prep Type");
 			jPanel.add(jLabel37, gridBagConstraints104);
 			GridBagConstraints gridBagConstraints152 = new GridBagConstraints();
-			gridBagConstraints152.insets = new Insets(0, 0, 5, 0);
+			gridBagConstraints152.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints152.fill = GridBagConstraints.BOTH;
 			gridBagConstraints152.gridy = 27;
 			gridBagConstraints152.weightx = 1.0;
 			gridBagConstraints152.anchor = GridBagConstraints.WEST;
-			gridBagConstraints152.gridwidth = 3;
+			gridBagConstraints152.gridwidth = 4;
 			gridBagConstraints152.gridx = 4;
 			jPanel.add(getJTextFieldPrepType(), gridBagConstraints152);
 			
@@ -1324,11 +1412,23 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraintsPR.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraintsPR.gridx = 0;
 			gridBagConstraintsPR.fill = GridBagConstraints.BOTH;
-			gridBagConstraintsPR.gridwidth = 6;
+			gridBagConstraintsPR.gridwidth = 8;
 			gridBagConstraintsPR.weighty = 1.0;
 			gridBagConstraintsPR.gridy = 28;	
 			
 			jPanel.add(getJScrollPaneSpecimenParts(),gridBagConstraintsPR);
+			GridBagConstraints gbc_lblMicrohabitat = new GridBagConstraints();
+			gbc_lblMicrohabitat.anchor = GridBagConstraints.EAST;
+			gbc_lblMicrohabitat.insets = new Insets(0, 0, 0, 5);
+			gbc_lblMicrohabitat.gridx = 0;
+			gbc_lblMicrohabitat.gridy = 33;
+			jPanel.add(getLblMicrohabitat(), gbc_lblMicrohabitat);
+			GridBagConstraints gbc_textField = new GridBagConstraints();
+			gbc_textField.insets = new Insets(0, 0, 0, 5);
+			gbc_textField.fill = GridBagConstraints.HORIZONTAL;
+			gbc_textField.gridx = 1;
+			gbc_textField.gridy = 33;
+			jPanel.add(getTextField(), gbc_textField);
 			jPanel.add(getJButton(), gridBagConstraints10);
 			jPanel.add(jLabel5, gridBagConstraints21);
 			jPanel.add(getJTextFieldCollection(), gridBagConstraints31);
@@ -1346,7 +1446,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jPanel.add(getJScrollPaneNumbers(), gridBagConstraints25);
 			jPanel.add(getJButtonNumbersAdd(), gridBagConstraints33);
 			jPanel.add(getJButtonCollsAdd(), gridBagConstraints43);
-			jPanel.add(getJScrollPane(), gridBagConstraints52);
+			jPanel.add(getJScrollPaneWarn(), gridBagConstraints52);
 			jPanel.add(jLabel12, gridBagConstraints61);
 			jPanel.add(getJTextField(), gridBagConstraints71);
 			jPanel.add(jLabel13, gridBagConstraints81);
@@ -1381,10 +1481,9 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jPanel.add(getJTextFieldDateCollectedIndicator(), gridBagConstraints132);
 			jPanel.add(getJTextFieldDateEmerged(), gridBagConstraints141);
 			jPanel.add(getJTextFieldDateCollected(), gridBagConstraints151);
-			jPanel.add(jLabel32, gridBagConstraints171);
+			jPanel.add(jLabelElevation, gbc_jLabelElevation);
 			jPanel.add(getJTextField11(), gridBagConstraints18);
 			jPanel.add(getJTextField19(), gridBagConstraints19);
-			jPanel.add(jLabel33, gridBagConstraints28);
 			jPanel.add(jLabel34, gridBagConstraints47);
 			jPanel.add(jLabel35, gridBagConstraints65);
 			jPanel.add(getJCheckBox(), gridBagConstraints83);
@@ -1394,7 +1493,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jPanel.add(jLabel40, gridBagConstraints133);
 			jPanel.add(getJTextField20(), gridBagConstraints142);
 			jPanel.add(getJTextField26(), gridBagConstraints162);
-			jPanel.add(getJTextField34(), gridBagConstraints172);
+			jPanel.add(getJTextFieldHabitat(), gridBagConstraints172);
 			jPanel.add(jLabel41, gridBagConstraints115);
 			jPanel.add(getJComboBox(), gridBagConstraints29);
 			jPanel.add(jLabel42, gridBagConstraints37);
@@ -1409,12 +1508,12 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jPanel.add(getJTextField9(), gridBagConstraints213);
 			jPanel.add(getJButtonNext(), gridBagConstraints119);
 			jPanel.add(getJButtonPrevious(), gridBagConstraints214);
-			jPanel.add(getJScrollPane1(), gridBagConstraints49);
+			jPanel.add(getJScrollPaneNotes(), gridBagConstraints49);
 			jPanel.add(jLabel44, gridBagConstraints120);
 			jPanel.add(getJButton13(), gridBagConstraints215);
 			jPanel.add(getJButton2(), gridBagConstraints38);
 			jPanel.add(getJButtonSpecificLocality(), gridBagConstraints124);
-			jPanel.add(getJTextField18(), gridBagConstraints216);
+			jPanel.add(getJTextFieldImgCount(), gridBagConstraints216);
 			jPanel.add(getJLabelMigrationStatus(),gridBagConstraintsMS);
 		}
 		return jPanel;
@@ -1631,6 +1730,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jScrollPaneSpecimenParts = new JScrollPane();
 			jScrollPaneSpecimenParts.setViewportView(getJTableSpecimenParts());
 			jScrollPaneSpecimenParts.setPreferredSize(new Dimension(0, 150));
+			jScrollPaneSpecimenParts.setMinimumSize(new Dimension(0, 100));
 			jScrollPaneSpecimenParts.addKeyListener(new java.awt.event.KeyAdapter() {
 				public void keyTyped(java.awt.event.KeyEvent e) {
 					thisPane.setStateToDirty();
@@ -1823,10 +1923,10 @@ public class SpecimenDetailsViewPane extends JPanel {
 	 * 	
 	 * @return javax.swing.JScrollPane	
 	 */
-	private JScrollPane getJScrollPane() {
+	private JScrollPane getJScrollPaneWarn() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getJTextPane());
+			jScrollPane.setViewportView(getJTextPaneWarn());
 		}
 		return jScrollPane;
 	}
@@ -1836,7 +1936,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 	 * 	
 	 * @return javax.swing.JTextPane	
 	 */
-	private JTextPane getJTextPane() {
+	private JTextPane getJTextPaneWarn() {
 		if (jTextPaneWarnings == null) {
 			jTextPaneWarnings = new JTextPane();
 			jTextPaneWarnings.setEditable(false);
@@ -2237,18 +2337,18 @@ public class SpecimenDetailsViewPane extends JPanel {
 	 * @return javax.swing.JTextField	
 	 */
 	private JTextField getJTextField11() {
-		if (jTextFieldVerbatimElevation == null) {
-			jTextFieldVerbatimElevation = new JTextField();
-			jTextFieldVerbatimElevation.setInputVerifier(
-					MetadataRetriever.getInputVerifier(Specimen.class, "VerbatimElevation", jTextFieldVerbatimElevation));
-			jTextFieldVerbatimElevation.setToolTipText(MetadataRetriever.getFieldHelp(Specimen.class, "VerbatimElevation"));
-			jTextFieldVerbatimElevation.addKeyListener(new java.awt.event.KeyAdapter() {
+		if (jTextFieldMinElevation == null) {
+			jTextFieldMinElevation = new JTextField();
+			jTextFieldMinElevation.setInputVerifier(
+					MetadataRetriever.getInputVerifier(Specimen.class, "VerbatimElevation", jTextFieldMinElevation));
+			jTextFieldMinElevation.setToolTipText(MetadataRetriever.getFieldHelp(Specimen.class, "VerbatimElevation"));
+			jTextFieldMinElevation.addKeyListener(new java.awt.event.KeyAdapter() {
 				public void keyTyped(java.awt.event.KeyEvent e) {
 					thisPane.setStateToDirty();
 				}
 			});
 		}
-		return jTextFieldVerbatimElevation;
+		return jTextFieldMinElevation;
 	}
 
 	/**
@@ -2276,7 +2376,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 	 * 	
 	 * @return javax.swing.JTextArea	
 	 */
-	private JTextArea getJTextArea() {
+	private JTextArea getJTextAreaNotes() {
 		if (jTextAreaSpecimenNotes == null) {
 			jTextAreaSpecimenNotes = new JTextArea();
 			jTextAreaSpecimenNotes.setRows(3);
@@ -2388,7 +2488,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 	 * 	
 	 * @return javax.swing.JTextField	
 	 */
-	private JTextField getJTextField34() {
+	private JTextField getJTextFieldHabitat() {
 		if (jTextFieldHabitat == null) {
 			jTextFieldHabitat = new JTextField();
 			jTextFieldHabitat.setInputVerifier(MetadataRetriever.getInputVerifier(Specimen.class, "Habitat", jTextFieldHabitat));
@@ -2714,12 +2814,12 @@ public class SpecimenDetailsViewPane extends JPanel {
 	 * 	
 	 * @return javax.swing.JScrollPane	
 	 */
-	private JScrollPane getJScrollPane1() {
-		if (jScrollPane1 == null) {
-			jScrollPane1 = new JScrollPane();
-			jScrollPane1.setViewportView(getJTextArea());
+	private JScrollPane getJScrollPaneNotes() {
+		if (jScrollPaneNotes == null) {
+			jScrollPaneNotes = new JScrollPane();
+			jScrollPaneNotes.setViewportView(getJTextAreaNotes());
 		}
-		return jScrollPane1;
+		return jScrollPaneNotes;
 	}
 
 	/**
@@ -2812,7 +2912,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 	 * 	
 	 * @return javax.swing.JTextField	
 	 */
-	private JLabel getJTextField18() {
+	private JLabel getJTextFieldImgCount() {
 		if (jTextFieldImageCount == null) {
 			jTextFieldImageCount = new JLabel("Number of Images=  ");
 			jTextFieldDateCreated.setForeground(Color.BLACK);
@@ -2826,7 +2926,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 		}
 		return lblHigherGeography;
 	}
-	private FilteringGeogJComboBox getComboBox() {
+	private FilteringGeogJComboBox getComboBoxHighGeog() {
 		if (comboBoxHigherGeog == null) {
 			MCZbaseGeogAuthRecLifeCycle mls = new MCZbaseGeogAuthRecLifeCycle();
 			comboBoxHigherGeog = new FilteringGeogJComboBox();
@@ -2849,5 +2949,38 @@ public class SpecimenDetailsViewPane extends JPanel {
 			});
 		}
 		return comboBoxHigherGeog;
+	}
+	private JTextField getTextFieldMaxElev() {
+		if (textFieldMaxElev == null) {
+			textFieldMaxElev = new JTextField();
+			textFieldMaxElev.setColumns(10);
+		}
+		return textFieldMaxElev;
+	}
+	private JComboBox getComboBoxElevUnits() {
+		if (comboBoxElevUnits == null) {
+			comboBoxElevUnits = new JComboBox();
+			comboBoxElevUnits.setModel(new DefaultComboBoxModel(new String[] {"", "?", "m", "ft"}));
+		}
+		return comboBoxElevUnits;
+	}
+	private JLabel getLblTo() {
+		if (lblTo == null) {
+			lblTo = new JLabel("to");
+		}
+		return lblTo;
+	}
+	private JLabel getLblMicrohabitat() {
+		if (lblMicrohabitat == null) {
+			lblMicrohabitat = new JLabel("Microhabitat");
+		}
+		return lblMicrohabitat;
+	}
+	private JTextField getTextField() {
+		if (textField == null) {
+			textField = new JTextField();
+			textField.setColumns(10);
+		}
+		return textField;
 	}
 }  //  @jve:decl-index=0:visual-constraint="10,15"

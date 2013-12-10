@@ -46,7 +46,10 @@ public class Specimen implements java.io.Serializable {
 	private String primaryDivison;
 	private String specificLocality;
 	private String verbatimLocality;
-	private String verbatimElevation;
+	// private String verbatimElevation;
+	private Long minimum_elevation;
+	private Long maximum_elevation;
+	private String elev_units;
 	private String collectingMethod;
 	private String isoDate;
 	private String dateNos;
@@ -60,6 +63,7 @@ public class Specimen implements java.io.Serializable {
 	private String sex;
 	// private String preparationType;  
 	private String habitat;
+	private String microhabitat;
 	private String associatedTaxon;
 	private String questions;
 	private String inferences;
@@ -121,12 +125,13 @@ public class Specimen implements java.io.Serializable {
 			String authorship, String unNamedForm,
 			String identificationQualifier, String identifiedBy,
 			String country, String primaryDivison, String specificLocality,
-			String verbatimLocality, String verbatimElevation,
+			String verbatimLocality,
+			Long minimum_elevation, Long maximum_elevation, String elev_units,
 			String collectingMethod, String dateNos, String dateEmerged,
 			String dateEmergedIndicator, String dateCollected,
 			String dateCollectedIndicator, String collection,
 			String specimenNotes, String lifeStage, String preparationType,
-			String sex,
+			String sex, String microhabitat,
 			String habitat, String associatedTaxon, String questions,
 			String inferences, String locationInCollection,
 			String workFlowStatus, String createdBy, Date dateCreated,
@@ -156,7 +161,10 @@ public class Specimen implements java.io.Serializable {
 		this.primaryDivison = primaryDivison;
 		this.specificLocality = specificLocality;
 		this.verbatimLocality = verbatimLocality;
-		this.verbatimElevation = verbatimElevation;
+		//this.verbatimElevation = verbatimElevation;
+		this.minimum_elevation = minimum_elevation;
+		this.maximum_elevation = maximum_elevation;
+		this.elev_units = elev_units;
 		this.collectingMethod = collectingMethod;
 		this.dateNos = dateNos;
 		this.dateEmerged = dateEmerged;
@@ -169,6 +177,7 @@ public class Specimen implements java.io.Serializable {
 		this.sex = sex;
 		//this.preparationType = preparationType;
 		this.habitat = habitat;
+		this.microhabitat = habitat;
 		this.associatedTaxon = associatedTaxon;
 		this.questions = questions;
 		this.inferences = inferences;
@@ -432,12 +441,54 @@ public class Specimen implements java.io.Serializable {
 		this.verbatimLocality = verbatimLocality;
 	}
 
-	public String getVerbatimElevation() {
-		return this.verbatimElevation;
+//	public String getVerbatimElevation() {
+//		return this.verbatimElevation;
+//	}
+//
+//	public void setVerbatimElevation(String verbatimElevation) {
+//		this.verbatimElevation = verbatimElevation;
+//	}
+
+	/**
+	 * @return the minimum_elevation
+	 */
+	public Long getMinimum_elevation() {
+		return minimum_elevation;
 	}
 
-	public void setVerbatimElevation(String verbatimElevation) {
-		this.verbatimElevation = verbatimElevation;
+	/**
+	 * @param minimum_elevation the minimum_elevation to set
+	 */
+	public void setMinimum_elevation(Long minimum_elevation) {
+		this.minimum_elevation = minimum_elevation;
+	}
+
+	/**
+	 * @return the maximum_elevation
+	 */
+	public Long getMaximum_elevation() {
+		return maximum_elevation;
+	}
+
+	/**
+	 * @param maximum_elevation the maximum_elevation to set
+	 */
+	public void setMaximum_elevation(Long maximum_elevation) {
+		this.maximum_elevation = maximum_elevation;
+	}
+
+	/**
+	 * @return the elev_units
+	 */
+	public String getElev_units() {
+		return elev_units;
+	}
+
+	/**
+	 * @param elev_units the elev_units to set
+	 */
+	public void setElev_units(String elev_units) {
+		this.elev_units = elev_units;
 	}
 
 	public String getCollectingMethod() {
@@ -527,6 +578,20 @@ public class Specimen implements java.io.Serializable {
 
 	public void setHabitat(String habitat) {
 		this.habitat = habitat;
+	}
+
+	/**
+	 * @return the microhabitat
+	 */
+	public String getMicrohabitat() {
+		return microhabitat;
+	}
+
+	/**
+	 * @param microhabitat the microhabitat to set
+	 */
+	public void setMicrohabitat(String microhabitat) {
+		this.microhabitat = microhabitat;
 	}
 
 	public String getAssociatedTaxon() {

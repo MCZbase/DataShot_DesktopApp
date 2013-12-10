@@ -57,6 +57,7 @@ import com.google.zxing.qrcode.QRCodeReader;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 import edu.harvard.mcz.imagecapture.data.UnitTrayLabel;
+import edu.harvard.mcz.imagecapture.exceptions.NoSuchTemplateException;
 import edu.harvard.mcz.imagecapture.exceptions.OCRReadException;
 import edu.harvard.mcz.imagecapture.exceptions.UnreadableFileException;
 
@@ -84,6 +85,35 @@ public class CandidateImageFile {
 
 	private static final Log log = LogFactory.getLog(CandidateImageFile.class);
 
+	/**
+	 * Constructor which detects the template to be used with the candidate image file.
+	 * 
+	 * @param aFile
+	 * @throws UnreadableFileException
+	 */
+	public CandidateImageFile(File aFile) throws UnreadableFileException  {
+		if (!aFile.canRead()) { 
+			try {
+				throw new UnreadableFileException("Can't read file " + aFile.getCanonicalPath());
+			} catch (IOException e) {
+				throw new UnreadableFileException("IOException on trying to get filename.");
+			}
+		}
+		PositionTemplate template = new PositionTemplate();
+		
+		// detect template to use.
+		MCZBarcodePositionTemplateDetector detector = new MCZBarcodePositionTemplateDetector();
+		
+		String templateName = detector.detectTemplateForImage(aFile);
+		
+		try {
+			template = new PositionTemplate(templateName);
+		} catch (NoSuchTemplateException e) {
+			log.error("Position template detector returned an unknown template name: " + templateName + ".", e);
+		}
+		setFile(aFile, template);
+	}
+	
 	/**
 	 * Constructor
 	 * 
@@ -322,7 +352,7 @@ public class CandidateImageFile {
 				barcodeStatus = RESULT_ERROR;
 			} else { 
 				// Could read image.  Try reading barcode from templated location.
-				if (image.getWidth() >= positionTemplate.getUtBarcodePosition().width) {
+				if (image.getWidth() >= positionTemplate.getUtBarcodePosition().width && image.getWidth() == Math.round(positionTemplate.getImageSize().getWidth())) {
 					// image might plausibly match template
 					int left = positionTemplate.getUtBarcodePosition().width;    //* @param left x coordinate of leftmost pixels to decode
 					int top =  positionTemplate.getUtBarcodePosition().height;  //* @param top y coordinate of topmost pixels to decode
@@ -346,6 +376,7 @@ public class CandidateImageFile {
 						log.debug(returnValue);
 					} 
 					if (inBounds) { 
+						log.debug("Looking for barcode in raw image crop.");
 						TextStatus checkResult = checkSourceForBarcode(source,true);
 						returnValue = checkResult.getText();
 						barcodeStatus = checkResult.getStatus();
@@ -364,6 +395,7 @@ public class CandidateImageFile {
 								log.error(e.getMessage());
 							}
 							if (width>scalingWidth) { 
+						        log.debug("Looking for barcode with scaled image crop: " +  Double.toString(scalingWidth) + "px.");
 								Double scale = scalingWidth / width;
 								int scaledHeight = (int) (height * scale); 
 								BufferedImage cropped = image.getSubimage(left, top, width, height);
@@ -500,7 +532,11 @@ public class CandidateImageFile {
 							}
 						}
 					} // In bounds
-				} // image is at least as wide as templated area.
+				} else {
+					// image is narrower than templated area.
+					log.debug("Skipping Template.  ImageWidth="+image.getWidth()+"; TemplateWidth="+Math.round(positionTemplate.getImageSize().getWidth()));
+				}
+				
 			} // image is readable
 		}
 		if (!returnValue.equals("") && barcodeStatus == RESULT_BARCODE_SCANNED) { 
@@ -671,6 +707,9 @@ public class CandidateImageFile {
 	 * and does not behave precisely as the getBarcodeText() methods.  Result state is not available from getBarcodeStatus()
 	 * and both errors and the absence of a barcode in the image result in an empty string being returned.
 	 * 
+	 * Attempts read of relevant crop from image, then attempts this with crop area scaled down, then attempts it 
+	 * with crop area sharpened.  Does not include shifts of location of crop area.
+	 * 
 	 * @param image The BufferedImage to check for a barcode.
 	 * @param positionTemplate The position template specifying where in the image to check for the barcode, if 
 	 * TEMPLATE_NO_COMPONENT_PARTS, the entire image is checked for a barcode, otherwise only the part of the image
@@ -769,6 +808,35 @@ public class CandidateImageFile {
 							returnValue = "";
 						}
 						if (returnValue.equals(""))  {
+							// Try again with a scaled down image
+							double scalingWidth = 400;
+							try { 
+								scalingWidth = Double.parseDouble(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGERESCALE));
+								if (scalingWidth < 1) { scalingWidth = 400; } 
+							} catch (NumberFormatException e) { 
+								log.error(e.getMessage());
+							}
+							if (width>scalingWidth) { 
+								Double scale = scalingWidth / width;
+								int scaledHeight = (int) (height * scale); 
+								BufferedImage cropped = image.getSubimage(left, top, width, height);
+								int initialH = cropped.getHeight();
+								int initialW = cropped.getWidth();
+								BufferedImage scaled = new BufferedImage(initialW, initialH, cropped.getType());
+								AffineTransform rescaleTransform = new AffineTransform();
+								rescaleTransform.scale(scale, scale);
+								AffineTransformOp scaleOp = new AffineTransformOp(rescaleTransform, AffineTransformOp.TYPE_BILINEAR);
+								scaled = scaleOp.filter(cropped, scaled);								
+								source = new BufferedImageLuminanceSource(scaled);
+								CandidateImageFile temp = new CandidateImageFile();
+								TextStatus checkResult = temp.checkSourceForBarcode(source,true);
+								returnValue = checkResult.getText();
+								int barcodeStatus = checkResult.getStatus();
+								log.debug(returnValue);
+								log.debug("barcodeStatus=" + barcodeStatus);
+							}	
+						} 
+						if (returnValue.equals(""))  {
 							// Try again with a sharpened image
 							try { 
 								log.debug("Trying sharpened: " + left + " " + right + " " + top + " " + bottom);
@@ -796,34 +864,6 @@ public class CandidateImageFile {
 								}
 							}
 						}
-						if (returnValue.equals(""))  {
-							// Try again with a different box
-							left = left - 10;
-							right = right + 5;
-							top = top + 5;
-							bottom = bottom + 5;
-							try { 
-								log.debug("Trying: " + left + " " + right + " " + top + " " + bottom);
-								source = new BufferedImageLuminanceSource(image, left,  top,  width, height);
-								inBounds = true;
-							} catch (IllegalArgumentException e) { 
-								inBounds = false;
-								returnValue = e.toString() + " " + e.getMessage();
-							} 
-							bitmap = new BinaryBitmap(new HybridBinarizer(source));
-							if (inBounds) { 
-								try {
-									QRCodeReader reader = new QRCodeReader();
-									Hashtable<DecodeHintType, Object> hints = null;
-									hints = new Hashtable<DecodeHintType, Object>(3);
-									hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE); 
-									result = reader.decode(bitmap,hints);
-									returnValue= result.getText();
-								} catch (ReaderException e) {
-									returnValue = "";
-								}
-							}
-						}						
 					} 
 				}
 			} 
@@ -860,7 +900,7 @@ public class CandidateImageFile {
 				returnValue =  "Could not decode image. " + error;
 				barcodeStatus = RESULT_ERROR;
 			} else { 
-				if (image.getWidth() > positionTemplate.getBarcodeULPosition().width) {
+				if (image.getWidth() > positionTemplate.getBarcodeULPosition().width && image.getWidth() == Math.round(positionTemplate.getImageSize().getWidth())) {
 					// image might plausibly match template
 					int left = positionTemplate.getBarcodeULPosition().width;    //* @param left x coordinate of leftmost pixels to decode
 					int top =  positionTemplate.getBarcodeULPosition().height;  //* @param top y coordinate of topmost pixels to decode
@@ -1013,8 +1053,9 @@ public class CandidateImageFile {
 					}
 
 				} else { 
-					// try scanning the entire image
-					returnValue = getBarcodeText();
+					// image is narrower than templated area.
+					returnValue = "Image is different size from Template.";
+					log.debug("ImageWidth="+image.getWidth()+"; TemplateWidth="+Math.round(positionTemplate.getImageSize().getWidth()));
 				}
 			} 
 		}

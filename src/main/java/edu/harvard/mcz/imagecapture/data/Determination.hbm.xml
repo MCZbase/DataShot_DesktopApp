@@ -38,7 +38,7 @@
             <column name="IdentifiedBy" />
         </property>
         <property name="typeStatus" type="string">
-            <column name="TypeStatus" length="50" not-null="true" />
+            <column name="TypeStatus" length="50" />
         </property>        
         <property name="speciesNumber" type="string">
             <column name="SpeciesNumber" length="50" />
