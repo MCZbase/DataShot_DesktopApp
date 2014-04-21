@@ -138,4 +138,31 @@ public class SpecimenPartAttributeLifeCycle {
 			throw re;
 		}
 	}	
+	
+	
+	/**Save or update an existing specimen part attribute record.
+	 * 
+	 * @param instance of a SpecimenPartAttribute that that is to be removed.
+	 * @throws SaveFailedException
+	 */
+	public void remove(SpecimenPartAttribute instance)  throws SaveFailedException {
+		log.debug("attaching dirty SpecimenPartAttribute instance");
+		try {
+			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			try {
+			   session.delete(instance); 
+			   session.getTransaction().commit();
+			   log.debug("attach successful");
+			} catch (HibernateException e) { 
+			   session.getTransaction().rollback();
+			   log.error("attach failed", e);
+			   throw new SaveFailedException("Unable to save.");
+			}
+			try { session.close(); } catch (SessionException e) { }
+		} catch (RuntimeException re) {
+			log.error("attach failed", re);
+			throw re;
+		}
+	}	
 }

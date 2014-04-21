@@ -167,6 +167,12 @@
         </property>
         <property name="flagAncilaryAlsoInMCZbase" type="java.lang.Boolean">
             <column name="flagAncilaryAlsoInMCZbase" />
+        </property>    
+        <property name="creatingPath" type="string">
+            <column name="creatingPath" length="900" />
+        </property>
+        <property name="creatingFilename" type="string">
+            <column name="creatingFilename" length="255" />
         </property>        
         <set name="collectors" inverse="true" cascade="save-update" fetch="subselect">
             <key>

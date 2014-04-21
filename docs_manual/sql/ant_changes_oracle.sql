@@ -86,3 +86,6 @@ create synonym lepidoptera.mczbase_geog_auth_rec for geog_auth_rec@mczbase_auth;
 
 ALTER TABLE LEPIDOPTERA.SPECIMEN 
 ADD (HIGHER_GEOGRAPHY VARCHAR2(255 CHAR) );
+
+alter table Specimen add column creatingPath varchar2(900 char); 
+alter table Specimen add column creatingFilename varchar2(255 char); 

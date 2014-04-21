@@ -145,7 +145,7 @@ public class SearchDialog extends JDialog {
 			gridBagConstraints17.gridy = 0;
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
-			jPanel.add(getJButton(), new GridBagConstraints());
+			jPanel.add(getJButtonSearch(), new GridBagConstraints());
 			jPanel.add(getJButton1(), gridBagConstraints17);
 		}
 		return jPanel;
@@ -156,7 +156,7 @@ public class SearchDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JButton	
 	 */
-	private JButton getJButton() {
+	private JButton getJButtonSearch() {
 		if (jButton == null) {
 			jButton = new JButton();
 			jButton.setText("Search");
@@ -168,6 +168,7 @@ public class SearchDialog extends JDialog {
 					// Default specimen is created with valid distribution flag = true, etc. need to remove this 
 					// from the search criteria for a search by example.
 					searchCriteria.clearDefaults();
+					
 					if (jTextFieldDrawerNumber.getText()!=null && jTextFieldDrawerNumber.getText().length()>0) { 
 					    searchCriteria.setDrawerNumber(jTextFieldDrawerNumber.getText());
 				    } 

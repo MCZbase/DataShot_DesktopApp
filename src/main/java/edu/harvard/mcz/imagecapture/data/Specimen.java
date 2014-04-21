@@ -2,7 +2,6 @@ package edu.harvard.mcz.imagecapture.data;
 
 // Generated Jan 23, 2009 8:12:35 AM by Hibernate Tools 3.2.2.GA
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -77,6 +76,8 @@ public class Specimen implements java.io.Serializable {
 	private Boolean flagInBulkloader;
 	private Boolean flagInMCZbase;
 	private Boolean flagAncilaryAlsoInMCZbase;
+	private String creatingPath;   // A path for image file, denormalized from Image.path for JPA query without join to Image. 
+	private String creatingFilename;
 	private Set<Collector> collectors = new HashSet<Collector>(0);
 	private Set<Determination> determinations = new HashSet<Determination>(0);
 	private Set<Tracking> trackings = new HashSet<Tracking>(0);
@@ -92,8 +93,13 @@ public class Specimen implements java.io.Serializable {
 	 * 
 	 */
 	public final void setDefaults() { 
+		// NOTE: Any default set here should also be cleared in clearDefaults 
+		// or searches by example may not return expected results.
 		this.typeStatus = STATUS_NOT_A_TYPE;
 		this.validDistributionFlag = true;
+		this.flagInBulkloader = false;
+		this.flagInMCZbase = false;
+		this.flagAncilaryAlsoInMCZbase = false;
 		//this.preparationType = "Pinned";
 	}
 	
@@ -101,8 +107,12 @@ public class Specimen implements java.io.Serializable {
 	 * is to be used as the search criteria for a search by pattern.
 	 */
 	public void clearDefaults() { 
+		// Note: these could also be ignored in SpecimenLifeCycle.findByExampleLike().
 		this.typeStatus = null;
 		this.validDistributionFlag = null;
+		this.flagInBulkloader = null;
+		this.flagInMCZbase = null;
+		this.flagAncilaryAlsoInMCZbase = null;		
 		//this.preparationType = null;
 	}
 	
@@ -732,6 +742,34 @@ public class Specimen implements java.io.Serializable {
 	 */
 	public void setFlagAncilaryAlsoInMCZbase(Boolean flagAncilaryAlsoInMCZbase) {
 		this.flagAncilaryAlsoInMCZbase = flagAncilaryAlsoInMCZbase;
+	}
+
+	/**
+	 * @return the path
+	 */
+	public String getCreatingPath() {
+		return creatingPath;
+	}
+
+	/**
+	 * @param path the path to set
+	 */
+	public void setCreatingPath(String path) {
+		this.creatingPath = path;
+	}
+
+	/**
+	 * @return the creatingFilename
+	 */
+	public String getCreatingFilename() {
+		return creatingFilename;
+	}
+
+	/**
+	 * @param creatingFilename the creatingFilename to set
+	 */
+	public void setCreatingFilename(String creatingFilename) {
+		this.creatingFilename = creatingFilename;
 	}
 
 	public Set<Collector> getCollectors() {

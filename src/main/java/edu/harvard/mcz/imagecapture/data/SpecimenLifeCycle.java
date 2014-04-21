@@ -22,6 +22,7 @@ import org.hibernate.LockMode;
 import org.hibernate.Query;
 import org.hibernate.SessionException;
 import org.hibernate.classic.Session;
+import org.hibernate.criterion.Example;
 import org.hibernate.metadata.ClassMetadata;
 
 import edu.harvard.mcz.imagecapture.MCZENTBarcode;
@@ -29,7 +30,6 @@ import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
 import edu.harvard.mcz.imagecapture.exceptions.SpecimenExistsException;
 import edu.harvard.mcz.imagecapture.interfaces.BarcodeBuilder;
-
 import static org.hibernate.criterion.Example.create;
 
 /**
@@ -302,7 +302,17 @@ public class SpecimenLifeCycle {
 			List<Specimen> results = null;
 			try { 
 				Criteria criteria = session.createCriteria("edu.harvard.mcz.imagecapture.data.Specimen");
-				criteria.add(create(instance).enableLike().ignoreCase());
+				instance.setFlagAncilaryAlsoInMCZbase(null);
+				instance.setFlagInBulkloader(null);
+				instance.setFlagInMCZbase(null);
+				
+				Example example = create(instance).enableLike().ignoreCase();
+				// Note: Criteria in example instance can be excluded here, or by setting their
+				// values to null.  See the invocation of Specimen.clearDefaults in 
+				// SearchDialog.getJButtonSearch()'s actionPerformed method.
+				//example.excludeProperty("flagInBulkloader");
+				criteria.add(example);
+				
 				criteria.setFetchMode("trackings", FetchMode.SELECT);
 				criteria.setFetchMode("specimenParts", FetchMode.SELECT);
 				criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);

@@ -395,7 +395,12 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 							    s.setBarcode(barcode);
 							}
 							s.setWorkFlowStatus(state);
-							if (state.equals(WorkFlowStatus.STAGE_0)) { 
+							if (!state.equals(WorkFlowStatus.STAGE_0)) {
+								s.setFamily(parser.getFamily());
+								s.setSubfamily(parser.getSubfamily());
+								s.setTribe(parser.getTribe());
+							} else { 
+								s.setFamily("");
 								// Look up likely matches for the OCR of the higher taxa in the HigherTaxon authority file.
 								HigherTaxonLifeCycle hls = new HigherTaxonLifeCycle();
 								if (parser.getTribe().trim().equals("")) {	
@@ -444,6 +449,7 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 							s.setAuthorship(parser.getAuthorship());
 							s.setDrawerNumber(((DrawerNameReturner)parser).getDrawerNumber());
 							s.setCollection(((CollectionReturner)parser).getCollection());
+							s.setCreatingPath(ImageCaptureProperties.getPathBelowBase(fileToCheck));
 							log.debug(s.getCollection());
 
 							// TODO: non-general workflows
