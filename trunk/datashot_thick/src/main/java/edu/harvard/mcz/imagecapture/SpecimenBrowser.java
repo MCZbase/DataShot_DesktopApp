@@ -28,6 +28,7 @@ import javax.swing.JTable;
 import javax.swing.RowFilter;
 import javax.swing.table.TableRowSorter;
 
+import edu.harvard.mcz.imagecapture.data.HibernateUtil;
 import edu.harvard.mcz.imagecapture.data.ICImageListTableModel;
 import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
@@ -45,6 +46,8 @@ import javax.swing.JComboBox;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.SessionException;
+import org.hibernate.TransactionException;
 
 import java.awt.Insets;
 import java.util.ArrayList;
@@ -120,7 +123,19 @@ public class SpecimenBrowser extends JPanel implements DataChangeListener {
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getJTable());
+			try { 
+			    jScrollPane.setViewportView(getJTable());
+			} catch (SessionException e) { 
+				log.debug(e.getMessage(),e);
+				Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Database Connection Error.");
+				HibernateUtil.terminateSessionFactory();
+				this.setVisible(false);			
+			} catch (TransactionException e) { 
+				log.debug(e.getMessage(),e);
+				Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Database Connection Error.");
+				HibernateUtil.terminateSessionFactory();
+				this.setVisible(false);
+			}
 			jScrollPane.setPreferredSize(new Dimension(444, 290));
 		}
 		return jScrollPane;

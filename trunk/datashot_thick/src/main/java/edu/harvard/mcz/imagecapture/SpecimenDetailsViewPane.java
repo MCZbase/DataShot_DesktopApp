@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import edu.harvard.mcz.imagecapture.data.Collector;
 import edu.harvard.mcz.imagecapture.data.CollectorTableModel;
 import edu.harvard.mcz.imagecapture.data.Features;
+import edu.harvard.mcz.imagecapture.data.HibernateUtil;
 import edu.harvard.mcz.imagecapture.data.HigherGeographyComboBoxModel;
 import edu.harvard.mcz.imagecapture.data.HigherTaxonLifeCycle;
 import edu.harvard.mcz.imagecapture.data.ICImage;
@@ -85,6 +86,8 @@ import javax.swing.table.TableColumn;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.SessionException;
+import org.hibernate.TransactionException;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
 /**
@@ -254,11 +257,23 @@ public class SpecimenDetailsViewPane extends JPanel {
 //				}
 //			}
 //		}
-		s.attachClean(specimen);
-	    myControler = aControler;
-		initialize();
-		setValues();	
-		thisPane = this;
+		try {
+			s.attachClean(specimen);
+			myControler = aControler;
+			initialize();
+			setValues();	
+			thisPane = this;
+		} catch (SessionException e) { 
+			log.debug(e.getMessage(),e);
+			Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Database Connection Error.");
+			HibernateUtil.terminateSessionFactory();
+			this.setVisible(false);			
+		} catch (TransactionException e) { 
+			log.debug(e.getMessage(),e);
+			Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Database Connection Error.");
+			HibernateUtil.terminateSessionFactory();
+			this.setVisible(false);
+		}
 	}
 	
 	public void setWarning(String warning) { 
