@@ -47,3 +47,5 @@ CREATE TABLE MCZBASE_GEOG_AUTH_REC (
 );
 
 alter table Specimen add column higher_geography varchar(255); 
+alter table Specimen add column creatingPath varchar(900); 
+alter table Specimen add column creatingFilename varchar(255); 

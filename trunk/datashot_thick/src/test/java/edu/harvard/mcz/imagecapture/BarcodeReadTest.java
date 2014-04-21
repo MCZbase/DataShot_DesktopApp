@@ -26,6 +26,8 @@ import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

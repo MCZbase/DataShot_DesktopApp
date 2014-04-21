@@ -23,11 +23,13 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.util.Collection;
 
-import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 
@@ -35,12 +37,16 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
+
 import javax.swing.JLabel;
 import javax.swing.JTable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.harvard.mcz.imagecapture.data.Caste;
+import edu.harvard.mcz.imagecapture.data.LifeStage;
+import edu.harvard.mcz.imagecapture.data.Sex;
 import edu.harvard.mcz.imagecapture.data.SpecimenPart;
 import edu.harvard.mcz.imagecapture.data.SpecimenPartAttribute;
 import edu.harvard.mcz.imagecapture.data.SpecimenPartAttributeLifeCycle;
@@ -51,8 +57,12 @@ import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  * Dialog providing a list of specimen part attributes for a specimen part, 
@@ -66,17 +76,12 @@ public class SpecimenPartAttributeDialog extends JDialog {
 
 	private static final Log log = LogFactory.getLog(SpecimenPartAttributeDialog.class);
 	
-	private static final String[] CASTES = new String[] {
-        "1st instar larva", "2nd instar larva", "3rd instar larva", 
-        "dealiated adult", "drone", "female", "female alate", "female reproductive", 
-        "juvenile", "larva", "larval case", "major", "male", "male alate", 
-        "minor", "nymph", "other", "pupa", "queen", "slave", "slave-maker", 
-        "soldier", "unknown", "worker",			
-         };
-	
 	private SpecimenPartAttributeDialog thisDialog;
 	private final JPanel contentPanel = new JPanel();
 	private JTable table;
+	private JPopupMenu popupMenu; // on table
+	private int clickedOnRow;     // on table
+	
 	private JButton okButton;
 	
 	private SpecimenPart parentPart;
@@ -113,7 +118,7 @@ public class SpecimenPartAttributeDialog extends JDialog {
 	
 	private void init() { 
 		thisDialog = this;
-		setBounds(100, 100, 720, 335);
+		setBounds(100, 100, 820, 335);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -140,7 +145,30 @@ public class SpecimenPartAttributeDialog extends JDialog {
 			}
 			{
 				comboBoxType = new JComboBox();
-				comboBoxType.setModel(new DefaultComboBoxModel(new String[] {"caste"}));
+				comboBoxType.setModel(new DefaultComboBoxModel(new String[] {"caste", "scientific name", "sex", "life stage"}));
+				comboBoxType.addActionListener(new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						String item = comboBoxType.getSelectedItem().toString();
+						if (item!=null) {
+							comboBoxValue.setEditable(false);
+							if (item.equals("scientific name")) { 
+								comboBoxValue.setEditable(true);
+							}
+							if (item.equals("sex")) { 
+								comboBoxValue.setModel(new DefaultComboBoxModel(Sex.getSexValues()));
+							}
+							if (item.equals("life stage")) { 
+								comboBoxValue.setModel(new DefaultComboBoxModel(LifeStage.getLifeStageValues()));
+							}
+							if (item.equals("caste")) { 
+								comboBoxValue.setModel(new DefaultComboBoxModel(Caste.getCasteValues()));
+							}
+						}
+					} 
+					
+				});
 				panel.add(comboBoxType, "4, 2, fill, default");
 			}
 			{
@@ -149,8 +177,7 @@ public class SpecimenPartAttributeDialog extends JDialog {
 			}
 			{
 				comboBoxValue = new JComboBox();
-				
-				comboBoxValue.setModel(new DefaultComboBoxModel(CASTES));
+				comboBoxValue.setModel(new DefaultComboBoxModel(Caste.getCasteValues()));
 				
 				panel.add(comboBoxValue, "4, 4, fill, default");
 			}
@@ -199,7 +226,7 @@ public class SpecimenPartAttributeDialog extends JDialog {
 				panel.add(btnAdd, "4, 10");
 			}
 	        try {
-			    JLabel lblNewLabel = new JLabel(parentPart.getSpecimenId().getBarcode() + ":" + parentPart.getPartName() + " " + parentPart.getPreserveMethod() + " (" + parentPart.getLotCount() + ")");
+			    JLabel lblNewLabel = new JLabel(parentPart.getSpecimenId().getBarcode() + ":" + parentPart.getPartName() + " " + parentPart.getPreserveMethod() + " (" + parentPart.getLotCount() + ")    Right click on table to edit attributes.");
 			    contentPanel.add(lblNewLabel, BorderLayout.NORTH);
 		    } catch (Exception e) {
 	    		JLabel lblNewLabel = new JLabel("No Specimen");
@@ -208,14 +235,69 @@ public class SpecimenPartAttributeDialog extends JDialog {
 			JComboBox comboBox = new JComboBox();
 			comboBox.addItem("caste");
 			JComboBox comboBox1 = new JComboBox();
-			for (int i=0; i<CASTES.length; i++) { 
-				comboBox1.addItem(CASTES[i]);
+			for (int i=0; i<Caste.getCasteValues().length; i++) { 
+				comboBox1.addItem(Caste.getCasteValues()[i]);
 			}
 			JScrollPane scrollPane = new JScrollPane();
 			
 		    table = new JTable(new SpecimenPartsAttrTableModel((Collection<SpecimenPartAttribute>) parentPart.getAttributeCollection()));
-		    table.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(comboBox));			
-		    table.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(comboBox1));
+		    
+		    //table.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(comboBox));	
+		    
+		    table.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					if (e.isPopupTrigger()) { 
+						 clickedOnRow = ((JTable)e.getComponent()).getSelectedRow();
+					     popupMenu.show(e.getComponent(),e.getX(),e.getY());
+					}
+				}
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					if (e.isPopupTrigger()) { 
+						 clickedOnRow = ((JTable)e.getComponent()).getSelectedRow();
+					     popupMenu.show(e.getComponent(),e.getX(),e.getY());
+					}
+				}
+			});
+		    
+		    popupMenu = new JPopupMenu();
+		    
+			JMenuItem mntmCloneRow = new JMenuItem("Edit Row");
+			mntmCloneRow.setMnemonic(KeyEvent.VK_E);
+			mntmCloneRow.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) { 
+					try {
+						// Launch a dialog to edit the selected row.
+						SpecimenPartAttribEditDialog popup = new SpecimenPartAttribEditDialog(((SpecimenPartsAttrTableModel)table.getModel()).getRowObject(clickedOnRow));
+						popup.setVisible(true);
+					} catch (Exception ex) { 
+						log.error(ex.getMessage());
+						JOptionPane.showMessageDialog(thisDialog, "Failed to edit a part attribute row. " + ex.getMessage());
+					}
+				}
+			});	
+			popupMenu.add(mntmCloneRow);
+			
+			JMenuItem mntmDeleteRow = new JMenuItem("Delete Row");
+			mntmDeleteRow.setMnemonic(KeyEvent.VK_D);
+			mntmDeleteRow.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) { 
+					try { 
+						if (clickedOnRow>=0) { 
+					       ((SpecimenPartsAttrTableModel)table.getModel()).deleteRow(clickedOnRow);
+						}
+					} catch (Exception ex) { 
+						log.error(ex.getMessage());
+						JOptionPane.showMessageDialog(thisDialog, "Failed to delete a part attribute row. " + ex.getMessage());
+					}
+				}
+			});	
+			popupMenu.add(mntmDeleteRow);	
+		    
+		    // TODO: Enable controlled value editing of selected row.
+		    
+		    // table.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(comboBox1));
 		    
 		    scrollPane.setViewportView(table);
 			contentPanel.add(scrollPane, BorderLayout.EAST);

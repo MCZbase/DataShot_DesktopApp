@@ -31,6 +31,8 @@ import javax.swing.JComboBox;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 
+import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
+
 import java.util.ArrayList;
 
 
@@ -150,8 +152,29 @@ public class SpecimenPartsAttrTableModel extends AbstractTableModel {
 	 */
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		boolean result = true;
+		boolean result = false;
 		return result;
+	}
+
+
+	/**
+	 * @param rowIndex row to be deleted
+	 */
+	public void deleteRow(int rowIndex) {
+		SpecimenPartAttribute toRemove = ((SpecimenPartAttribute)specimenPartAttributes.toArray()[rowIndex]);
+		SpecimenPartAttributeLifeCycle spals = new SpecimenPartAttributeLifeCycle();
+		try {
+			spals.remove(toRemove);
+		    specimenPartAttributes.remove(toRemove);
+		    fireTableDataChanged();
+		} catch (SaveFailedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public SpecimenPartAttribute getRowObject(int rowIndex) { 
+		return ((SpecimenPartAttribute)specimenPartAttributes.toArray()[rowIndex]);
 	}
 
 }

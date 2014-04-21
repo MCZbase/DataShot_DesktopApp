@@ -513,6 +513,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 													barcode, exifComment, "Couldn't read Taxon barcode, failed over to OCR only.",
 													(TaxonNameReturner)parser, null,
 											null, ImagePreprocessError.TYPE_FAILOVER_TO_OCR);
+											counter.appendError(error);
 										}  else { 
 											state = WorkFlowStatus.STAGE_1;
 											parser = labelRead;
@@ -593,9 +594,14 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 										}
 										s.setWorkFlowStatus(state);
 										
-										if (state.equals(WorkFlowStatus.STAGE_0)) { 
-											// Look up likely matches for the OCR of the higher taxa in the HigherTaxon authority file.
-
+										if (labelRead!=null) { 
+											//  We got json data from a barcode.  
+											s.setFamily(parser.getFamily());
+											s.setSubfamily(parser.getSubfamily());
+											s.setTribe(parser.getTribe());
+										} else { 
+                                            // We failed over to OCR, try lookup in DB.
+											s.setFamily("");  // make sure there's a a non-null value in family.
 											if (parser.getTribe().trim().equals("")) {	
 												HigherTaxonLifeCycle hls = new HigherTaxonLifeCycle();
 												if (hls.isMatched(parser.getFamily(), parser.getSubfamily()))  {
@@ -622,6 +628,10 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 													s.setTribe(parser.getTribe());
 												}					
 											}
+										}
+										if (state.equals(WorkFlowStatus.STAGE_0)) { 
+											// Look up likely matches for the OCR of the higher taxa in the HigherTaxon authority file.
+											
 											if (!parser.getFamily().equals(""))  {
 												// check family against database (with a soundex match)
 												HigherTaxonLifeCycle hls = new HigherTaxonLifeCycle();
@@ -645,6 +655,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 										s.setAuthorship(parser.getAuthorship());
 										s.setDrawerNumber(((DrawerNameReturner)parser).getDrawerNumber());
 										s.setCollection(((CollectionReturner)parser).getCollection());
+										s.setCreatingPath(ImageCaptureProperties.getPathBelowBase(fileToCheck));
 										log.debug(s.getCollection());
 
 										// TODO: non-general workflows
