@@ -420,6 +420,12 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 							s.setAuthorship(parser.getAuthorship());
 							s.setDrawerNumber(((DrawerNameReturner)parser).getDrawerNumber());
 							s.setCollection(((CollectionReturner)parser).getCollection());
+							if (s.getCreatingPath()==null || s.getCreatingPath().length()==0 ) { 
+							    s.setCreatingPath(ImageCaptureProperties.getPathBelowBase(file));
+							}
+							if (s.getCreatingFilename()==null || s.getCreatingFilename().length()==0) { 
+							    s.setCreatingFilename(file.getName());							
+							}
 							log.debug(s.getCollection());
 
 							// TODO: non-general workflows

@@ -11,7 +11,7 @@ package edu.harvard.mcz.imagecapture.data;
 public class Sex {
 	
 	public static String[] getSexValues() {
-		String[] values = {"", "Male", "Female", "NotApplicable", "Gynandromorph", "Intersex"};
+		String[] values = {"", "Male", "Female", "NotApplicable", "Gynandromorph", "Intersex","unknown"};
 		return values;
 	}
 

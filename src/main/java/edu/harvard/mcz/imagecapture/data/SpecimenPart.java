@@ -20,8 +20,15 @@ import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
  */
 public class SpecimenPart {
 	
-	public static final String[] PARTNAMES = {"whole animal", "partial animal"};
-	public static final String[] PRESERVENAMES = {"pinned", "pointed"};
+	public static final String[] PARTNAMES = {
+		"whole animal", "partial animal",
+		"partial animal (abdomen)","partial animal (body)","partial animal (legs)","partial animal(wings)",
+	   "cocoon","frass", "frass chain", "genitalia", "head capsule", 
+	   "head capsule hat", "larval case", "larval shelter",
+	   "molt", "other", "pupal exuvia", "pupal shelter", "puparium", 
+	   "sphragis" 
+	   } ;
+	public static final String[] PRESERVENAMES = {"pinned", "pointed","carded","envelope","capsule"};
 	
 	private static final Log log = LogFactory.getLog(SpecimenPart.class);
 	

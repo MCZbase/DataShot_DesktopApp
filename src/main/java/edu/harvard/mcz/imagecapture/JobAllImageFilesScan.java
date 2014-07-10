@@ -656,6 +656,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 										s.setDrawerNumber(((DrawerNameReturner)parser).getDrawerNumber());
 										s.setCollection(((CollectionReturner)parser).getCollection());
 										s.setCreatingPath(ImageCaptureProperties.getPathBelowBase(fileToCheck));
+										s.setCreatingFilename(fileToCheck.getName());
 										log.debug(s.getCollection());
 
 										// TODO: non-general workflows

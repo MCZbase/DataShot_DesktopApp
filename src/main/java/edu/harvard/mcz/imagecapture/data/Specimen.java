@@ -84,6 +84,7 @@ public class Specimen implements java.io.Serializable {
 	private Set<Number> numbers = new HashSet<Number>(0);
 	private Set<ICImage> ICImages = new HashSet<ICImage>(0);
 	private Set<SpecimenPart> specimenParts = new HashSet<SpecimenPart>(0);
+	private Set<LatLong> georeferences = new HashSet<LatLong>(0);
 
 	public Specimen() {
 		setDefaults();
@@ -825,6 +826,22 @@ public class Specimen implements java.io.Serializable {
 	public void setSpecimenParts(Set<SpecimenPart> specimenParts) {
 		this.specimenParts = specimenParts;
 	}
+	
+	public Set<LatLong> getLatLong() {
+		if (georeferences==null) { 
+			georeferences = new HashSet<LatLong>();
+		}
+		if (georeferences.isEmpty()) { 
+			LatLong georef = new LatLong();
+			georef.setSpecimenId(this);
+			georeferences.add(georef);
+		}
+		return georeferences;
+	}	
+	
+	public void setLatLong(Set<LatLong> latlongs) {
+		this.georeferences = latlongs;
+	}	
 
 	public boolean isStateDone() {
 		boolean result = false;
