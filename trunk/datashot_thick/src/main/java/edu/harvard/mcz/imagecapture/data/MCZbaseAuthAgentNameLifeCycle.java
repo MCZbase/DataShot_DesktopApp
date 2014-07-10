@@ -34,20 +34,20 @@ import org.hibernate.classic.Session;
  * @author mole
  *
  */
-public class MCZbaseGeogAuthRecLifeCycle {
-	private static final Log log = LogFactory.getLog(MCZbaseGeogAuthRecLifeCycle.class);
+public class MCZbaseAuthAgentNameLifeCycle {
+	private static final Log log = LogFactory.getLog(MCZbaseAuthAgentNameLifeCycle.class);
 
 	/**
 	 * @return
 	 */
-	public List<MCZbaseGeogAuthRec> findAll() {
-		log.debug("finding all Higher geographies");
+	public List<MCZbaseAuthAgentName> findAll() {
+		log.debug("finding all agent names");
 		try {
 			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
-			List<MCZbaseGeogAuthRec> results = null;
+			List<MCZbaseAuthAgentName> results = null;
 			try { 
-			    results = (List<MCZbaseGeogAuthRec>) session.createQuery("from MCZbaseGeogAuthRec h order by h.higher_geog").setReadOnly(true).list();
+			    results = (List<MCZbaseAuthAgentName>) session.createQuery("from MCZbaseAuthAgentName h order by h.agent_name").setReadOnly(true).list();
 			    log.debug("find all successful, result size: " + results.size());
 			    session.getTransaction().commit();
 		    } catch (HibernateException e) {
@@ -66,17 +66,17 @@ public class MCZbaseGeogAuthRecLifeCycle {
 	 * @param pattern
 	 * @return
 	 */
-	public List<MCZbaseGeogAuthRec> findByExample(MCZbaseGeogAuthRec pattern) {
-		log.debug("finding Higher Geographies by example");
+	public List<MCZbaseAuthAgentName> findByExample(MCZbaseAuthAgentName pattern) {
+		log.debug("finding agent names by example");
 		try {
 			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
-			List<MCZbaseGeogAuthRec> results = null;
+			List<MCZbaseAuthAgentName> results = null;
 			try { 
-				Criteria criteria = session.createCriteria("edu.harvard.mcz.imagecapture.data.MCZbaseGeogAuthRec");
+				Criteria criteria = session.createCriteria("edu.harvard.mcz.imagecapture.data.MCZbaseAuthAgentName");
 				criteria.add(create(pattern));
 				//criteria.setReadOnly(true);
-			    results = (List<MCZbaseGeogAuthRec>) criteria.list();
+			    results = (List<MCZbaseAuthAgentName>) criteria.list();
 			    log.debug("find by example successful, result size: " + results.size());
 			    session.getTransaction().commit();
 		    } catch (HibernateException e) {
@@ -89,9 +89,7 @@ public class MCZbaseGeogAuthRecLifeCycle {
 			log.error("find by example failed", re);
 			throw re;
 		}
-	}	
-	
-	
+	}
 	
 	
 }

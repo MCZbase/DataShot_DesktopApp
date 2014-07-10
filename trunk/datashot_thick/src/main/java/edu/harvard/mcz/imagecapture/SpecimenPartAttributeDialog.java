@@ -44,6 +44,7 @@ import javax.swing.JTable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.harvard.mcz.imagecapture.data.AssociatedTaxon;
 import edu.harvard.mcz.imagecapture.data.Caste;
 import edu.harvard.mcz.imagecapture.data.LifeStage;
 import edu.harvard.mcz.imagecapture.data.Sex;
@@ -145,7 +146,7 @@ public class SpecimenPartAttributeDialog extends JDialog {
 			}
 			{
 				comboBoxType = new JComboBox();
-				comboBoxType.setModel(new DefaultComboBoxModel(new String[] {"caste", "scientific name", "sex", "life stage"}));
+				comboBoxType.setModel(new DefaultComboBoxModel(new String[] {"caste", "scientific name", "sex", "life stage", "associated taxon"}));
 				comboBoxType.addActionListener(new ActionListener() {
 
 					@Override
@@ -164,6 +165,9 @@ public class SpecimenPartAttributeDialog extends JDialog {
 							}
 							if (item.equals("caste")) { 
 								comboBoxValue.setModel(new DefaultComboBoxModel(Caste.getCasteValues()));
+							}
+							if (item.equals("associated taxon")) { 
+								comboBoxValue.setModel(new DefaultComboBoxModel(AssociatedTaxon.getAssociatedTaxonValues()));
 							}
 						}
 					} 

@@ -103,7 +103,12 @@ public class CollectorTableModel extends AbstractTableModel {
 	 */
 	@Override
 	public void setValueAt(Object value, int rowIndex, int columnIndex) {
+		try {
 		((Collector)collectors.toArray()[rowIndex]).setCollectorName((String)value);
+		} catch (ClassCastException e) { 
+			// Object is an agentname not a string.
+		    ((Collector)collectors.toArray()[rowIndex]).setCollectorName(((MCZbaseAuthAgentName)value).getAgent_name());
+		}
 	}
 
 	

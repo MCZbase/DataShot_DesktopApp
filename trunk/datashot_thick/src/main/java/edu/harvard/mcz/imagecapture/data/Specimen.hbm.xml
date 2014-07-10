@@ -210,5 +210,11 @@
             </key>
             <one-to-many class="edu.harvard.mcz.imagecapture.data.SpecimenPart" />
         </set>
+        <set name="LatLong" inverse="true" cascade="all" fetch="subselect">
+            <key>
+                <column name="SpecimenId" />
+            </key>
+            <one-to-many class="edu.harvard.mcz.imagecapture.data.LatLong" />
+        </set>        
     </class>
 </hibernate-mapping>

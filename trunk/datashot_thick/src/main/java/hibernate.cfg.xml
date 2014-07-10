@@ -27,6 +27,8 @@
         <mapping resource="edu/harvard/mcz/imagecapture/data/Template.hbm.xml" />  
         <mapping resource="edu/harvard/mcz/imagecapture/data/HigherTaxon.hbm.xml" />
         <mapping resource="edu/harvard/mcz/imagecapture/data/UnitTrayLabel.hbm.xml" />     
-        <mapping resource="edu/harvard/mcz/imagecapture/data/MCZbaseGeogAuthRec.hbm.xml" />     
+        <mapping resource="edu/harvard/mcz/imagecapture/data/MCZbaseGeogAuthRec.hbm.xml" /> 
+        <mapping resource="edu/harvard/mcz/imagecapture/data/MCZbaseAuthAgentName.hbm.xml" /> 
+        <mapping resource="edu/harvard/mcz/imagecapture/data/LatLong.hbm.xml" />
     </session-factory>
 </hibernate-configuration>

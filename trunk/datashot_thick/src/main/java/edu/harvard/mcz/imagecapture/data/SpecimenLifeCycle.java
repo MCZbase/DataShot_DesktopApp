@@ -106,6 +106,12 @@ public class SpecimenLifeCycle {
 			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
 			try {
+			   if (!instance.getLatLong().isEmpty()) { 
+				   LatLong ll = instance.getLatLong().iterator().next();
+				   if (ll.getSpecimenId()==null) { 
+					   instance.getLatLong().iterator().next().setSpecimenId(instance);
+				   }
+			   }
 			   session.saveOrUpdate(instance); 
 			   session.getTransaction().commit();
 			   log.debug("attach successful");
@@ -145,7 +151,14 @@ public class SpecimenLifeCycle {
 				log.debug(instance.getSpecimenParts().size());
 			} catch (HibernateException e) { 
 				session.getTransaction().rollback();
-				log.error("attach failed", e);
+			    log.debug(e.getMessage(),e);
+			    log.debug("Trying to attach dirty");
+				try {
+					attachDirty(instance);
+				} catch (SaveFailedException e1) {
+				    log.error("attach failed", e1);
+					e1.printStackTrace();
+				}
 			}
 			try { session.close(); } catch (SessionException e) { }
 		} catch (RuntimeException re) {

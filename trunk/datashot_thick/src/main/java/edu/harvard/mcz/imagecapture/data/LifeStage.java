@@ -10,7 +10,12 @@ import edu.harvard.mcz.imagecapture.interfaces.ValueLister;
 public class LifeStage implements ValueLister {
 
 	public static String[] getLifeStageValues() { 
-		String[] lifestages = {"Adult","Non-Adult","Pupa","Larva","Egg","pupal shelter","puparium","NotApplicable"};
+		String[] lifestages = {
+				"adult","callow","egg","juvenile","larva",
+				"naiad","non-adult","nymph","pharate","pupa",
+				"teneral adult", "teneral nymph",
+				"1st instar","2nd instar","3rd instar","4th instar","5th instar","6th instar","7th instar"
+				};
 		return lifestages;
 	}
 

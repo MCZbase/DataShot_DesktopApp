@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 23, 2009 8:12:35 AM by Hibernate Tools 3.2.2.GA -->
+<hibernate-mapping>
+    <class name="edu.harvard.mcz.imagecapture.data.LatLong" table="LAT_LONG" catalog="lepidoptera">
+        <id name="latLongId" type="java.lang.Long">
+            <column name="LAT_LONG_ID" />
+            <generator class="native" >
+                <param name="sequence">SEQ_LAT_LONG</param> 
+            </generator>
+        </id>
+        <many-to-one name="specimenId" class="edu.harvard.mcz.imagecapture.data.Specimen" fetch="join" cascade="save-update">
+            <column name="SpecimenId" not-null="true" />
+        </many-to-one>
+        <property name="datum" type="string">
+            <column name="DATUM" length ="55" />
+        </property>
+        <property name="origLatLongUnits" type="string">
+            <column name="ORIG_LAT_LONG_UNITS" length ="20" />
+        </property>
+        <property name="decLat" type="java.math.BigDecimal">
+            <column name="DEC_LAT" />
+        </property>
+        <property name="decLong" type="java.math.BigDecimal">
+            <column name="DEC_LONG" />
+        </property>
+        <property name="georefmethod" type="string">
+            <column name="GEOREFMETHOD" length ="55" />
+        </property>
+        <property name="acceptedLatLongFg" type="java.lang.Boolean">
+            <column name="ACCEPTED_LAT_LONG_FG"  />
+        </property>
+        <property name="decLatMin" type="java.math.BigDecimal">
+            <column name="DEC_LAT_MIN" />
+        </property>
+        <property name="decLongMin" type="java.math.BigDecimal">
+            <column name="DEC_LONG_MIN" />
+        </property>
+        <property name="determinedByAgent" type="string">
+            <column name="DETERMINED_BY_AGENT" length ="255" />
+        </property>
+        <property name="determinedDate" type="java.util.Date">
+            <column name="DETERMINED_DATE" />
+        </property>
+        <property name="extent" type="java.math.BigDecimal">
+            <column name="EXTENT" />
+        </property>
+        <property name="fieldVerifiedFg" type="java.lang.Boolean">
+            <column name="FIELD_VERIFIED_FG" />
+        </property>
+        <property name="gpsaccuracy" type="java.math.BigDecimal">
+            <column name="GPSACCURACY" />
+        </property>
+        <property name="latLongRefSource" type="string">
+            <column name="LAT_LONG_REF_SOURCE" length ="500" />
+        </property>
+        <property name="verificationstatus" type="string">
+            <column name="VERIFICATIONSTATUS" length ="40" />
+        </property>
+        <property name="latLongForNnpFg" type="java.lang.Boolean">
+            <column name="LAT_LONG_FOR_NNP_FG"  />
+        </property>
+        <property name="latLongRemarks" type="string">
+            <column name="LAT_LONG_REMARKS" length ="4000" />
+        </property>
+        
+        <property name="latDeg" type="java.lang.Integer">
+            <column name="LAT_DEG" />
+        </property>
+        <property name="latDir" type="string">
+            <column name="LAT_DIR" length ="1" />
+        </property>
+        <property name="latMin" type="java.lang.Integer">
+            <column name="LAT_MIN" />
+        </property>
+        <property name="latSec" type="java.math.BigDecimal">
+            <column name="LAT_SEC" />
+        </property>
+        
+        <property name="longDeg" type="java.lang.Integer">
+            <column name="LONG_DEG" />
+        </property>
+        <property name="longDir" type="string">
+            <column name="LONG_DIR" length ="1" />
+        </property>
+        <property name="longMin" type="java.lang.Integer">
+            <column name="LONG_MIN" />
+        </property>
+        <property name="longSec" type="java.math.BigDecimal">
+            <column name="LONG_SEC" />
+        </property>        
+        
+        <property name="maxErrorDistance" type="java.lang.Integer">
+            <column name="MAX_ERROR_DISTANCE" />
+        </property>
+        <property name="maxErrorUnits" type="string">
+            <column name="MAX_ERROR_UNITS" length ="2" />
+        </property>
+        <property name="nearestNamedPlace" type="string">
+            <column name="NEAREST_NAMED_PLACE" length ="255" />
+        </property>
+        <property name="utmNs" type="java.lang.Integer">
+            <column name="UTM_NS" />
+        </property>
+        <property name="utmEw" type="java.lang.Integer">
+            <column name="UTM_EW" />
+        </property>
+        <property name="utmZone" type="string">
+            <column name="UTM_ZONE" length ="3" />
+        </property>
+<!-- 
+    
+| LAT_LONG_ID          | bigint(20)     | NO   | PRI | NULL    | auto_increment |
+| specimenid           | bigint(20)     | NO   | UNI | NULL    |                |
+| LAT_DEG              | int(11)        | YES  |     | NULL    |                |
+| DEC_LAT_MIN          | decimal(8,6)   | YES  |     | NULL    |                |
+| LAT_MIN              | int(11)        | YES  |     | NULL    |                |
+| LAT_SEC              | decimal(8,6)   | YES  |     | NULL    |                |
+| LAT_DIR              | varchar(1)     | YES  |     | NULL    |                |
+| LONG_DEG             | int(11)        | YES  |     | NULL    |                |
+| DEC_LONG_MIN         | decimal(10,8)  | YES  |     | NULL    |                |
+| LONG_MIN             | int(11)        | YES  |     | NULL    |                |
+| LONG_SEC             | decimal(8,6)   | YES  |     | NULL    |                |
+| LONG_DIR             | varchar(1)     | YES  |     | NULL    |                |
+| DEC_LAT              | decimal(12,10) | YES  | MUL | NULL    |                |
+| DEC_LONG             | decimal(13,10) | YES  |     | NULL    |                |
+| DATUM                | varchar(55)    | NO   |     | NULL    |                |
+| UTM_ZONE             | varchar(3)     | YES  |     | NULL    |                |
+| UTM_EW               | int(11)        | YES  |     | NULL    |                |
+| UTM_NS               | int(11)        | YES  |     | NULL    |                |
+| ORIG_LAT_LONG_UNITS  | varchar(20)    | NO   |     | NULL    |                |
+| DETERMINED_BY_AGENT  | varchar(255)   | YES  |     | NULL    |                |
+| DETERMINED_DATE      | date           | NO   |     | NULL    |                |
+| LAT_LONG_REF_SOURCE  | varchar(500)   | NO   |     | NULL    |                |
+| LAT_LONG_REMARKS     | varchar(4000)  | YES  |     | NULL    |                |
+| MAX_ERROR_DISTANCE   | int(11)        | YES  |     | NULL    |                |
+| MAX_ERROR_UNITS      | varchar(2)     | YES  |     | NULL    |                |
+| NEAREST_NAMED_PLACE  | varchar(255)   | YES  |     | NULL    |                |
+| LAT_LONG_FOR_NNP_FG  | int(11)        | YES  |     | NULL    |                |
+| FIELD_VERIFIED_FG    | int(11)        | YES  |     | NULL    |                |
+| ACCEPTED_LAT_LONG_FG | int(11)        | NO   |     | NULL    |                |
+| EXTENT               | decimal(12,5)  | YES  |     | NULL    |                |
+| GPSACCURACY          | decimal(8,3)   | YES  |     | NULL    |                |
+| GEOREFMETHOD         | varchar(255)   | NO   |     | NULL    |                |
+| VERIFICATIONSTATUS   | varchar(40)    | NO   |     | NULL    |                |    
+            
+ -->        
+        
+    </class>
+</hibernate-mapping>

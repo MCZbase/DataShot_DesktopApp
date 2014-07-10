@@ -38,7 +38,10 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
 import edu.harvard.mcz.imagecapture.Singleton;
+import edu.harvard.mcz.imagecapture.data.AgentNameComboBoxModel;
 import edu.harvard.mcz.imagecapture.data.HigherGeographyComboBoxModel;
+import edu.harvard.mcz.imagecapture.data.MCZbaseAuthAgentName;
+import edu.harvard.mcz.imagecapture.data.MCZbaseAuthAgentNameLifeCycle;
 import edu.harvard.mcz.imagecapture.data.MCZbaseGeogAuthRec;
 import edu.harvard.mcz.imagecapture.data.MCZbaseGeogAuthRecLifeCycle;
 
@@ -46,25 +49,22 @@ import edu.harvard.mcz.imagecapture.data.MCZbaseGeogAuthRecLifeCycle;
  * @author mole
  *
  */
-public class FilteringGeogJComboBox extends JComboBox<MCZbaseGeogAuthRec> implements FocusListener {
+public class FilteringAgentJComboBox extends JComboBox<MCZbaseAuthAgentName> implements FocusListener {
 	private static final long serialVersionUID = -7988464282872345110L;
-	private static final Log log = LogFactory.getLog(FilteringGeogJComboBox.class);
-
-	private String countryLimit;
-	private String stateprovLimit;
+	private static final Log log = LogFactory.getLog(FilteringAgentJComboBox.class);
 	
-	private HigherGeographyComboBoxModel cachedModel;
-	private int lastTextLength;
+	private AgentNameComboBoxModel cachedModel = null;
+    private int lastTextLength;
 	
 	/** 
 	 * Default no argument constructor, constructs a new FilteringJComboBox instance.
 	 */
-	public FilteringGeogJComboBox() {
-        super.setModel(new HigherGeographyComboBoxModel());
+	public FilteringAgentJComboBox() {
+        super.setModel(new AgentNameComboBoxModel());
         init();
 	}
 	
-	public void setHGModel(HigherGeographyComboBoxModel model) { 
+	public void setHGModel(AgentNameComboBoxModel model) { 
 		super.setModel(model);
 	}
 
@@ -73,16 +73,12 @@ public class FilteringGeogJComboBox extends JComboBox<MCZbaseGeogAuthRec> implem
 	 * 
 	 * @param valueList
 	 */
-    public FilteringGeogJComboBox(HigherGeographyComboBoxModel model) {
+    public FilteringAgentJComboBox(AgentNameComboBoxModel model) {
         super(model);
         init();
     } 
     
     private void init() { 
-        countryLimit = "";
-        stateprovLimit = "";
-        cachedModel = null;
-        lastTextLength = 0;
     	// listen for loss of focus on the text field
     	this.getEditor().getEditorComponent().addFocusListener(this);
         this.setEditable(true);
@@ -100,7 +96,7 @@ public class FilteringGeogJComboBox extends JComboBox<MCZbaseGeogAuthRec> implem
 
     }
 
-    public void setHigherGeographyModel(HigherGeographyComboBoxModel model) { 
+    public void setAgentNameModel(AgentNameComboBoxModel model) { 
     	super.setModel(model);
     }
     
@@ -109,30 +105,18 @@ public class FilteringGeogJComboBox extends JComboBox<MCZbaseGeogAuthRec> implem
     }
     
     protected void filter(String enteredText, boolean changePopupState) {
-    	if (countryLimit !=null && countryLimit.length()==0) { countryLimit = null; } 
-    	if (stateprovLimit !=null && stateprovLimit.length()==0) { stateprovLimit = null; } 
-    	if (enteredText == null || enteredText.length() == 0 || lastTextLength <  enteredText.length()) {
+    	log.debug(enteredText);
+    	log.debug("changePopupState:" + changePopupState);
+    	if (enteredText == null || enteredText.length() == 0 || enteredText.length() < lastTextLength) {
     		// If entry is blank, show full list.
-    		MCZbaseGeogAuthRecLifeCycle uls = new MCZbaseGeogAuthRecLifeCycle();
-    		if (countryLimit==null && stateprovLimit==null) { 
-    			if (cachedModel==null  || (enteredText==null || enteredText.length() < lastTextLength)) { 
-    			   cachedModel = new HigherGeographyComboBoxModel(uls.findAll());
-    			}
-    		    super.setModel(cachedModel);
+    		if (cachedModel==null || (enteredText!=null && enteredText.length() < lastTextLength)) { 
+    			log.debug("Querying for new list");
+    		    MCZbaseAuthAgentNameLifeCycle uls = new MCZbaseAuthAgentNameLifeCycle();
+    		    cachedModel = new AgentNameComboBoxModel(uls.findAll());
     		} else { 
-    			MCZbaseGeogAuthRec pattern = new MCZbaseGeogAuthRec();
-    			if (countryLimit!=null && countryLimit.length()>0) {
-    				pattern.setCountry(countryLimit);
-    			} else { 
-    			   if (stateprovLimit!=null && stateprovLimit.length() >0) { 
-    				   pattern.setState_prov(stateprovLimit);
-    			   }
-    			}
-    			if (cachedModel==null || (enteredText==null || enteredText.length() < lastTextLength) ) { 
-    		        cachedModel = new HigherGeographyComboBoxModel(uls.findByExample(pattern));
-    			}
-    		    super.setModel(cachedModel);
+    			log.debug("Reusing old agent list lenght = " + cachedModel.getSize());
     		}
+    		super.setModel(cachedModel);
     	}
     	if (!changePopupState) { 
     		this.firePopupMenuCanceled();
@@ -147,30 +131,30 @@ public class FilteringGeogJComboBox extends JComboBox<MCZbaseGeogAuthRec> implem
     		log.debug("Filtering on " + enteredText);
 
     		boolean isExactMatch = false;
-    		HigherGeographyComboBoxModel filterArray = new HigherGeographyComboBoxModel();
+    		AgentNameComboBoxModel filterArray = new AgentNameComboBoxModel();
     		filterArray.removeAllElements();
     		log.debug("Model size: " + super.getModel().getSize());
     		for (int i = 0; i < super.getModel().getSize(); i++) {
-    			if (((HigherGeographyComboBoxModel) super.getModel())
+    			if (((AgentNameComboBoxModel) super.getModel())
     					.getDataElementAt(i).toString().toLowerCase()
     					.contains(enteredText.toLowerCase())) {
-    				filterArray.addElement((MCZbaseGeogAuthRec)((HigherGeographyComboBoxModel) super
+    				filterArray.addElement((MCZbaseAuthAgentName)((AgentNameComboBoxModel) super
     						.getModel()).getDataElementAt(i));
     			}
-    			if (((HigherGeographyComboBoxModel) super.getModel())
+    			if (((AgentNameComboBoxModel) super.getModel())
     					.getDataElementAt(i).toString()
     					.equalsIgnoreCase(enteredText)) {
     				isExactMatch = true;
     				super.getModel().setSelectedItem(
-    						((HigherGeographyComboBoxModel) super.getModel())
+    						((AgentNameComboBoxModel) super.getModel())
     						.getDataElementAt(i));
     			}
     		}
     		if (filterArray.getSize() > 0) {
-    			HigherGeographyComboBoxModel model = (HigherGeographyComboBoxModel) this
+    			AgentNameComboBoxModel model = (AgentNameComboBoxModel) this
     					.getModel();
     			model.removeAllElements();
-    			Iterator<MCZbaseGeogAuthRec> i = filterArray.getModel().iterator();
+    			Iterator<MCZbaseAuthAgentName> i = filterArray.getModel().iterator();
     			while (i.hasNext()) {
     				model.addElement(i.next());
     			}
@@ -189,10 +173,10 @@ public class FilteringGeogJComboBox extends JComboBox<MCZbaseGeogAuthRec> implem
     			}
     		} 
     	}
-    	if (enteredText==null) { 
-    		lastTextLength = 0;
+    	if (enteredText!=null) { 
+           lastTextLength = enteredText.length();
     	} else { 
-            lastTextLength = enteredText.length();
+    	   lastTextLength = 0;
     	}
     }
 
@@ -212,38 +196,6 @@ public class FilteringGeogJComboBox extends JComboBox<MCZbaseGeogAuthRec> implem
             //textfield.setText(super.getModel().getSelectedItem().toString());
 		    this.getEditor().setItem(super.getModel().getSelectedItem().toString());
 		}
-	}
-
-	/**
-	 * Sets the country filter limit criterion on the picklist.
-	 * 
-	 * @param selectedItem the family to limit the picklist to.
-	 */
-	public void setCountryLimit(Object selectedCountry) {
-		if (selectedCountry!=null && selectedCountry.toString().length()>0) { 
-			this.countryLimit=selectedCountry.toString();
-			this.stateprovLimit=null;
-		} else { 
-			selectedCountry = null;
-		}
-		lastTextLength = 5000;
-		resetFilter(false);
-	}
-	
-	/**
-	 * Sets the primary division filter limit criterion on the picklist.
-	 * 
-	 * @param selectedStateProv the genus to limit the picklist to.
-	 */
-	public void setStateProvLimit(Object selectedStateProv) { 
-		if (selectedStateProv!=null && selectedStateProv.toString().length()>0 ) { 
-			this.stateprovLimit=selectedStateProv.toString();
-			this.countryLimit=null;
-		} else { 
-			stateprovLimit = null;
-		}
-		lastTextLength = 5000;
-		resetFilter(false);
 	}
     
 }
