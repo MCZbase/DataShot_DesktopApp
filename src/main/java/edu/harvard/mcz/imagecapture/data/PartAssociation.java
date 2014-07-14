@@ -26,10 +26,10 @@ import org.apache.commons.logging.LogFactory;
  * @author mole
  *
  */
-public class AssociatedTaxon {
-	private static final Log log = LogFactory.getLog(AssociatedTaxon.class);
+public class PartAssociation {
+	private static final Log log = LogFactory.getLog(PartAssociation.class);
 	
-	public static String[] getAssociatedTaxonValues() {
+	public static String[] getPartAssociationValues() {
 		String[] values = {
 	      "seeds",
 	      "inquiline",
@@ -39,7 +39,7 @@ public class AssociatedTaxon {
 	      "host ant",
 	      "parasite",
 	      "parasitoid",
-	      "slave" 
+	      "slave"      
 	      } ;
 		return values; 
 	}
