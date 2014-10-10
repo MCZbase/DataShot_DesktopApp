@@ -25,8 +25,10 @@ import java.awt.Cursor;
 
 import javax.swing.JPanel;
 
+import edu.harvard.mcz.imagecapture.data.AgentNameComboBoxModel;
 import edu.harvard.mcz.imagecapture.data.Collector;
 import edu.harvard.mcz.imagecapture.data.CollectorTableModel;
+import edu.harvard.mcz.imagecapture.data.Determination;
 import edu.harvard.mcz.imagecapture.data.Features;
 import edu.harvard.mcz.imagecapture.data.HibernateUtil;
 import edu.harvard.mcz.imagecapture.data.HigherGeographyComboBoxModel;
@@ -35,9 +37,11 @@ import edu.harvard.mcz.imagecapture.data.ICImage;
 import edu.harvard.mcz.imagecapture.data.LatLong;
 import edu.harvard.mcz.imagecapture.data.LifeStage;
 import edu.harvard.mcz.imagecapture.data.LocationInCollection;
+import edu.harvard.mcz.imagecapture.data.MCZbaseAuthAgentName;
 import edu.harvard.mcz.imagecapture.data.MCZbaseGeogAuthRec;
 import edu.harvard.mcz.imagecapture.data.MCZbaseGeogAuthRecLifeCycle;
 import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
+import edu.harvard.mcz.imagecapture.data.NatureOfId;
 import edu.harvard.mcz.imagecapture.data.NumberLifeCycle;
 import edu.harvard.mcz.imagecapture.data.NumberTableModel;
 import edu.harvard.mcz.imagecapture.data.Sex;
@@ -48,6 +52,7 @@ import edu.harvard.mcz.imagecapture.data.SpecimenPartLifeCycle;
 import edu.harvard.mcz.imagecapture.data.SpecimenPartsTableModel;
 import edu.harvard.mcz.imagecapture.data.Tracking;
 import edu.harvard.mcz.imagecapture.data.TrackingLifeCycle;
+import edu.harvard.mcz.imagecapture.data.TypeStatus;
 import edu.harvard.mcz.imagecapture.data.WorkFlowStatus;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
 import edu.harvard.mcz.imagecapture.ui.ButtonEditor;
@@ -172,7 +177,6 @@ public class SpecimenDetailsViewPane extends JPanel {
 	private JTextField jTextFieldPrimaryDivision = null;
 	private JLabel jLabel16 = null;
 	private JLabel jLabel17 = null;
-	private JLabel jLabel18 = null;
 	private JLabel jLabelTribe;
 	private JComboBox<String> jComboBoxFamily = null;
 	private JComboBox<String> jComboBoxSubfamily = null;
@@ -245,7 +249,18 @@ public class SpecimenDetailsViewPane extends JPanel {
 	private JLabel lblTo;
 	private JLabel lblMicrohabitat;
 	private JTextField textField;
+	private JLabel lblNatureofid;
+	private JComboBox<String> jComboBoxNatureOfId;
+	private JLabel lblIdDate;
+	private JTextField jTextFieldDateDetermined;
+	private FilteringAgentJComboBox jCBDeterminer;
+	private JLabel lblIdRemarks;
+	private JTextField jTextFieldIdRemarks;
+	private JLabel lblTypestatus;
+	private JComboBox<String> cbTypeStatus;
 
+	
+	
 	/**
 	 * Construct an instance of a SpecimenDetailsViewPane showing the data present
 	 * in aSpecimenInstance. 
@@ -290,6 +305,37 @@ public class SpecimenDetailsViewPane extends JPanel {
 			this.setVisible(false);
 		}
 	}
+
+	
+    /** initializes the specimen details view pane.
+	 *  Note, contains comments indicating how to enable visual designer with this class. 
+	 */
+	private void initialize() {
+		BorderLayout borderLayout = new BorderLayout();
+		borderLayout.setHgap(0);
+		borderLayout.setVgap(0);
+		this.setLayout(borderLayout);
+		this.setSize(new Dimension(594, 1000));
+		//this.setPreferredSize(new Dimension(490, 917));
+	    this.add(getJTextFieldStatus(), BorderLayout.SOUTH);
+	    
+	    // Un-comment this line to use design tool.
+	    //    this.add(getJPanel(), BorderLayout.CENTER);
+	        
+	    // Comment this block out to use design tool.
+	        
+	    if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(
+	    		 ImageCaptureProperties.KEY_DETAILS_SCROLL).equals(ImageCaptureProperties.VALUE_DETAILS_SCROLL_FORCE_ON)) { 
+	    JScrollPane scrollPane = new JScrollPane(getJPanel(),
+	    		JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+	    		JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+	    this.add(scrollPane, BorderLayout.CENTER);
+	    } else { 
+	    	this.add(getJPanel(), BorderLayout.CENTER);
+	    }
+	    //**	    
+	      
+	}	
 	
 	public void setWarning(String warning) { 
 		jTextPaneWarnings.setText(warning);
@@ -330,9 +376,13 @@ public class SpecimenDetailsViewPane extends JPanel {
 		if (jTableNumbers.isEditing()) { 
 		    jTableNumbers.getCellEditor().stopCellEditing();
 		}
-		if (specimen.getTypeStatus()==null) { 
+		
+	    if (cbTypeStatus.getSelectedIndex()==-1 && cbTypeStatus.getSelectedItem()==null) { 
 			specimen.setTypeStatus(Specimen.STATUS_NOT_A_TYPE);
-		}
+	    } else { 
+	    	specimen.setTypeStatus((String)cbTypeStatus.getSelectedItem());
+	    }
+		
 		specimen.setLocationInCollection(jComboBoxLocationInCollection.getSelectedItem().toString());
 		specimen.setDrawerNumber(jTextFieldDrawerNumber.getText());
 	    if (jComboBoxFamily.getSelectedIndex()==-1 && jComboBoxFamily.getSelectedItem()==null) { 
@@ -352,6 +402,20 @@ public class SpecimenDetailsViewPane extends JPanel {
 	    specimen.setInfraspecificEpithet(jTextFieldInfraspecificEpithet.getText());
 	    specimen.setInfraspecificRank(jTextFieldInfraspecificRank.getText());
 	    specimen.setAuthorship(jTextFieldAuthorship.getText());
+	    
+	    if (jCBDeterminer.getSelectedIndex()==-1 && jCBDeterminer.getSelectedItem()==null) { 
+	        specimen.setIdentifiedBy("");
+	    } else { 
+	    	specimen.setIdentifiedBy(((MCZbaseAuthAgentName)jCBDeterminer.getSelectedItem()).getAgent_name());
+	    }
+	    specimen.setDateIdentified(jTextFieldDateDetermined.getText());
+	    specimen.setIdentificationRemarks(jTextFieldIdRemarks.getText());
+	    if (jComboBoxNatureOfId.getSelectedIndex()==-1 && jComboBoxNatureOfId.getSelectedItem()==null) { 
+	    	specimen.setNatureOfId(NatureOfId.LEGACY);
+	    } else { 
+	    	specimen.setNatureOfId((String)jComboBoxNatureOfId.getSelectedItem());
+	    }
+	    
 	    specimen.setUnNamedForm(jTextFieldUnnamedForm.getText());
 	    specimen.setVerbatimLocality(jTextFieldVerbatimLocality.getText());
 	    if (comboBoxHigherGeog.getSelectedIndex()==-1 && comboBoxHigherGeog.getSelectedItem()==null) { 
@@ -488,6 +552,10 @@ public class SpecimenDetailsViewPane extends JPanel {
         lastEditedSpecimen.setInferences(specimen.getInferences());
         lastEditedSpecimen.setInfraspecificEpithet(specimen.getInfraspecificEpithet());
         lastEditedSpecimen.setInfraspecificRank(specimen.getInfraspecificRank());
+        lastEditedSpecimen.setIdentificationRemarks(specimen.getIdentificationRemarks());
+        lastEditedSpecimen.setIdentifiedBy(specimen.getIdentifiedBy());
+        lastEditedSpecimen.setDateIdentified(specimen.getDateIdentified());
+        lastEditedSpecimen.setNatureOfId(specimen.getNatureOfId());
         lastEditedSpecimen.setIsoDate(specimen.getIsoDate());
         lastEditedSpecimen.setLifeStage(specimen.getLifeStage());
         lastEditedSpecimen.setLocationInCollection(specimen.getLocationInCollection());
@@ -517,6 +585,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 		
 		jTextFieldBarcode.setText(specimen.getBarcode());
 		jComboBoxLocationInCollection.setSelectedItem(specimen.getLocationInCollection());
+		cbTypeStatus.setSelectedItem(specimen.getTypeStatus());
 		jTextFieldDrawerNumber.setText(specimen.getDrawerNumber());
 		jComboBoxFamily.setSelectedItem(specimen.getFamily());
 		jComboBoxSubfamily.setSelectedItem(specimen.getSubfamily());
@@ -527,6 +596,17 @@ public class SpecimenDetailsViewPane extends JPanel {
 		jTextFieldInfraspecificEpithet.setText(specimen.getInfraspecificEpithet());
 		jTextFieldInfraspecificRank.setText(specimen.getInfraspecificRank());
 		jTextFieldAuthorship.setText(specimen.getAuthorship());
+		
+		jTextFieldIdRemarks.setText(specimen.getIdentificationRemarks());
+		jTextFieldDateDetermined.setText(specimen.getDateIdentified());
+		
+        MCZbaseAuthAgentName selection = new MCZbaseAuthAgentName();
+        selection.setAgent_name(specimen.getIdentifiedBy());
+		((AgentNameComboBoxModel)jCBDeterminer.getModel()).setSelectedItem(selection);
+		jCBDeterminer.getEditor().setItem(jCBDeterminer.getModel().getSelectedItem());
+		
+		jComboBoxNatureOfId.setSelectedItem(specimen.getNatureOfId());
+		
 		jTextFieldUnnamedForm.setText(specimen.getUnNamedForm());
 		jTextFieldVerbatimLocality.setText(specimen.getVerbatimLocality());
 		// Specimen record contains a string, delegate handling of lookup of object to the combo box model.
@@ -659,35 +739,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 		}
 	}
 	
-     /* initializes this
-	 * 
-	 */
-	private void initialize() {
-		BorderLayout borderLayout = new BorderLayout();
-		borderLayout.setHgap(0);
-		borderLayout.setVgap(0);
-		this.setLayout(borderLayout);
-		this.setSize(new Dimension(594, 1000));
-		//this.setPreferredSize(new Dimension(490, 917));
-	    this.add(getJTextFieldStatus(), BorderLayout.SOUTH);
-	    
-	    // Comment this line in to use design tool.
-//	     this.add(getJPanel(), BorderLayout.CENTER);
-	    
-	    // Comment this block out to use design tool.
-	     
-	    if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(
-	    		 ImageCaptureProperties.KEY_DETAILS_SCROLL).equals(ImageCaptureProperties.VALUE_DETAILS_SCROLL_FORCE_ON)) { 
-	    JScrollPane scrollPane = new JScrollPane(getJPanel(),
-	    		JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-	    		JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-	    this.add(scrollPane, BorderLayout.CENTER);
-	    } else { 
-	    	this.add(getJPanel(), BorderLayout.CENTER);
-	    }
-	    //**	    
-	    
-	}
+
 	/**
 	 * This method initializes jTextField	
 	 * 	
@@ -703,7 +755,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 	}
 
 	/**
-	 * This method initializes jPanel	
+	 * This method initializes jPanel, laying out the UI components.
 	 * 	
 	 * @return javax.swing.JPanel	
 	 */
@@ -741,7 +793,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel44 = new JLabel();
 			jLabel44.setText("yyyy/mm/dd");
 			GridBagConstraints gridBagConstraints49 = new GridBagConstraints();
-			gridBagConstraints49.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints49.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints49.fill = GridBagConstraints.BOTH;
 			gridBagConstraints49.weighty = 1.0;
 			gridBagConstraints49.weightx = 1.0;
@@ -758,7 +810,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints214.weighty = 0.0;
 			gridBagConstraints214.fill = GridBagConstraints.NONE;
 			GridBagConstraints gridBagConstraints119 = new GridBagConstraints();
-			gridBagConstraints119.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints119.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints119.anchor = GridBagConstraints.WEST;
 			gridBagConstraints119.gridx = 7;
 			gridBagConstraints119.gridy = 42;
@@ -766,7 +818,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints119.weighty = 0.0;
 			gridBagConstraints119.fill = GridBagConstraints.NONE;
 			GridBagConstraints gridBagConstraints213 = new GridBagConstraints();
-			gridBagConstraints213.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints213.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints213.fill = GridBagConstraints.BOTH;
 			gridBagConstraints213.gridy = 31;
 			gridBagConstraints213.weightx = 0.0;
@@ -788,7 +840,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints212.gridwidth = 4;
 			gridBagConstraints212.gridy = 15;
 			GridBagConstraints gridBagConstraints117 = new GridBagConstraints();
-			gridBagConstraints117.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints117.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints117.fill = GridBagConstraints.BOTH;
 			gridBagConstraints117.gridy = 25;
 			gridBagConstraints117.weightx = 0.0;
@@ -816,7 +868,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints116.anchor = GridBagConstraints.EAST;
 			gridBagConstraints116.gridy = 41;
 			GridBagConstraints gridBagConstraintsInfer = new GridBagConstraints();
-			gridBagConstraintsInfer.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraintsInfer.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraintsInfer.fill = GridBagConstraints.BOTH;
 			gridBagConstraintsInfer.gridy = 36;
 			gridBagConstraintsInfer.weightx = 1.0;
@@ -831,7 +883,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel43 = new JLabel();
 			jLabel43.setText("Inferences");
 			GridBagConstraints gridBagConstraints48 = new GridBagConstraints();
-			gridBagConstraints48.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints48.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints48.fill = GridBagConstraints.VERTICAL;
 			gridBagConstraints48.gridy = 0;
 			gridBagConstraints48.weightx = 1.0;
@@ -861,7 +913,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel41 = new JLabel();
 			jLabel41.setText("Workflow Status");
 			GridBagConstraints gridBagConstraints172 = new GridBagConstraints();
-			gridBagConstraints172.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints172.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints172.fill = GridBagConstraints.BOTH;
 			gridBagConstraints172.gridy = 33;
 			gridBagConstraints172.weightx = 1.0;
@@ -936,7 +988,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel34 = new JLabel();
 			jLabel34.setText("     ");
 			GridBagConstraints gridBagConstraints19 = new GridBagConstraints();
-			gridBagConstraints19.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints19.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints19.fill = GridBagConstraints.HORIZONTAL;
 			gridBagConstraints19.gridy = 23;
 			gridBagConstraints19.weightx = 1.0;
@@ -1039,7 +1091,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints46.weightx = 1.0;
 			gridBagConstraints46.anchor = GridBagConstraints.WEST;
 			gridBagConstraints46.gridx = 1;
-			gridBagConstraints46.gridwidth = 3;
+			gridBagConstraints46.gridwidth = 2;
 			GridBagConstraints gridBagConstraints36 = new GridBagConstraints();
 			gridBagConstraints36.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints36.gridx = 0;
@@ -1053,7 +1105,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints210.gridy = 13;
 			gridBagConstraints210.weightx = 1.0;
 			gridBagConstraints210.anchor = GridBagConstraints.WEST;
-			gridBagConstraints210.gridwidth = 3;
+			gridBagConstraints210.gridwidth = 2;
 			gridBagConstraints210.gridx = 1;
 			GridBagConstraints gridBagConstraints112 = new GridBagConstraints();
 			gridBagConstraints112.insets = new Insets(0, 0, 0, 5);
@@ -1090,7 +1142,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints27.anchor = GridBagConstraints.WEST;
 			gridBagConstraints27.gridx = 1;
 			GridBagConstraints gridBagConstraints102 = new GridBagConstraints();
-			gridBagConstraints102.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints102.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints102.fill = GridBagConstraints.VERTICAL;
 			gridBagConstraints102.gridy = 30;
 			gridBagConstraints102.weightx = 1.0;
@@ -1112,7 +1164,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel20 = new JLabel();
 			jLabel20.setText("LifeStage");
 			GridBagConstraints gridBagConstraints62 = new GridBagConstraints();
-			gridBagConstraints62.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints62.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints62.fill = GridBagConstraints.BOTH;
 			gridBagConstraints62.gridy = 7;
 			gridBagConstraints62.weightx = 1.0;
@@ -1173,6 +1225,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints121.gridwidth = 1;
 			gridBagConstraints121.gridx = 1;
 			GridBagConstraints gridBagConstraints111 = new GridBagConstraints();
+			gridBagConstraints111.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints111.fill = GridBagConstraints.BOTH;
 			gridBagConstraints111.gridy = 16;
 			gridBagConstraints111.weightx = 1.0;
@@ -1215,7 +1268,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel12 = new JLabel();
 			jLabel12.setText("DrawerNumber");
 			GridBagConstraints gridBagConstraints52 = new GridBagConstraints();
-			gridBagConstraints52.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints52.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints52.fill = GridBagConstraints.BOTH;
 			gridBagConstraints52.gridy = 43;
 			gridBagConstraints52.weightx = 1.0;
@@ -1258,7 +1311,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel10 = new JLabel();
 			jLabel10.setText("Date Created");
 			GridBagConstraints gridBagConstraints32 = new GridBagConstraints();
-			gridBagConstraints32.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints32.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints32.fill = GridBagConstraints.HORIZONTAL;
 			gridBagConstraints32.gridy = 37;
 			gridBagConstraints32.weightx = 1.0;
@@ -1280,7 +1333,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints14.anchor = GridBagConstraints.WEST;
 			gridBagConstraints14.gridx = 1;
 			GridBagConstraints gridBagConstraints23 = new GridBagConstraints();
-			gridBagConstraints23.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints23.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints23.fill = GridBagConstraints.HORIZONTAL;
 			gridBagConstraints23.gridy = 39;
 			gridBagConstraints23.weightx = 1.0;
@@ -1341,7 +1394,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel5 = new JLabel();
 			jLabel5.setText("Collection");
 			GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
-			gridBagConstraints10.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints10.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints10.gridx = 7;
 			gridBagConstraints10.anchor = GridBagConstraints.NORTHWEST;
 			gridBagConstraints10.gridy = 41;
@@ -1361,7 +1414,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel3 = new JLabel();
 			jLabel3.setText("Species");
 			GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
-			gridBagConstraints7.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints7.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints7.fill = GridBagConstraints.BOTH;
 			gridBagConstraints7.gridy = 20;
 			gridBagConstraints7.weightx = 1.0;
@@ -1374,7 +1427,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints5.gridy = 11;
 			gridBagConstraints5.weightx = 1.0;
 			gridBagConstraints5.anchor = GridBagConstraints.WEST;
-			gridBagConstraints5.gridwidth = 3;
+			gridBagConstraints5.gridwidth = 2;
 			gridBagConstraints5.gridx = 1;
 			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
 			gridBagConstraints4.insets = new Insets(0, 0, 0, 5);
@@ -1382,7 +1435,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints4.gridy = 10;
 			gridBagConstraints4.weightx = 1.0;
 			gridBagConstraints4.anchor = GridBagConstraints.WEST;
-			gridBagConstraints4.gridwidth = 3;
+			gridBagConstraints4.gridwidth = 2;
 			gridBagConstraints4.gridx = 1;
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 			gridBagConstraints3.insets = new Insets(0, 0, 0, 5);
@@ -1390,7 +1443,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gridBagConstraints3.gridy = 9;
 			gridBagConstraints3.weightx = 1.0;
 			gridBagConstraints3.anchor = GridBagConstraints.WEST;
-			gridBagConstraints3.gridwidth = 3;
+			gridBagConstraints3.gridwidth = 2;
 			gridBagConstraints3.gridx = 1;
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 			gridBagConstraints2.insets = new Insets(0, 0, 0, 5);
@@ -1421,14 +1474,93 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gbl_jPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 			gbl_jPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 			gbl_jPanel.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
-			gbl_jPanel.columnWeights = new double[]{0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0};
+			gbl_jPanel.columnWeights = new double[]{0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0};
 			jPanel.setLayout(gbl_jPanel);
 			jPanel.add(jLabel, gridBagConstraints);
 			jPanel.add(getJTextFieldBarcode(), gridBagConstraints1);
 			jPanel.add(jLabel2, gridBagConstraints2);
 			jPanel.add(getJTextField1(), gridBagConstraints3);
+			GridBagConstraints gbc_lblNatureofid = new GridBagConstraints();
+			gbc_lblNatureofid.anchor = GridBagConstraints.EAST;
+			gbc_lblNatureofid.insets = new Insets(0, 0, 0, 5);
+			gbc_lblNatureofid.gridx = 3;
+			gbc_lblNatureofid.gridy = 9;
+			jPanel.add(getLblNatureofid(), gbc_lblNatureofid);
+			
+			jComboBoxNatureOfId = getJComboBoxNatureOfId();
+			GridBagConstraints gbc_jTextFieldNatureOfID = new GridBagConstraints();
+			gbc_jTextFieldNatureOfID.gridwidth = 4;
+			gbc_jTextFieldNatureOfID.insets = new Insets(0, 0, 0, 0);
+			gbc_jTextFieldNatureOfID.fill = GridBagConstraints.HORIZONTAL;
+			gbc_jTextFieldNatureOfID.gridx = 4;
+			gbc_jTextFieldNatureOfID.gridy = 9;
+			jPanel.add(jComboBoxNatureOfId, gbc_jTextFieldNatureOfID);
 			jPanel.add(getJTextField12(), gridBagConstraints4);
+			GridBagConstraints gbc_lblIdDate = new GridBagConstraints();
+			gbc_lblIdDate.anchor = GridBagConstraints.EAST;
+			gbc_lblIdDate.insets = new Insets(0, 0, 0, 5);
+			gbc_lblIdDate.gridx = 3;
+			gbc_lblIdDate.gridy = 10;
+			jPanel.add(getLblIdDate(), gbc_lblIdDate);
+			
+			jTextFieldDateDetermined = getJTextFieldDateDetermined();
+			GridBagConstraints gbc_jTextFieldDateDetermined = new GridBagConstraints();
+			gbc_jTextFieldDateDetermined.gridwidth = 4;
+			gbc_jTextFieldDateDetermined.insets = new Insets(0, 0, 0, 0);
+			gbc_jTextFieldDateDetermined.fill = GridBagConstraints.HORIZONTAL;
+			gbc_jTextFieldDateDetermined.gridx = 4;
+			gbc_jTextFieldDateDetermined.gridy = 10;
+			jPanel.add(jTextFieldDateDetermined, gbc_jTextFieldDateDetermined);
+			jTextFieldDateDetermined.setColumns(10);
 			jPanel.add(getJTextField2(), gridBagConstraints5);
+			
+			JLabel lblIdBy = new JLabel("Id By");
+			GridBagConstraints gbc_lblIdBy = new GridBagConstraints();
+			gbc_lblIdBy.anchor = GridBagConstraints.EAST;
+			gbc_lblIdBy.insets = new Insets(0, 0, 0, 5);
+			gbc_lblIdBy.gridx = 3;
+			gbc_lblIdBy.gridy = 11;
+			jPanel.add(lblIdBy, gbc_lblIdBy);
+			
+			jCBDeterminer = getJCBDeterminer();
+			GridBagConstraints gbc_jTextFieldDeterminer = new GridBagConstraints();
+			gbc_jTextFieldDeterminer.gridwidth = 4;
+			gbc_jTextFieldDeterminer.insets = new Insets(0, 0, 0, 0);
+			gbc_jTextFieldDeterminer.fill = GridBagConstraints.HORIZONTAL;
+			gbc_jTextFieldDeterminer.gridx = 4;
+			gbc_jTextFieldDeterminer.gridy = 11;
+			jPanel.add(jCBDeterminer, gbc_jTextFieldDeterminer);
+			
+			GridBagConstraints gbc_lblIdRemarks = new GridBagConstraints();
+			gbc_lblIdRemarks.anchor = GridBagConstraints.EAST;
+			gbc_lblIdRemarks.insets = new Insets(0, 0, 0, 5);
+			gbc_lblIdRemarks.gridx = 3;
+			gbc_lblIdRemarks.gridy = 13;
+			jPanel.add(getLblIdRemarks(), gbc_lblIdRemarks);
+			
+			jTextFieldIdRemarks = getJTextFieldIdRemarks();
+			GridBagConstraints gbc_jTextFieldIdRemarks = new GridBagConstraints();
+			gbc_jTextFieldIdRemarks.insets = new Insets(0, 0, 0, 0);
+			gbc_jTextFieldIdRemarks.fill = GridBagConstraints.HORIZONTAL;
+			gbc_jTextFieldIdRemarks.gridx = 4;
+			gbc_jTextFieldIdRemarks.gridy = 13;
+			gbc_jTextFieldIdRemarks.gridwidth = 4;
+			jPanel.add(jTextFieldIdRemarks, gbc_jTextFieldIdRemarks);
+			jTextFieldIdRemarks.setColumns(10);
+			GridBagConstraints gbc_lblTypestatus = new GridBagConstraints();
+			gbc_lblTypestatus.anchor = GridBagConstraints.EAST;
+			gbc_lblTypestatus.insets = new Insets(0, 0, 0, 5);
+			gbc_lblTypestatus.gridx = 3;
+			gbc_lblTypestatus.gridy = 14;
+			jPanel.add(getLblTypestatus(), gbc_lblTypestatus);
+			cbTypeStatus = getCbTypeStatus();
+			GridBagConstraints gbc_cbTypeStatus = new GridBagConstraints();
+			gbc_cbTypeStatus.gridwidth = 4;
+			gbc_cbTypeStatus.insets = new Insets(0, 0, 0, 5);
+			gbc_cbTypeStatus.fill = GridBagConstraints.HORIZONTAL;
+			gbc_cbTypeStatus.gridx = 4;
+			gbc_cbTypeStatus.gridy = 14;
+			jPanel.add(cbTypeStatus, gbc_cbTypeStatus);
 			GridBagConstraints gbc_lblHigherGeography = new GridBagConstraints();
 			gbc_lblHigherGeography.anchor = GridBagConstraints.EAST;
 			gbc_lblHigherGeography.insets = new Insets(0, 0, 0, 5);
@@ -1436,6 +1568,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gbc_lblHigherGeography.gridy = 17;
 			jPanel.add(getLblHigherGeography(), gbc_lblHigherGeography);
 			GridBagConstraints gbc_comboBoxElevUnits = new GridBagConstraints();
+			gbc_comboBoxElevUnits.insets = new Insets(0, 0, 0, 0);
 			gbc_comboBoxElevUnits.gridwidth = 7;
 			gbc_comboBoxElevUnits.fill = GridBagConstraints.HORIZONTAL;
 			gbc_comboBoxElevUnits.gridx = 1;
@@ -1454,7 +1587,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gbc_textFieldMaxElev.gridy = 19;
 			jPanel.add(getTextFieldMaxElev(), gbc_textFieldMaxElev);
 			GridBagConstraints gbc_comboBoxMaxElev = new GridBagConstraints();
-			gbc_comboBoxMaxElev.insets = new Insets(0, 0, 0, 5);
+			gbc_comboBoxMaxElev.insets = new Insets(0, 0, 0, 0);
 			gbc_comboBoxMaxElev.fill = GridBagConstraints.HORIZONTAL;
 			gbc_comboBoxMaxElev.gridx = 7;
 			gbc_comboBoxMaxElev.gridy = 19;
@@ -1472,12 +1605,12 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel33 = new JLabel();
 			jLabel33.setText("Collecting Method");
 			jPanel.add(jLabel33, gridBagConstraints28);
-			GridBagConstraints gbc_textField_1 = new GridBagConstraints();
-			gbc_textField_1.gridwidth = 5;
-			gbc_textField_1.insets = new Insets(0, 0, 0, 5);
-			gbc_textField_1.fill = GridBagConstraints.HORIZONTAL;
-			gbc_textField_1.gridx = 3;
-			gbc_textField_1.gridy = 24;
+			GridBagConstraints gbc_georef = new GridBagConstraints();
+			gbc_georef.insets = new Insets(0, 0, 0, 0);
+			gbc_georef.gridwidth = 5;
+			gbc_georef.fill = GridBagConstraints.HORIZONTAL;
+			gbc_georef.gridx = 3;
+			gbc_georef.gridy = 24;
 			GridBagConstraints gridBagConstraints72 = new GridBagConstraints();
 			gridBagConstraints72.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints72.gridx = 0;
@@ -1503,7 +1636,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jLabel37.setText("Prep Type");
 			jPanel.add(jLabel37, gridBagConstraints104);
 			GridBagConstraints gridBagConstraints152 = new GridBagConstraints();
-			gridBagConstraints152.insets = new Insets(0, 0, 0, 5);
+			gridBagConstraints152.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraints152.fill = GridBagConstraints.BOTH;
 			gridBagConstraints152.gridy = 28;
 			gridBagConstraints152.weightx = 1.0;
@@ -1513,6 +1646,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jPanel.add(getJTextFieldPrepType(), gridBagConstraints152);
 			
 			GridBagConstraints gridBagConstraintsPR = new GridBagConstraints();
+			gridBagConstraintsPR.insets = new Insets(0, 0, 0, 0);
 			gridBagConstraintsPR.gridx = 0;
 			gridBagConstraintsPR.fill = GridBagConstraints.BOTH;
 			gridBagConstraintsPR.gridwidth = 8;
@@ -1587,7 +1721,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jPanel.add(jLabelElevation, gbc_jLabelElevation);
 			jPanel.add(getJTextField11(), gridBagConstraints18);
 			jPanel.add(getJTextFieldCollectingMethod(), gridBagConstraints19);	
-            jPanel.add(getJButtonGeoreference(), gbc_textField_1);		
+            jPanel.add(getJButtonGeoreference(), gbc_georef);		
 			jPanel.add(jLabel34, gridBagConstraints47);
 			jPanel.add(jLabel35, gridBagConstraints65);
 			jPanel.add(getJCheckBox(), gridBagConstraints83);
@@ -1599,7 +1733,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			jPanel.add(getJTextField26(), gridBagConstraints162);
 			jPanel.add(getJTextFieldHabitat(), gridBagConstraints172);
 			jPanel.add(jLabel41, gridBagConstraints115);
-			jPanel.add(getJComboBox(), gridBagConstraints29);
+			jPanel.add(getJComboBoxWorkflowStatus(), gridBagConstraints29);
 			jPanel.add(jLabel42, gridBagConstraints37);
 			jPanel.add(getJComboBox2(), gridBagConstraints48);
 			jPanel.add(jLabel43, gridBagConstraints56);
@@ -2262,15 +2396,32 @@ public class SpecimenDetailsViewPane extends JPanel {
 		}
 		return jComboBoxFeatures;
 	}
+		
+	private JComboBox<String> getJComboBoxNatureOfId() {
+		if (jComboBoxNatureOfId == null) {
+			jComboBoxNatureOfId = new JComboBox<String>();
+			jComboBoxNatureOfId.setModel(new DefaultComboBoxModel<String>(NatureOfId.getNatureOfIdValues()));
+			jComboBoxNatureOfId.setEditable(false);
+			jComboBoxNatureOfId.setToolTipText(MetadataRetriever.getFieldHelp(Determination.class, "NatureOfId"));
+			jComboBoxNatureOfId.addKeyListener(new java.awt.event.KeyAdapter() {
+				public void keyTyped(java.awt.event.KeyEvent e) {
+					thisPane.setStateToDirty();
+				}
+			});
+			AutoCompleteDecorator.decorate(jComboBoxNatureOfId);
+		}
+		return jComboBoxNatureOfId;
+	}
+		
 
 	/**
 	 * This method initializes jComboBoxLifeStage	
 	 * 	
 	 * @return javax.swing.JComboBox	
 	 */
-	private JComboBox getJComboBoxLifeStage() {
+	private JComboBox<String> getJComboBoxLifeStage() {
 		if (jComboBoxLifeStage == null) {
-			jComboBoxLifeStage = new JComboBox();
+			jComboBoxLifeStage = new JComboBox<String>();
 			jComboBoxLifeStage.setModel(new DefaultComboBoxModel<String>(LifeStage.getLifeStageValues()));
 			jComboBoxLifeStage.setEditable(true);
 			jComboBoxLifeStage.setToolTipText(MetadataRetriever.getFieldHelp(Specimen.class, "Lifestage"));
@@ -2639,7 +2790,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 	 * 	
 	 * @return javax.swing.JComboBox	
 	 */
-	private JComboBox getJComboBox() {
+	private JComboBox getJComboBoxWorkflowStatus() {
 		if (jComboBoxWorkflowStatus == null) {
 			jComboBoxWorkflowStatus = new JComboBox<String>();
 			jComboBoxWorkflowStatus.setModel(new DefaultComboBoxModel<String>(WorkFlowStatus.getWorkFlowStatusValues()));
@@ -3114,5 +3265,107 @@ public class SpecimenDetailsViewPane extends JPanel {
 			textField.setColumns(10);
 		}
 		return textField;
+	}
+	private JLabel getLblNatureofid() {
+		if (lblNatureofid == null) {
+			lblNatureofid = new JLabel("NatureOfID");
+		}
+		return lblNatureofid;
+	}
+	private JLabel getLblIdDate() {
+		if (lblIdDate == null) {
+			lblIdDate = new JLabel("ID Date");
+		}
+		return lblIdDate;
+	}
+	private JLabel getLblIdRemarks() {
+		if (lblIdRemarks == null) {
+			lblIdRemarks = new JLabel("Id Remarks");
+		}
+		return lblIdRemarks;
+	}
+	
+	
+	/**
+	 * This method initializes jTextFieldDateDetermined
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */
+	private JTextField getJTextFieldDateDetermined() {
+		if (jTextFieldDateDetermined == null) {
+			jTextFieldDateDetermined = new JTextField();
+			jTextFieldDateDetermined.setInputVerifier(
+					MetadataRetriever.getInputVerifier(Specimen.class, "ISODate", jTextFieldDateDetermined));
+			jTextFieldDateDetermined.setToolTipText(MetadataRetriever.getFieldHelp(Specimen.class, "DateIdentified"));
+			jTextFieldDateDetermined.addKeyListener(new java.awt.event.KeyAdapter() {
+				public void keyTyped(java.awt.event.KeyEvent e) {
+					thisPane.setStateToDirty();
+				}
+			});
+		}
+		return jTextFieldDateDetermined;
+	}
+	
+	/**
+	 * This method initializes the Determier pick list.
+	 * 	
+	 * @return FilteringAgentJComboBox
+	 */
+	private FilteringAgentJComboBox getJCBDeterminer() {
+		if (jCBDeterminer == null) {
+			jCBDeterminer = new FilteringAgentJComboBox();
+			jCBDeterminer.setEditable(true);
+			jCBDeterminer.setToolTipText(MetadataRetriever.getFieldHelp(Specimen.class, "IdentifiedBy"));
+			jCBDeterminer.addKeyListener(new java.awt.event.KeyAdapter() {
+				public void keyTyped(java.awt.event.KeyEvent e) {
+					thisPane.setStateToDirty();
+				}
+			});
+		}
+		return jCBDeterminer;
+	}	
+	
+	/**
+	 * This method initializes type status pick list
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */
+	private JComboBox<String> getCbTypeStatus() {
+		if (cbTypeStatus == null) {
+			cbTypeStatus = new JComboBox<String>(TypeStatus.getTypeStatusValues());
+			cbTypeStatus.setEditable(true);
+			cbTypeStatus.setToolTipText(MetadataRetriever.getFieldHelp(Specimen.class, "TypeStatus"));
+			cbTypeStatus.addKeyListener(new java.awt.event.KeyAdapter() {
+				public void keyTyped(java.awt.event.KeyEvent e) {
+					thisPane.setStateToDirty();
+				}
+			});
+		}
+		return cbTypeStatus;
+	}	
+	
+	/**
+	 * This method initializes jTextFieldIdRemarks
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */
+	private JTextField getJTextFieldIdRemarks() {
+		if (jTextFieldIdRemarks == null) {
+			jTextFieldIdRemarks = new JTextField();
+			jTextFieldIdRemarks.setToolTipText(MetadataRetriever.getFieldHelp(Specimen.class, "IdentificationRemarks"));
+			jTextFieldIdRemarks.addKeyListener(new java.awt.event.KeyAdapter() {
+				public void keyTyped(java.awt.event.KeyEvent e) {
+					thisPane.setStateToDirty();
+				}
+			});
+		}
+		return jTextFieldIdRemarks;
+	}		
+	
+	private JLabel getLblTypestatus() {
+		if (lblTypestatus == null) {
+			lblTypestatus = new JLabel("TypeStatus");
+		}
+		return lblTypestatus;
 	}
 }  //  @jve:decl-index=0:visual-constraint="10,15"

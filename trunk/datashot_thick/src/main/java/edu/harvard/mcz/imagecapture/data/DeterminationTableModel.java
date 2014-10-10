@@ -41,7 +41,12 @@ public class DeterminationTableModel extends AbstractTableModel {
 	private boolean showEditableId = false; 
 	// private static final int ROW_ID = 0;
 	private static final int SPECIES_NUMBER = 0;
-	private static final int ROW_SPECIMEN = 11;
+	public static final int ROW_SPECIMEN = 14;
+	public static final int ROW_IDENTIFIEDBY = 8;
+	public static final int ROW_TYPESTATUS = 7;
+	public static final int ROW_NATUREOFID = 11;
+	public static final int ROW_DATEIDENTIFIED = 12;
+	
 	
 	/**
 	 * 
@@ -74,7 +79,7 @@ public class DeterminationTableModel extends AbstractTableModel {
 	@Override
 	public int getColumnCount() {
 		// all fields in determination except identificationQualifier
-		int result = 12;
+		int result = 15;
 		return result;
 	}
 
@@ -117,10 +122,10 @@ public class DeterminationTableModel extends AbstractTableModel {
 		case 6: 
 		    returnvalue = ((Determination)determinations.toArray()[rowIndex]).getAuthorship();
 		    break;
-		case 7: 
+		case ROW_TYPESTATUS: 
 		    returnvalue = ((Determination)determinations.toArray()[rowIndex]).getTypeStatus();
 		    break;
-		case 8: 
+		case ROW_IDENTIFIEDBY: 
 		    returnvalue = ((Determination)determinations.toArray()[rowIndex]).getIdentifiedBy();
 		    break;	
 		case 9: 
@@ -129,6 +134,15 @@ public class DeterminationTableModel extends AbstractTableModel {
 		case 10: 
 		    returnvalue = ((Determination)determinations.toArray()[rowIndex]).getVerbatimText();
 		    break;
+		case ROW_NATUREOFID: 
+		    returnvalue = ((Determination)determinations.toArray()[rowIndex]).getNatureOfId();
+		    break;
+		case ROW_DATEIDENTIFIED: 
+		    returnvalue = ((Determination)determinations.toArray()[rowIndex]).getDateIdentified();
+		    break;
+		case 13: 
+		    returnvalue = ((Determination)determinations.toArray()[rowIndex]).getRemarks();
+		    break;		    
 		case ROW_SPECIMEN: 
 		    returnvalue = ((Determination)determinations.toArray()[rowIndex]).getSpecimen().getBarcode();
 		    break;			    
@@ -183,17 +197,26 @@ public class DeterminationTableModel extends AbstractTableModel {
 		case 6: 
 		    ((Determination)determinations.toArray()[rowIndex]).setAuthorship((String)value);
 		    break;
-		case 7: 
+		case ROW_TYPESTATUS: 
 		    ((Determination)determinations.toArray()[rowIndex]).setTypeStatus((String)value);
 		    break;
-		case 8: 
-		    ((Determination)determinations.toArray()[rowIndex]).setIdentifiedBy((String)value);
+		case ROW_IDENTIFIEDBY: 
+		    ((Determination)determinations.toArray()[rowIndex]).setIdentifiedBy(((MCZbaseAuthAgentName)value).getAgent_name());
 		    break;	
 		case 9: 
 		    ((Determination)determinations.toArray()[rowIndex]).setUnNamedForm((String)value);
 		    break;
 		case 10: 
 		    ((Determination)determinations.toArray()[rowIndex]).setVerbatimText((String)value);
+		    break;
+		case ROW_NATUREOFID: 
+		    ((Determination)determinations.toArray()[rowIndex]).setNatureOfId((String)value);
+		    break;
+		case ROW_DATEIDENTIFIED: 
+		    ((Determination)determinations.toArray()[rowIndex]).setDateIdentified((String)value);
+		    break;
+		case 13: 
+		    ((Determination)determinations.toArray()[rowIndex]).setRemarks((String)value);
 		    break;
 		case ROW_SPECIMEN: 
 		    // do nothing, don't allow editing specimen record.
@@ -242,10 +265,10 @@ public class DeterminationTableModel extends AbstractTableModel {
 		case 6: 
 		    returnvalue = "Authorship";
 		    break;
-		case 7: 
+		case ROW_TYPESTATUS: 
 		    returnvalue = "Type Status";
 		    break;
-		case 8: 
+		case ROW_IDENTIFIEDBY: 
 		    returnvalue = "Determiner";
 		    break;	
 		case 9: 
@@ -253,6 +276,15 @@ public class DeterminationTableModel extends AbstractTableModel {
 		    break;
 		case 10: 
 		    returnvalue = "Verbatim Text";
+		    break;
+		case ROW_NATUREOFID: 
+		    returnvalue = "Nature Of ID";
+		    break;
+		case ROW_DATEIDENTIFIED: 
+		    returnvalue = "ID Date";
+		    break;
+		case 13: 
+		    returnvalue = "Remarks";
 		    break;
 		case ROW_SPECIMEN: 
 		    returnvalue = "Barcode";

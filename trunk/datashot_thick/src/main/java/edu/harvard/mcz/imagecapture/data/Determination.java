@@ -22,14 +22,20 @@ public class Determination implements java.io.Serializable {
 	private String typeStatus;
 	private String speciesNumber;
 	private String verbatimText;
-
+	
+	private String natureOfId;
+	private String dateIdentified;
+	private String remarks;	
+	
 	public Determination() {
 		typeStatus = Specimen.STATUS_NOT_A_TYPE;
+		natureOfId = NatureOfId.EXPERT_ID;
 	}
 
 	public Determination(Specimen specimen) {
 		this.specimen = specimen;
 		typeStatus = Specimen.STATUS_NOT_A_TYPE;
+		natureOfId = NatureOfId.EXPERT_ID;
 	}
 
 	public Determination(Specimen specimen, String genus,
@@ -164,6 +170,48 @@ public class Determination implements java.io.Serializable {
 	 */
 	public void setVerbatimText(String verbatimText) {
 		this.verbatimText = verbatimText;
+	}
+
+	/**
+	 * @return the natureOfId
+	 */
+	public String getNatureOfId() {
+		return natureOfId;
+	}
+
+	/**
+	 * @param natureOfId the natureOfId to set
+	 */
+	public void setNatureOfId(String natureOfId) {
+		this.natureOfId = natureOfId;
+	}
+
+	/**
+	 * @return the dateIdentified
+	 */
+	public String getDateIdentified() {
+		return dateIdentified;
+	}
+
+	/**
+	 * @param dateIdentified the dateIdentified to set
+	 */
+	public void setDateIdentified(String dateIdentified) {
+		this.dateIdentified = dateIdentified;
+	}
+
+	/**
+	 * @return the identificationRemarks
+	 */
+	public String getRemarks() {
+		return remarks;
+	}
+
+	/**
+	 * @param identificationRemarks the remarks to set
+	 */
+	public void setRemarks(String identificationRemarks) {
+		this.remarks = identificationRemarks;
 	}
 	
 }

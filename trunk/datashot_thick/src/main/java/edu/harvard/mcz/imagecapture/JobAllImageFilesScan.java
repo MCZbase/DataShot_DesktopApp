@@ -20,10 +20,8 @@
 package edu.harvard.mcz.imagecapture;
 
 import java.awt.Dimension;
-import java.awt.geom.Dimension2D;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -831,7 +829,10 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 	 */
 	@Override
 	public String getName() {
-		return "Preprocess all image files";
+		if (scan==SCAN_ALL) 
+		   return "Preprocess all image files";
+		else 
+		   return "Preprocess images in " + startPointSpecific;
 	}
 
 	/* (non-Javadoc)

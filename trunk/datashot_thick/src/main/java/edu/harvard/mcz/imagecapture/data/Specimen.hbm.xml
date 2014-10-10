@@ -67,6 +67,18 @@
         <property name="identifiedBy" type="string">
             <column name="IdentifiedBy" />
         </property>
+
+        
+        <property name="natureOfId" type="string">
+            <column name="NatureOfId" length="255" />
+        </property>
+        <property name="dateIdentified" type="string">
+            <column name="DateIdentified" length="32"  />
+        </property>
+        <property name="identificationRemarks" type="string">
+            <column name="IdentificationRemarks"  length="65535" />
+        </property>
+        
         <property name="higherGeography" type="string">
             <column name="higher_geography" length="255" />
         </property>        
