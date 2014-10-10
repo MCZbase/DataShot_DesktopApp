@@ -20,40 +20,64 @@
 package edu.harvard.mcz.imagecapture;
 
 import java.awt.BorderLayout;
+
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
+
+import java.text.ParseException;
 
 import edu.harvard.mcz.imagecapture.data.Determination;
 import edu.harvard.mcz.imagecapture.data.DeterminationTableModel;
+import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
+import edu.harvard.mcz.imagecapture.data.NatureOfId;
 import edu.harvard.mcz.imagecapture.data.Specimen;
+import edu.harvard.mcz.imagecapture.data.TypeStatus;
+import edu.harvard.mcz.imagecapture.ui.FilteringAgentJComboBox;
+import edu.harvard.mcz.imagecapture.ui.ValidatingTableCellEditor;
 
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 
 import javax.swing.JButton;
+
 import java.awt.GridBagConstraints;
 import java.awt.event.KeyEvent;
 
-/** DeterminationFrame
+import javax.swing.JLabel;
+import javax.swing.text.MaskFormatter;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jdesktop.swingx.autocomplete.ComboBoxCellEditor;
+
+/** DeterminationFrame for editing identification history
  * 
  * @author Paul J. Morris
  *
  */
 public class DeterminationFrame extends JFrame {
 
+	private static final Log log = LogFactory.getLog(DeterminationFrame.class);
+	
 	private static final long serialVersionUID = 1L;
 	private JPanel jContentPane = null;
 	private JScrollPane jScrollPane = null;
-	private JTable jTable = null;
+	private JTable jTableDeterminations = null;
 	
     private DeterminationTableModel determinations = null;
     private Specimen specimen = null;
 	private JPanel jPanel = null;
 	private JButton jButtonAdd = null;
 	private JButton jButtonDone = null;
+	private JPanel panel;
+	private JLabel lblFillInVerbatim;
 
 	/**
 	 * This is the default constructor
@@ -91,7 +115,9 @@ public class DeterminationFrame extends JFrame {
 	
 	public void setSpecimen(Specimen aSpecimen) { 
 		determinations = new DeterminationTableModel(aSpecimen.getDeterminations());
-		jTable.setModel(determinations);
+		jTableDeterminations.setModel(determinations);
+		setTableColumnEditors();
+		specimen = aSpecimen;
 		jButtonAdd.setEnabled(true);
 	}
 
@@ -102,9 +128,13 @@ public class DeterminationFrame extends JFrame {
 	 */
 	private void initialize() {
 		this.setSize(940, 351);
-		this.setPreferredSize(new Dimension(1250, 350));
+		this.setPreferredSize(new Dimension(1350, 350));
 		this.setContentPane(getJContentPane());
-		this.setTitle("JFrame");
+		String forSpecimen = "";
+		if (specimen!=null) { 
+			forSpecimen = " for " + specimen.getBarcode(); 
+		}
+		this.setTitle("Enter and edit Determination history" + forSpecimen);
 		this.pack();
 		Dimension screenSize =  Toolkit.getDefaultToolkit().getScreenSize();
 	    this.setLocation((screenSize.width -   this.getWidth()) / 2 , 
@@ -122,6 +152,7 @@ public class DeterminationFrame extends JFrame {
 			jContentPane.setLayout(new BorderLayout());
 			jContentPane.add(getJScrollPane(), BorderLayout.CENTER);
 			jContentPane.add(getJPanel(), BorderLayout.SOUTH);
+			jContentPane.add(getPanel(), BorderLayout.NORTH);
 		}
 		return jContentPane;
 	}
@@ -145,17 +176,41 @@ public class DeterminationFrame extends JFrame {
 	 * @return javax.swing.JTable	
 	 */
 	private JTable getJTable() {
-		if (jTable == null) {
-			jTable = new JTable();
+		if (jTableDeterminations == null) {
+			jTableDeterminations = new JTable();
 			DeterminationTableModel model = new DeterminationTableModel();
-			jTable.setModel(model);
+			jTableDeterminations.setModel(model);
 			if (determinations!=null) { 
-				jTable.setModel(determinations);
+				jTableDeterminations.setModel(determinations);
 			}
+			
+			FilteringAgentJComboBox field = new FilteringAgentJComboBox();
+			jTableDeterminations.getColumnModel().getColumn(DeterminationTableModel.ROW_IDENTIFIEDBY).setCellEditor(new ComboBoxCellEditor(field));
+			
+			setTableColumnEditors();
+			
+			jTableDeterminations.setRowHeight(jTableDeterminations.getRowHeight()+4);			
+			
+			
 		}
-		return jTable;
+		return jTableDeterminations;
 	}
 
+	private void setTableColumnEditors() { 
+		JComboBox<String> comboBoxNatureOfId = new JComboBox<String>(NatureOfId.getNatureOfIdValues());
+		jTableDeterminations.getColumnModel().getColumn(DeterminationTableModel.ROW_NATUREOFID).setCellEditor(new DefaultCellEditor(comboBoxNatureOfId));
+				
+		JComboBox<String> comboBoxTypeStatus = new JComboBox<String>(TypeStatus.getTypeStatusValues());
+		jTableDeterminations.getColumnModel().getColumn(DeterminationTableModel.ROW_TYPESTATUS).setCellEditor(new DefaultCellEditor(comboBoxTypeStatus));
+		
+		JTextField jTextFieldDateIdentified = new JTextField();
+		jTextFieldDateIdentified.setInputVerifier(
+					MetadataRetriever.getInputVerifier(Determination.class, "DateIdentified", jTextFieldDateIdentified));
+		jTableDeterminations.getColumnModel().getColumn(DeterminationTableModel.ROW_DATEIDENTIFIED).setCellEditor(new ValidatingTableCellEditor(jTextFieldDateIdentified));
+		
+	}
+	
+	
 	/**
 	 * This method initializes jPanel	
 	 * 	
@@ -187,8 +242,8 @@ public class DeterminationFrame extends JFrame {
 			jButtonAdd.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					if (specimen!=null) { 
-					   if (jTable.isEditing()) { 
-						   jTable.getCellEditor().stopCellEditing();
+					   if (jTableDeterminations.isEditing()) { 
+						   jTableDeterminations.getCellEditor().stopCellEditing();
 					   }
 					   Determination d = new Determination();
 			           d.setSpecimen(specimen);
@@ -214,8 +269,8 @@ public class DeterminationFrame extends JFrame {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					// Make sure changes in field that was modal before button
 					// click are saved to the model.
-					if (jTable.isEditing()) { 
-					    jTable.getCellEditor().stopCellEditing();
+					if (jTableDeterminations.isEditing()) { 
+					    jTableDeterminations.getCellEditor().stopCellEditing();
 					}
 					//
 					setVisible(false);
@@ -225,4 +280,17 @@ public class DeterminationFrame extends JFrame {
 		return jButtonDone;
 	}
 
+	private JPanel getPanel() {
+		if (panel == null) {
+			panel = new JPanel();
+			panel.add(getLblFillInVerbatim());
+		}
+		return panel;
+	}
+	private JLabel getLblFillInVerbatim() {
+		if (lblFillInVerbatim == null) {
+			lblFillInVerbatim = new JLabel("Fill in either Verbatim Text or (Genus/Species/Subspecies/Infraspecific/Rank/Authorship), but  not both.");
+		}
+		return lblFillInVerbatim;
+	}
 }  //  @jve:decl-index=0:visual-constraint="10,10"

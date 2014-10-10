@@ -46,5 +46,16 @@
         <property name="verbatimText" type="string">
             <column name="VerbatimText" length="255" />
         </property>    
+        
+        <property name="natureOfId" type="string">
+            <column name="NatureOfId" length="255" />
+        </property>
+        <property name="dateIdentified" type="string">
+            <column name="DateIdentified" length="32"  />
+        </property>
+        <property name="remarks" type="string">
+            <column name="remarks"  length="65535" />
+        </property>        
+        
     </class>
 </hibernate-mapping>

@@ -1,3 +1,14 @@
+--  New changes to support addition of ant types to workflow, fall 2014.
+
+alter table Determination add column NatureOfID varchar(255) not null default 'expert ID';   --  need to check colum size and values
+alter table Determination add column Remarks text;
+alter table Determination add column DateIdentified varchar(32);
+
+alter table Specimen add column NatureOfID varchar(255) not null default 'legacy';   --  need to check colum size and values
+alter table Specimen add column IdentificationRemarks text;
+alter table Specimen add column DateIdentified varchar(32);
+
+--  Original changes to support ants, fall 2013
 create table Specimen_Part (
   SpecimenPartId bigint not null primary key auto_increment, 
   SpecimenId bigint not null,

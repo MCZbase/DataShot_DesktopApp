@@ -40,6 +40,11 @@ public class Specimen implements java.io.Serializable {
 	private String unNamedForm;
 	//private String identificationQualifier;
 	private String identifiedBy;
+	
+	private String natureOfId;
+	private String dateIdentified;
+	private String identificationRemarks;
+	
 	private String higherGeography;
 	private String country;
 	private String primaryDivison;
@@ -102,6 +107,7 @@ public class Specimen implements java.io.Serializable {
 		this.flagInMCZbase = false;
 		this.flagAncilaryAlsoInMCZbase = false;
 		//this.preparationType = "Pinned";
+		this.natureOfId = NatureOfId.LEGACY;
 	}
 	
 	/** Clear the default values for a new specimen object, as in one that
@@ -115,6 +121,7 @@ public class Specimen implements java.io.Serializable {
 		this.flagInMCZbase = null;
 		this.flagAncilaryAlsoInMCZbase = null;		
 		//this.preparationType = null;
+		this.natureOfId = null;
 	}
 	
 	public Specimen(String barcode, String typeStatus, Date dateCreated) {
@@ -404,6 +411,48 @@ public class Specimen implements java.io.Serializable {
 
 	public void setIdentifiedBy(String identifiedBy) {
 		this.identifiedBy = identifiedBy;
+	}
+
+	/**
+	 * @return the natureOfId
+	 */
+	public String getNatureOfId() {
+		return natureOfId;
+	}
+
+	/**
+	 * @param natureOfId the natureOfId to set
+	 */
+	public void setNatureOfId(String natureOfId) {
+		this.natureOfId = natureOfId;
+	}
+
+	/**
+	 * @return the dateIdentified
+	 */
+	public String getDateIdentified() {
+		return dateIdentified;
+	}
+
+	/**
+	 * @param dateIdentified the dateIdentified to set
+	 */
+	public void setDateIdentified(String dateIdentified) {
+		this.dateIdentified = dateIdentified;
+	}
+
+	/**
+	 * @return the identificationRemarks
+	 */
+	public String getIdentificationRemarks() {
+		return identificationRemarks;
+	}
+
+	/**
+	 * @param identificationRemarks the identificationRemarks to set
+	 */
+	public void setIdentificationRemarks(String identificationRemarks) {
+		this.identificationRemarks = identificationRemarks;
 	}
 
 	/**

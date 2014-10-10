@@ -94,7 +94,10 @@ public class MetadataRetriever {
 	@SuppressWarnings("unchecked")
 	public static InputVerifier getInputVerifier(final Class aTableClass, final String fieldname, final JTextField field)  {
 		InputVerifier result = null;
-		if (aTableClass == Specimen.class && fieldname == "ISODate") { 
+		if (
+		    (aTableClass == Specimen.class && (fieldname.equalsIgnoreCase("ISODate") || fieldname.equalsIgnoreCase("DateIdentified"))) 
+		 || (aTableClass==Determination.class && fieldname.equalsIgnoreCase("DateIdentified")) 
+		 ) { 
 			result = new InputVerifier() {
 				public boolean verify(JComponent comp) {
 					boolean returnValue = true;
@@ -184,6 +187,8 @@ public class MetadataRetriever {
             if (fieldname.equalsIgnoreCase("UnNamedForm")) { length=50; }
             if (fieldname.equalsIgnoreCase("IdentificationQualifier")) { length=50; }
             if (fieldname.equalsIgnoreCase("IdentifiedBy")) { length=255; }
+            if (fieldname.equalsIgnoreCase("DateIdentified")) { length=21; }
+            if (fieldname.equalsIgnoreCase("NatureOfID")) { length=255; }
             if (fieldname.equalsIgnoreCase("Country")) { length=255; }
             if (fieldname.equalsIgnoreCase("PrimaryDivison")) { length=255; }
             if (fieldname.equalsIgnoreCase("SpecificLocality")) { length=65535; }
@@ -229,7 +234,9 @@ public class MetadataRetriever {
             if (fieldname.equalsIgnoreCase("UnNamedForm")) { length=50; }
             if (fieldname.equalsIgnoreCase("IdentificationQualifier")) { length=50; }
             if (fieldname.equalsIgnoreCase("IdentifiedBy")) { length=255; }		
+            if (fieldname.equalsIgnoreCase("DateIdentified")) { length=21; }
             if (fieldname.equalsIgnoreCase("TypeStatus")) { length=50; }
+            if (fieldname.equalsIgnoreCase("NatureOfID")) { length=255; }
 		}
 		if (aTableClass==Users.class) { 
 			if (fieldname.equalsIgnoreCase("username")) { length=50; }	
@@ -281,6 +288,9 @@ public class MetadataRetriever {
             if (fieldname.equalsIgnoreCase("UnNamedForm")) { help="e.g. 'Winter form', informal descriptive name of the form of this specimen (for informal form names not regulated by the ICZN)."; }
             if (fieldname.equalsIgnoreCase("IdentificationQualifier")) { help="Don't use this field."; }
             if (fieldname.equalsIgnoreCase("IdentifiedBy")) { help="Name of the person, if known, who made this identification."; }
+            if (fieldname.equalsIgnoreCase("DateIdentified")) { help="Date at which this identification was made, if known.  Use ISO format yyyy/mm/dd-yyyy/mm/dd."; }
+            if (fieldname.equalsIgnoreCase("IdentificationRemarks")) { help="Remarks about this identification."; }
+            if (fieldname.equalsIgnoreCase("NatureOfId")) { help="Nature of the Identification: expert ID=made by known expert; legacy=on label with no data on identifier. "; }
             if (fieldname.equalsIgnoreCase("Country")) { help="The country from which this specimen was collected.  Infer if you have specialist knowledge and annotate in Inferences"; }
             if (fieldname.equalsIgnoreCase("PrimaryDivison")) { help="The state, province, or other primary geopolitical division of the country from which this specimen was collected.  Infer if you have specialist knowlege and annotate in Inferences"; }
             if (fieldname.equalsIgnoreCase("SpecificLocality")) { help="Placenames, offsets, and other text describing where this specimen was collected.  Press button to use '[no specific locality data]' when there are no specific locality data."; }
@@ -327,6 +337,9 @@ public class MetadataRetriever {
             if (fieldname.equalsIgnoreCase("UnNamedForm")) { help="e.g. 'Winter form', informal descriptive name of the form of this specimen (not regulated by the ICZN)."; }
             if (fieldname.equalsIgnoreCase("IdentificationQualifier")) { help="A question mark or other qualifier that indicates the identification of this specimen is uncertain."; }
             if (fieldname.equalsIgnoreCase("IdentifiedBy")) { help="Name of the person, if known, who made this identification."; }		
+            if (fieldname.equalsIgnoreCase("DateIdentified")) { help="Date at which this identification was made, if known.  Use ISO Format yyyy/mm/dd-yyyy/mm/dd."; }
+            if (fieldname.equalsIgnoreCase("IdentificationRemarks")) { help="Remarks about this identification."; }
+            if (fieldname.equalsIgnoreCase("NatureOfId")) { help="Nature of the Identification: expert ID=made by known expert; legacy=on label with no data on identifier. "; }
 		}
 		if (aTableClass==Users.class) { 
 			if (fieldname.equalsIgnoreCase("username")) { help="Database username of this person."; }	
