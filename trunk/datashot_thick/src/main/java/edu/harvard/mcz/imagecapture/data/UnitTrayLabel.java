@@ -244,7 +244,7 @@ public class UnitTrayLabel implements TaxonNameReturner, DrawerNameReturner, Col
 	 * interface (taxonnameReturner, drawernumberReturner, collectionReturner).
 	 * 
 	 * @param jsonEncodedLabel the JSON to decode.
-	 * @return a new UnitTrayLabel populated with the values found in the supplied jsonEncodedLabel text.
+	 * @return a new UnitTrayLabel populated with the values found in the supplied jsonEncodedLabel text or null on a failure.
 	 * @see toJSONString
 	 */
 	public static UnitTrayLabel createFromJSONString(String jsonEncodedLabel) { 
