@@ -21,20 +21,23 @@ package edu.harvard.mcz.imagecapture;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
-import java.awt.image.RescaleOp;
 import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -54,7 +57,6 @@ import com.google.zxing.Result;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
-import com.google.zxing.qrcode.QRCodeWriter;
 
 import edu.harvard.mcz.imagecapture.data.UnitTrayLabel;
 import edu.harvard.mcz.imagecapture.exceptions.NoSuchTemplateException;
@@ -112,6 +114,51 @@ public class CandidateImageFile {
 			log.error("Position template detector returned an unknown template name: " + templateName + ".", e);
 		}
 		setFile(aFile, template);
+	}
+	
+	/**
+	 * Self standing starting point to extract barcodes from image files. 
+	 * 
+	 * @param args command line arguments, run with none or -h for help.
+	 */
+	public static void main(String[] args) { 
+		CommandLineParser parser = new PosixParser();
+		Options options = new Options();
+		options.addOption("f","file",true,"Check file for Barcodes.");
+		try { 
+			CommandLine cmd = parser.parse(options, args);
+			boolean hasFile = cmd.hasOption("file");
+			if (hasFile) { 
+
+				String filename = cmd.getOptionValue("file");
+				File f = new File(filename);
+				try {
+					CandidateImageFile file = new CandidateImageFile(f,new PositionTemplate(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS));
+					String exif = file.getExifUserCommentText();
+					String scan = file.getBarcodeText();
+					if (scan.startsWith("{\"m1p\":")) { 
+						System.out.println('"' + f.getName() + "\",\"" + exif + '"' );
+					} else { 
+						if (scan.equals(exif)) { 
+						    System.out.println('"' + f.getName() + "\",\"" + scan + '"' );
+						} else { 
+						    System.out.println('"' + f.getName() + "\",\"" + exif + '"' );
+						}
+					}
+				} catch (UnreadableFileException e) {
+					System.out.println("Unable To Read  " + filename);
+					System.exit(1);
+				} catch (NoSuchTemplateException e) {
+					e.printStackTrace();
+				}
+			} else { 
+				throw new ParseException("No file specified to parse.");
+			}
+		} catch (ParseException e) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp( "CandidateImageFile", "Check a file for a barcode.", options, "Specify filename to check", true );
+		}
+		System.exit(0);
 	}
 	
 	/**
@@ -639,7 +686,7 @@ public class CandidateImageFile {
 					log.error("Error decoding exif metadata.");
 					log.error(e1.getMessage());
 				}
-				System.out.println("Exif UserComment = " + exifComment);
+				log.debug("Exif UserComment = " + exifComment);
 			} catch (JpegProcessingException e2) {
 				log.error("Error reading exif metadata.");
 				log.error(e2.getMessage());

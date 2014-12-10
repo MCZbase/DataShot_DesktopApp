@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
 import edu.harvard.mcz.imagecapture.data.Specimen;
+import edu.harvard.mcz.imagecapture.data.UnitTrayLabel;
 import edu.harvard.mcz.imagecapture.interfaces.CollectionReturner;
 import edu.harvard.mcz.imagecapture.interfaces.DrawerNameReturner;
 import edu.harvard.mcz.imagecapture.interfaces.TaxonNameReturner;
@@ -50,8 +51,35 @@ public class UnitTrayLabelParser implements TaxonNameReturner, DrawerNameReturne
 	 */
 	public UnitTrayLabelParser(String aStringToParse) { 
 		text = aStringToParse;
-		//System.out.print(aStringToParse);
-		parse();
+	    log.debug(aStringToParse);
+	    boolean done = false;
+	    if (aStringToParse.endsWith("}") && aStringToParse.startsWith("{")) { 
+	    	if (parseFromJSON(aStringToParse)) { 
+	    		done = true;
+	    	}
+	    } 
+	    if (!done) { 
+		   parse();
+	    }
+	}
+	
+	protected boolean parseFromJSON(String json) {
+		boolean result = false;
+	    UnitTrayLabel label = UnitTrayLabel.createFromJSONString(json);
+	    if (label!=null) { 
+	    	result = true;
+	    	family = label.getFamily();
+	    	subfamily = label.getSubfamily();
+	    	tribe = label.getTribe();
+	    	genus = label.getGenus();
+	    	specificEpithet = label.getSpecificEpithet();
+	    	subspecificEpithet = label.getSubspecificEpithet();
+	    	authorship = label.getAuthorship();
+	    	infraspecificEpithet = label.getInfraspecificEpithet();
+	    	infraspecificRank = label.getInfraspecificRank();
+	    	drawerNumber = label.getDrawerNumber();
+	    }
+	    return result;
 	}
 	
 	/**
