@@ -27,10 +27,14 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -123,42 +127,100 @@ public class CandidateImageFile {
 	 */
 	public static void main(String[] args) { 
 		CommandLineParser parser = new PosixParser();
+		int exit = 1;
 		Options options = new Options();
-		options.addOption("f","file",true,"Check file for Barcodes.");
+		options.addOption("f","file",true,"Check one file for Barcodes.");
 		try { 
 			CommandLine cmd = parser.parse(options, args);
 			boolean hasFile = cmd.hasOption("file");
 			if (hasFile) { 
-
 				String filename = cmd.getOptionValue("file");
-				File f = new File(filename);
-				try {
-					CandidateImageFile file = new CandidateImageFile(f,new PositionTemplate(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS));
-					String exif = file.getExifUserCommentText();
-					String scan = file.getBarcodeText();
-					if (scan.startsWith("{\"m1p\":")) { 
-						System.out.println('"' + f.getName() + "\",\"" + exif + '"' );
-					} else { 
-						if (scan.equals(exif)) { 
-						    System.out.println('"' + f.getName() + "\",\"" + scan + '"' );
-						} else { 
-						    System.out.println('"' + f.getName() + "\",\"" + exif + '"' );
-						}
-					}
-				} catch (UnreadableFileException e) {
-					System.out.println("Unable To Read  " + filename);
+				String line = CandidateImageFile.parseOneFile(filename); 
+				if (line!=null) { 
+					System.out.println(line);
+					exit = 0;
+				} else { 
 					System.exit(1);
-				} catch (NoSuchTemplateException e) {
-					e.printStackTrace();
 				}
 			} else { 
-				throw new ParseException("No file specified to parse.");
+				if (cmd.getOptions().length==0) { 
+					final JFileChooser fileChooser = new JFileChooser();
+					fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+					fileChooser.setCurrentDirectory(null);  
+					fileChooser.setDialogTitle("Pick a directory of image files to check for barcodes.");
+					int returnValue = fileChooser.showOpenDialog(Singleton.getSingletonInstance().getMainFrame());
+					if (returnValue == JFileChooser.APPROVE_OPTION) {
+						File directory = fileChooser.getSelectedFile();
+						log.debug("Selected base directory: " + directory.getName() + ".");
+						File[] files = directory.listFiles();
+						int fileCount = files.length;
+						int matchCount = 0;
+						if (fileCount>0) { 
+							File output = new File(directory.getAbsolutePath() + File.separatorChar + "filename_barcode.csv");
+							log.debug(output.getPath());
+							if (!output.exists()) { 
+								try {
+									PrintWriter writer = new PrintWriter(output);
+									for (File candidate : files) {
+										if (candidate.getName().matches(ImageCaptureApp.REGEX_IMAGEFILE)) { 
+											try {
+												String line = CandidateImageFile.parseOneFile(candidate.getCanonicalPath());
+												writer.println(line);
+												matchCount++;
+											} catch (IOException e) {
+												e.printStackTrace();
+											}
+										}
+									} 
+									writer.close();
+									exit = 0;
+								} catch (FileNotFoundException e1) {
+									e1.printStackTrace();
+								}
+							} else { 
+								log.error(output.exists());
+			                    JOptionPane.showMessageDialog(null,"Output file " + output.getName() + " already exists in selected directory.", "File Exists", JOptionPane.ERROR_MESSAGE);	
+							}
+						} else { 
+							log.error("No files in selected directory. " + directory.toString());
+						}
+		                JOptionPane.showMessageDialog(null,"Done.  Checked " + matchCount +"  files out of " + fileCount + ".", "Done.", JOptionPane.INFORMATION_MESSAGE);	
+					} else {
+						log.error("Directory selection cancelled by user.");
+					}
+				} else {
+					throw new ParseException("No file specified to parse.");
+				}
 			}
 		} catch (ParseException e) {
 			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp( "CandidateImageFile", "Check a file for a barcode.", options, "Specify filename to check", true );
+			formatter.printHelp( "CandidateImageFile", "Check files for a barcodes.", options, "Specify filename to check.  \nDefault if no options are provided is to launch a directory picker\nand check all files in the selected directory.", true );
 		}
-		System.exit(0);
+		System.exit(exit);
+	}
+	
+	protected static String parseOneFile(String filename) {
+		String result = null;  
+		File f = new File(filename);
+		try {
+			CandidateImageFile file = new CandidateImageFile(f,new PositionTemplate(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS));
+			String exif = file.getExifUserCommentText();
+			String scan = file.getBarcodeText();
+			if (scan.startsWith("{\"m1p\":")) { 
+				result = '"' + f.getName() + "\",\"" + exif + '"' ;
+			} else { 
+				if (scan.equals(exif)) { 
+				    result = '"' + f.getName() + "\",\"" + scan + '"' ;
+				} else { 
+				    result = '"' + f.getName() + "\",\"" + exif + '"' ;
+				}
+			}
+		} catch (UnreadableFileException e) {
+			System.out.println("Unable To Read  " + filename);
+		} catch (NoSuchTemplateException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	/**

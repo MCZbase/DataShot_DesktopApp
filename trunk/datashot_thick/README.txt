@@ -37,3 +37,15 @@ which make connections to this database.
 
 The ant build.xml file is obsolete.  The ant buildAppJar.xml file is invoked 
 with maven in the package phase.
+
+(3) After a maven package, you can invoke ant on the build_CIF.xml file in
+order to build a CandidateImageFile.jar that can examine an image file or
+a directory of image files and produce a list of filenames and barcodes found
+in the files.
+
+ant -f build_CIF.xml
+
+The resulting executable jar file will be in build/CandidateImageFile.jar,
+you can run it with:
+
+java -jar CandidateImageFile.jar -h
