@@ -28,6 +28,8 @@
             </fileset>            
             <fileset file="gpl-2.0.txt" />
             <zipfileset excludes="META-INF/*.SF" src="${m2.root}/repository/commons-cli/commons-cli/1.2/commons-cli-1.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${m2.root}/repository/org/imgscalr/imgscalr-lib/4.2/imgscalr-lib-4.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${m2.root}/repository/org/apache/commons/commons-csv/1.1/commons-csv-1.1.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${m2.root}/repository/com/drewnoakes/metadata-extractor/2.4.0-beta-1/metadata-extractor-2.4.0-beta-1.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${m2.root}/repository/com/google/zxing/core/2.3.0/core-2.3.0.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${m2.root}/repository/com/google/zxing/javase/2.3.0/javase-2.3.0.jar"/>
