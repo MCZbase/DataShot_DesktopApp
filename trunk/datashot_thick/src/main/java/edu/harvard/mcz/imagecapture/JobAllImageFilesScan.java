@@ -304,11 +304,11 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 		}
 	}
 	
-	protected class ThumbnailBuilder implements Runnable {
+	protected class ThumbnailBuilderInternal implements Runnable {
 
 		File startPoint;
 
-		public ThumbnailBuilder(File aStartPoint) { 
+		public ThumbnailBuilderInternal(File aStartPoint) { 
 			startPoint = aStartPoint;
 		}
 
@@ -385,7 +385,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 		log.debug("Directory contains  " + containedFiles.length + " entries.");
 		if (containedFiles.length>0) {
 			// create thumbnails in a separate thread
-			(new Thread(new ThumbnailBuilder(startPoint))).start();
+			(new Thread(new ThumbnailBuilderInternal(startPoint))).start();
 		}
 		for (int i=0; i< containedFiles.length; i++) {
 			if (runStatus != RunStatus.STATUS_TERMINATED) { 

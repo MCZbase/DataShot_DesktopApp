@@ -20,6 +20,7 @@
 package edu.harvard.mcz.imagecapture;
 
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -30,6 +31,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
@@ -42,6 +45,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -62,6 +68,7 @@ import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
+import edu.harvard.mcz.imagecapture.data.BulkMedia;
 import edu.harvard.mcz.imagecapture.data.UnitTrayLabel;
 import edu.harvard.mcz.imagecapture.exceptions.NoSuchTemplateException;
 import edu.harvard.mcz.imagecapture.exceptions.OCRReadException;
@@ -88,6 +95,7 @@ public class CandidateImageFile {
 	private int barcodeStatus;
 	private String exifCommentText = null;
 	private String labelText = null;
+	private String dateCreated = null;
 
 	private static final Log log = LogFactory.getLog(CandidateImageFile.class);
 
@@ -126,77 +134,54 @@ public class CandidateImageFile {
 	 * @param args command line arguments, run with none or -h for help.
 	 */
 	public static void main(String[] args) { 
+		// Load properties
+		ImageCaptureProperties properties = new ImageCaptureProperties();
+		Singleton.getSingletonInstance().setProperties(properties);
+		log.debug("Properties loaded");
+		
 		CommandLineParser parser = new PosixParser();
-		int exit = 1;
 		Options options = new Options();
 		options.addOption("f","file",true,"Check one file for Barcodes.");
+		options.addOption("h","help",false,"Get help.");
+		options.addOption("u","ui",false,"Launch UI to check a directory.");
 		try { 
 			CommandLine cmd = parser.parse(options, args);
 			boolean hasFile = cmd.hasOption("file");
+			boolean hasHelp = cmd.hasOption("help");
 			if (hasFile) { 
+		        int exit = 1;
 				String filename = cmd.getOptionValue("file");
 				String line = CandidateImageFile.parseOneFile(filename); 
 				if (line!=null) { 
 					System.out.println(line);
 					exit = 0;
-				} else { 
-					System.exit(1);
 				}
+				System.exit(exit);
+			} else if (hasHelp) { 
+				throw new ParseException("No option specified.");
 			} else { 
-				if (cmd.getOptions().length==0) { 
-					final JFileChooser fileChooser = new JFileChooser();
-					fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-					fileChooser.setCurrentDirectory(null);  
-					fileChooser.setDialogTitle("Pick a directory of image files to check for barcodes.");
-					int returnValue = fileChooser.showOpenDialog(Singleton.getSingletonInstance().getMainFrame());
-					if (returnValue == JFileChooser.APPROVE_OPTION) {
-						File directory = fileChooser.getSelectedFile();
-						log.debug("Selected base directory: " + directory.getName() + ".");
-						File[] files = directory.listFiles();
-						int fileCount = files.length;
-						int matchCount = 0;
-						if (fileCount>0) { 
-							File output = new File(directory.getAbsolutePath() + File.separatorChar + "filename_barcode.csv");
-							log.debug(output.getPath());
-							if (!output.exists()) { 
-								try {
-									PrintWriter writer = new PrintWriter(output);
-									for (File candidate : files) {
-										if (candidate.getName().matches(ImageCaptureApp.REGEX_IMAGEFILE)) { 
-											try {
-												String line = CandidateImageFile.parseOneFile(candidate.getCanonicalPath());
-												writer.println(line);
-												matchCount++;
-											} catch (IOException e) {
-												e.printStackTrace();
-											}
-										}
-									} 
-									writer.close();
-									exit = 0;
-								} catch (FileNotFoundException e1) {
-									e1.printStackTrace();
-								}
-							} else { 
-								log.error(output.exists());
-			                    JOptionPane.showMessageDialog(null,"Output file " + output.getName() + " already exists in selected directory.", "File Exists", JOptionPane.ERROR_MESSAGE);	
-							}
-						} else { 
-							log.error("No files in selected directory. " + directory.toString());
-						}
-		                JOptionPane.showMessageDialog(null,"Done.  Checked " + matchCount +"  files out of " + fileCount + ".", "Done.", JOptionPane.INFORMATION_MESSAGE);	
-					} else {
-						log.error("Directory selection cancelled by user.");
-					}
-				} else {
-					throw new ParseException("No file specified to parse.");
+				// by default, run ui.
+				try {
+					showBulkMediaGUI();
+				} catch (Exception e) {
+					log.error(e.getMessage(),e);
 				}
 			}
 		} catch (ParseException e) {
 			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp( "CandidateImageFile", "Check files for a barcodes.", options, "Specify filename to check.  \nDefault if no options are provided is to launch a directory picker\nand check all files in the selected directory.", true );
+			formatter.printHelp( "CandidateImageFile", "Check files for a barcodes.", options, "Specify filename to check.  \nDefault if no options are selected is to launch a GUI.", true );
+			System.exit(1);
 		}
-		System.exit(exit);
+	}
+	
+	protected static void showBulkMediaGUI() { 
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+            	BulkMediaFrame frame = new BulkMediaFrame();
+				frame.pack();
+				frame.setVisible(true);;
+            }
+        });
 	}
 	
 	protected static String parseOneFile(String filename) {
@@ -222,6 +207,57 @@ public class CandidateImageFile {
 		}
 		return result;
 	}
+	
+	
+	
+	protected static BulkMedia parseOneFileToBulkMedia(String filename) {
+		BulkMedia result = new BulkMedia();  
+		File f = new File(filename);
+		try {
+			CandidateImageFile file = new CandidateImageFile(f,new PositionTemplate(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS));
+			String exif = file.getExifUserCommentText();
+			String scan = file.getBarcodeText();
+			String madeDate = file.getExifDateCreated();
+			log.debug(madeDate);
+			if (madeDate!=null)  {
+				result.setMadeDate(madeDate);
+			}
+			String barcode = null;
+			result.setOriginalFilename(f.getName());
+			if (scan.startsWith("{\"m1p\":")) {
+				barcode = exif;
+			} else { 
+				if (scan.equals(exif)) { 
+					barcode = scan;
+				} else { 
+					barcode = exif;
+				}
+			}
+			if (barcode.startsWith("MCZ-ENT")) { 
+				result.setCatalogNumber("MCZ:Ent:" + barcode.substring(7).replaceFirst("^0*", ""));
+			}
+			if (filename.startsWith("http://")) { 
+				result.setMedia_URI(filename);
+			} else { 
+			    File preview_file = ThumbnailBuilder.getThumbFileForFile(f);
+				// TODO: Add preview uri.
+				if (!result.setURI(f)) { 
+			        System.out.println("Can't extract URI from path for " + filename);
+				}
+				if (!result.setPreviewURI(preview_file)) { 
+			        System.out.println("Can't extract URI from path for preview file " + preview_file.getName());
+				}
+			}
+			log.debug(madeDate);
+		} catch (UnreadableFileException e) {
+			log.error(e.getMessage());
+			System.out.println("Unable To Read  " + filename);
+		} catch (NoSuchTemplateException e) {
+			log.error(e.getMessage());
+		}
+		log.debug(result.toString());
+		return result;
+	}	
 	
 	/**
 	 * Constructor
@@ -758,6 +794,44 @@ public class CandidateImageFile {
 		} 
 		return exifCommentText;
 	}
+	
+	
+	public String getExifDateCreated() { 
+		// Actual read attempt is only invoked once,
+		// subsequent calls return cached value.
+		if (dateCreated==null) { 
+			// read, or re-read the file for a comment
+			Date date = null;
+			try {
+				Metadata metadata = JpegMetadataReader.readMetadata(candidateFile);
+				// [Exif] date 
+				Directory exifDirectory = metadata.getDirectory(ExifDirectory.class);
+				try {
+				    date = exifDirectory.getDate(ExifDirectory.TAG_DATETIME);
+				    if (date==null) {
+				    	date = exifDirectory.getDate(ExifDirectory.TAG_DATETIME_ORIGINAL);
+				    }
+				    if (date==null) {
+				    	date = exifDirectory.getDate(ExifDirectory.TAG_DATETIME_DIGITIZED);
+				    }
+				} catch (MetadataException e1) {
+					log.error("Error decoding exif date metadata.");
+					log.error(e1.getMessage());
+				}
+				log.debug("Exif DateTime = " + SimpleDateFormat.getDateInstance().format(date));
+			} catch (JpegProcessingException e2) {
+				log.error("Error reading exif metadata.");
+				log.error(e2.getMessage());
+			}
+			// cache the date if one was found, otherwise null.
+			if (date!=null) {
+				// date format shown on the media bulkloader example page.
+				SimpleDateFormat format = new SimpleDateFormat("dd MMMMM yyyy");
+			   dateCreated = format.format(date);
+			}
+		} 
+		return dateCreated;
+	}	
 
 	/**
 	 * Convenience method to check an image for a barcode.  Does not set any instance variables of CandidateImageFile, 

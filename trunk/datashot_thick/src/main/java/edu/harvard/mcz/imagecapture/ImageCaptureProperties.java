@@ -44,6 +44,7 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 	
 	public static final String KEY_LASTPATH = "scanonebarcode.lastpath";
 	public static final String KEY_IMAGEBASE = "images.basedirectory";
+	public static final String KEY_IMAGEBASEURI = "images.basedirectoryurimap";
 	public static final String KEY_IMAGERESCALE = "images.barcoderescalesize";
 	public static final String KEY_TEMPLATEDEFAULT = "template.default";
 	public static final String KEY_TESSERACT_EXECUTABLE = "program.tesseract";
@@ -303,6 +304,10 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 			// Root of the path of the place where all image files should be stored.
 			properties.setProperty(KEY_IMAGEBASE,"/mount/lepidopteraimages");	
 		}
+		if (!properties.containsKey(KEY_IMAGEBASEURI))  {
+			// URI to the root of the path of the place where all image files should be stored.
+			properties.setProperty(KEY_IMAGEBASEURI,"http://mczbase.mcz.harvard.edu/specimen_images/");	
+		}		
 		if (!properties.containsKey(KEY_IMAGERESCALE))  {
 			// Size to which to rescale width of unit tray label barcode to on retry.
 			properties.setProperty(KEY_IMAGERESCALE,"400");	
