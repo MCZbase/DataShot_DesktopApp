@@ -22,15 +22,20 @@ package edu.harvard.mcz.imagecapture;
 import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -754,6 +759,16 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 									tryMe.setRawOcr(rawOCR);
 									tryMe.setTemplateId(template.getTemplateId());
 									tryMe.setPath(path);
+									// TODO: Create md5hash of image file, persist with image 
+									if (tryMe.getMd5sum()==null || tryMe.getMd5sum().length()>0) { 
+										try {
+											tryMe.setMd5sum(DigestUtils.md5Hex(new FileInputStream(fileToCheck)));
+										} catch (FileNotFoundException e) {
+											log.error(e.getMessage());
+										} catch (IOException e) {
+											log.error(e.getMessage());
+										}
+									}
 									try {
 										// *** Save a database record of the image file.
 										imageCont.persist(tryMe);
