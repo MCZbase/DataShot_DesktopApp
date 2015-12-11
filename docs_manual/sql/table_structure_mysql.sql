@@ -145,6 +145,7 @@ CREATE TABLE Image
     SpecimenId      BIGINT         not null,
     TemplateId      VARCHAR(255),
     DrawerNumber    VARCHAR(10),
+    MD5SUM          VARCHAR(900),
 
     primary key(ImageId),
 

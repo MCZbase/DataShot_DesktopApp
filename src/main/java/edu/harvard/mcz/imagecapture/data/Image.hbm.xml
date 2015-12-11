@@ -37,5 +37,8 @@
         <property name="drawerNumber" type="string">
             <column name="DrawerNumber" length="10" />
         </property>        
+        <property name="md5sum" type="string">
+            <column name="MD5SUM" length="900" />
+        </property>
     </class>
 </hibernate-mapping>
