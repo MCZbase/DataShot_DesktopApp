@@ -20,7 +20,6 @@
 package edu.harvard.mcz.imagecapture;
 
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -28,16 +27,12 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -45,9 +40,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -56,8 +48,8 @@ import com.drew.imaging.jpeg.JpegProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
-import com.drew.metadata.exif.ExifDescriptor;
-import com.drew.metadata.exif.ExifDirectory;
+import com.drew.metadata.exif.ExifSubIFDDescriptor;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.LuminanceSource;
@@ -776,18 +768,16 @@ public class CandidateImageFile {
 			try {
 				Metadata metadata = JpegMetadataReader.readMetadata(candidateFile);
 				// [Exif] User Comment
-				Directory exifDirectory = metadata.getDirectory(ExifDirectory.class);
-				ExifDescriptor descriptor = new ExifDescriptor(exifDirectory);
-				try {
-					exifComment = descriptor.getUserCommentDescription();
-				} catch (MetadataException e1) {
-					log.error("Error decoding exif metadata.");
-					log.error(e1.getMessage());
-				}
+				Directory exifDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+				ExifSubIFDDescriptor descriptor = new ExifSubIFDDescriptor((ExifSubIFDDirectory) exifDirectory);
+				exifComment = descriptor.getUserCommentDescription();
 				log.debug("Exif UserComment = " + exifComment);
 			} catch (JpegProcessingException e2) {
 				log.error("Error reading exif metadata.");
 				log.error(e2.getMessage());
+			} catch (IOException e) {
+				log.error("Error reading file for exif metadata.");
+				log.error(e.getMessage());
 			}
 			// cache the comment if one was found, otherwise an empty string.
 			exifCommentText = exifComment;
@@ -805,23 +795,21 @@ public class CandidateImageFile {
 			try {
 				Metadata metadata = JpegMetadataReader.readMetadata(candidateFile);
 				// [Exif] date 
-				Directory exifDirectory = metadata.getDirectory(ExifDirectory.class);
-				try {
-				    date = exifDirectory.getDate(ExifDirectory.TAG_DATETIME);
-				    if (date==null) {
-				    	date = exifDirectory.getDate(ExifDirectory.TAG_DATETIME_ORIGINAL);
-				    }
-				    if (date==null) {
-				    	date = exifDirectory.getDate(ExifDirectory.TAG_DATETIME_DIGITIZED);
-				    }
-				} catch (MetadataException e1) {
-					log.error("Error decoding exif date metadata.");
-					log.error(e1.getMessage());
+				Directory exifDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+				date = exifDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME);
+				if (date==null) {
+				    date = exifDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+				}
+				if (date==null) {
+				    date = exifDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_DIGITIZED);
 				}
 				log.debug("Exif DateTime = " + SimpleDateFormat.getDateInstance().format(date));
 			} catch (JpegProcessingException e2) {
 				log.error("Error reading exif metadata.");
 				log.error(e2.getMessage());
+			} catch (IOException e) {
+				log.error("Error reading file for exif metadata.");
+				log.error(e.getMessage());
 			}
 			// cache the date if one was found, otherwise null.
 			if (date!=null) {
