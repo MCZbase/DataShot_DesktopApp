@@ -55,6 +55,7 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 	public static final String KEY_ENABLE_BROWSE = "browse.enabled";
 	public static final String KEY_DEFAULT_PREPARATION = "default.preparation";
 	public static final String KEY_FILTER_LENGTH_THRESHOLD = "picklist.filterlength";
+	public static final String KEY_SHOW_ALL_NUMBER_TYPES = "numbertypes.showall";
 	
 	public static final String VALUE_DETAILS_SCROLL_FORCE_ON = "on";
 	
@@ -346,7 +347,11 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 		if (!properties.containsKey(KEY_FILTER_LENGTH_THRESHOLD)) { 
 			// default value is disabled browse on main menu.
 			properties.setProperty(KEY_FILTER_LENGTH_THRESHOLD, "3");
-		}		
+		}	
+		if (!properties.containsKey(KEY_SHOW_ALL_NUMBER_TYPES)) { 
+			// default value is disabled browse on main menu.
+			properties.setProperty(KEY_SHOW_ALL_NUMBER_TYPES, "false");
+		}			
 		
 	}
 	

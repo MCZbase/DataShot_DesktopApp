@@ -1,5 +1,8 @@
 package edu.harvard.mcz.imagecapture.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // Generated Jan 23, 2009 8:12:35 AM by Hibernate Tools 3.2.2.GA
 
 /**
@@ -59,4 +62,20 @@ public class Number implements java.io.Serializable {
 		this.numberType = numberType;
 	}
 
+    public static List<String> getNumberTypeValues() {
+    	List<String> result = new ArrayList<String>();
+    	result.add("");
+    	result.add("Unknown");
+    	result.add("Species Number");
+    	result.add("Collector Number");
+    	result.add("Collection Number");
+    	result.add("MCZ Slide Number");
+    	result.add("Genitalia Preparation");
+    	result.add("DNA Sample Number");
+    	result.add("Drawer Number");
+    	result.add("Lycaenidae Morphology Ref.");
+    	result.add("MCZ Butterfly Exhibit, 2000");
+    	return result;
+	}
+	
 }
