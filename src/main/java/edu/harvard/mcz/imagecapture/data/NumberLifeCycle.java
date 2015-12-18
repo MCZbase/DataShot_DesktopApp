@@ -14,8 +14,9 @@ import org.hibernate.Query;
 import org.hibernate.SessionException;
 import org.hibernate.classic.Session;
 
+import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
+import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
-
 import static org.hibernate.criterion.Example.create;
 
 /**
@@ -201,6 +202,9 @@ public class NumberLifeCycle {
 	@SuppressWarnings("unchecked")
 	public static String[] getDistinctTypes() { 
 		ArrayList<String> types = new ArrayList<String>();
+		if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_SHOW_ALL_NUMBER_TYPES).equals("false")) {
+		    return Number.getNumberTypeValues().toArray(new String[]{});	
+		} else { 
 		types.add("");    // put blank at top of list.
 		types.add("Unknown");  // follow with "Unknown", see below.
 		try {
@@ -224,10 +228,11 @@ public class NumberLifeCycle {
 			}
 			try { session.close(); } catch (SessionException e) { }
 			String[] result = (String[]) types.toArray(new String[]{});
-			return result;
 		} catch (RuntimeException re) {
 			log.error(re);
-			return new String[]{};
+			types = new ArrayList<String>();
 		}
+		}
+		return (String[]) types.toArray(new String[]{});
 	}
 }
