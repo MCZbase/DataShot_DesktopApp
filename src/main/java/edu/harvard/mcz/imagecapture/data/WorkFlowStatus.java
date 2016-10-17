@@ -21,6 +21,12 @@ public class WorkFlowStatus {
 	 */
 	public static final String STAGE_1 = "Taxon Entered";
 	/**
+	 * Specimen record where the text from the pin labels has been transcribed into verbatim database fields
+	 * by a data entry person (or in an external transcription process).  Data transcribed into verbatim fields, 
+	 * but interpreted further into atomic fields.
+	 */	
+	public static final String STAGE_VERBATIM = "Verbatim Entered";
+	/**
 	 * Specimen record where the text from the pin labels has been transcribed into database fields by a data
 	 * entry person. 
 	 */

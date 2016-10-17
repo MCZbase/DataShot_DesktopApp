@@ -139,7 +139,7 @@ public class JobFileReconciliation implements RunnableJob, Runnable {
 						// fileToCheck is a file.
 
 						// does file to check match pattern of an image file.
-						if (fileToCheck.getName().matches(ImageCaptureApp.REGEX_IMAGEFILE)) { 
+						if (fileToCheck.getName().matches(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEREGEX))) { 
 							// it is an image file.
 							counter.incrementFilesSeen();
 							// Check to see if this file is in the database.

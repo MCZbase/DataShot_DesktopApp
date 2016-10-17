@@ -20,6 +20,8 @@
 package edu.harvard.mcz.imagecapture;
 
 import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,11 +29,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -250,7 +254,11 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 					}
 					// report
 					String report = "Scanned " + counter.getDirectories() + " directories.\n";
-					report += "Created thumbnails in " + thumbnailCounter + " directories.\n";
+					report += "Created thumbnails in " + thumbnailCounter + " directories";
+					if (thumbnailCounter==0) { 
+					   report += " (May still be in progress)";
+					} 
+					report += ".\n";
 					if (startPointSpecific==null) { 
 						report += "Starting with the base image directory (Preprocess All).\n";	
 					} else { 
@@ -309,16 +317,41 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 		}
 	}
 	
-	protected class ThumbnailBuilderInternal implements Runnable {
+	protected class ThumbnailBuilderInternal implements Runnable, RunnableJob{
 
 		File startPoint;
+		
+		String thumbHeight;
+		String thumbWidth;
+		
+		private Date thumbStartTime = null;
+		private int thumbRunStatus = RunStatus.STATUS_NEW;
+		private int percentComplete = 0;
 
 		public ThumbnailBuilderInternal(File aStartPoint) { 
 			startPoint = aStartPoint;
+			thumbHeight = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_THUMBNAIL_HEIGHT);
+			thumbWidth = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_THUMBNAIL_WIDTH);
 		}
+		
+		public ThumbnailBuilderInternal(File aStartPoint, int thumbHeightPixels, int thumbWidthPixels) { 
+			startPoint = aStartPoint;
+			thumbHeight = Integer.toString(thumbHeightPixels);
+			thumbWidth = Integer.toString(thumbWidthPixels);
+			if (thumbHeightPixels < 10) { 
+			    thumbHeight = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_THUMBNAIL_HEIGHT);
+			}
+			if (thumbWidthPixels < 10) { 
+			    thumbWidth = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_THUMBNAIL_WIDTH);
+			}
+		}		
 
 		@Override
 		public void run() {
+			thumbStartTime = new Date();
+			thumbRunStatus = RunStatus.STATUS_RUNNING;
+			percentComplete = 0;
+			Singleton.getSingletonInstance().getJobList().addJob((RunnableJob)this);
 			// mkdir thumbs ; mogrify -path thumbs -resize 80x120 *.JPG					    
 			if (startPoint.isDirectory() &&  (!startPoint.getName().equals("thumbs"))) { 
 				File thumbsDir = new File(startPoint.getPath() + File.separator + "thumbs");
@@ -339,45 +372,160 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 					}
 				}
 				if (filesToThumbCount>0) { 
+					boolean makeWithJava = false;
 
-					String runCommand = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_MOGRIFY_EXECUTABLE) 
-							+ " -path thumbs -resize 80x120 " + filesToThumb.toString();
-					Runtime r = Runtime.getRuntime();
-					log.debug(runCommand);
-					try {
-						String[] env = {""};
-						Process proc = r.exec(runCommand,env,startPoint);
-						InputStream stderr = proc.getErrorStream();
-						InputStreamReader isrstderr = new InputStreamReader(stderr);
-						BufferedReader br = new BufferedReader(isrstderr);
-						String line = null;
-						while ((line = br.readLine()) != null) { 
-							log.debug("stderr:" + line);
-						} 
-						int exitVal = proc.waitFor();
-						log.debug("Mogrify Process exitValue: " + exitVal);
-						if (exitVal==0) { 
-							thumbnailCounter++;
-					        String message = "Finished creating thumbnails in: " + startPoint.getPath();
-					        Singleton.getSingletonInstance().getMainFrame().setStatusMessage(message); 
-					        log.debug(message);
-						} else { 
-							log.error("Error returned running " + runCommand);
+					String mogrify = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_MOGRIFY_EXECUTABLE);
+							if (mogrify==null || mogrify.trim().length()>0) { 
+								makeWithJava = true;
+							} else { 		
+								String runCommand = mogrify + " -path thumbs -resize " + thumbWidth +"x"+ thumbHeight+" " + filesToThumb.toString();
+
+
+								Runtime r = Runtime.getRuntime();
+								log.debug(runCommand);
+								try {
+									String[] env = {""};
+									Process proc = r.exec(runCommand,env,startPoint);
+									InputStream stderr = proc.getErrorStream();
+									InputStreamReader isrstderr = new InputStreamReader(stderr);
+									BufferedReader br = new BufferedReader(isrstderr);
+									String line = null;
+									while ((line = br.readLine()) != null) { 
+										log.debug("stderr:" + line);
+									} 
+									int exitVal = proc.waitFor();
+									log.debug("Mogrify Process exitValue: " + exitVal);
+									if (exitVal==0) { 
+										thumbnailCounter++;
+										String message = "Finished creating thumbnails in: " + startPoint.getPath();
+										Singleton.getSingletonInstance().getMainFrame().setStatusMessage(message); 
+										log.debug(message);
+									} else { 
+										log.error("Error returned running " + runCommand);
+										makeWithJava = true;
+									}
+								} catch (IOException e) {
+									log.error("Error running: " + runCommand);
+									e.printStackTrace();
+									Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Error creating thumbnails " + e.getMessage());
+									makeWithJava = true;
+								} catch (InterruptedException e) {
+									log.error("Mogrify process interupted");
+									e.printStackTrace();
+								}
+
+							} 
+
+					if (makeWithJava) { 
+						for (int i=0; i<potentialFilesToThumb.length; i++) {
+							try {
+								log.debug("Attempting thumbnail generation with java in " + startPoint.getPath());
+								log.debug("Attempting thumbnail generation with java to " + thumbsDir.getPath());
+								ArrayList<String> makeFrom = new ArrayList<String>();
+								List<File> files = Arrays.asList(startPoint.listFiles());
+								Iterator<File> it = files.iterator();
+								int creationCounter = 0;
+								int totalFiles = files.size();
+								while (it.hasNext() && thumbRunStatus != RunStatus.STATUS_CANCEL_REQUESTED) { 
+									File file = it.next();
+									if (!file.isDirectory() && file.exists() && file.canRead()) { 
+										makeFrom.add(file.getPath());
+										log.debug(file.getPath());
+										File target = new File(thumbsDir.getPath() + File.separatorChar + file.getName());
+										if (!target.exists()) { 
+										   BufferedImage img = new BufferedImage(Integer.parseInt(thumbWidth), Integer.parseInt(thumbHeight), BufferedImage.TYPE_INT_RGB);
+										   img.createGraphics().drawImage(ImageIO.read(file).getScaledInstance(80, 120, Image.SCALE_SMOOTH),0,0,null);
+										   ImageIO.write(img, "jpg", target);
+										   creationCounter++;
+										}
+										this.percentComplete = (int) (((float)creationCounter/totalFiles)*100);
+									}
+								}
+								String message = "Finished creating thumbnails (" + creationCounter +") in: " + startPoint.getPath();
+								Singleton.getSingletonInstance().getMainFrame().setStatusMessage(message); 
+							} catch (IOException e) {
+								log.error("Thumbnail generation with thumbnailator library failed");
+								log.error(e.getMessage());
+							}
 						}
-					} catch (IOException e) {
-						log.error("Error running: " + runCommand);
-						e.printStackTrace();
-						Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Error creating thumbnails " + e.getMessage());
-					} catch (InterruptedException e) {
-						log.error("Mogrify process interupted");
-						e.printStackTrace();
 					}
+                    
 				} else {
 					String message = "No *.JPG files found in " + startPoint.getPath();
 					Singleton.getSingletonInstance().getMainFrame().setStatusMessage(message);
 					log.debug(message);
 				}
 			}
+			String message = "Thumbnail Generation Complete.";
+			Singleton.getSingletonInstance().getMainFrame().setStatusMessage(message);
+			Singleton.getSingletonInstance().getJobList().removeJob((RunnableJob)this);
+		}
+
+		/* (non-Javadoc)
+		 * @see edu.harvard.mcz.imagecapture.interfaces.RunnableJob#start()
+		 */
+		@Override
+		public void start() {
+			run();
+		}
+
+		/* (non-Javadoc)
+		 * @see edu.harvard.mcz.imagecapture.interfaces.RunnableJob#stop()
+		 */
+		@Override
+		public boolean stop() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see edu.harvard.mcz.imagecapture.interfaces.RunnableJob#cancel()
+		 */
+		@Override
+		public boolean cancel() {
+			thumbRunStatus = RunStatus.STATUS_CANCEL_REQUESTED;
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see edu.harvard.mcz.imagecapture.interfaces.RunnableJob#getStatus()
+		 */
+		@Override
+		public int getStatus() {
+			return thumbRunStatus;
+		}
+
+		/* (non-Javadoc)
+		 * @see edu.harvard.mcz.imagecapture.interfaces.RunnableJob#percentComplete()
+		 */
+		@Override
+		public int percentComplete() {
+			return percentComplete;
+		}
+
+		/* (non-Javadoc)
+		 * @see edu.harvard.mcz.imagecapture.interfaces.RunnableJob#registerListener(edu.harvard.mcz.imagecapture.interfaces.RunnerListener)
+		 */
+		@Override
+		public boolean registerListener(RunnerListener aJobListener) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see edu.harvard.mcz.imagecapture.interfaces.RunnableJob#getName()
+		 */
+		@Override
+		public String getName() {
+			return "Thumbnail Generation in: " + startPoint;
+		}
+
+		/* (non-Javadoc)
+		 * @see edu.harvard.mcz.imagecapture.interfaces.RunnableJob#getStartTime()
+		 */
+		@Override
+		public Date getStartTime() {
+			return thumbStartTime;
 		} 
 		
 	}  // end class ThumbnailBuilder
@@ -410,8 +558,8 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 					}
 				} else { 
 					// check JPEG files for barcodes 
-					if (!fileToCheck.getName().matches(ImageCaptureApp.REGEX_IMAGEFILE)) {
-						log.debug("Skipping file [" + fileToCheck.getName() +  "], doesn't match expected filename pattern " + ImageCaptureApp.REGEX_IMAGEFILE );
+					if (!fileToCheck.getName().matches(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEREGEX))) {
+						log.debug("Skipping file [" + fileToCheck.getName() +  "], doesn't match expected filename pattern " + Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEREGEX) );
 					} else { 
 						if (firstFile==null) { firstFile = fileToCheck.getName(); } 
 						lastFile = fileToCheck.getName();

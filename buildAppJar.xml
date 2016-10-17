@@ -14,12 +14,14 @@
             <fileset dir="/home/mole/workspace/butterflies_sf/target/classes"/>
         	<!-- exclude development (mysql) hibernate.cfg.xml --> 
             <fileset excludes="hibernate.cfg.xml" dir="bin"/>
+            <fileset excludes="log4j.properties" dir="bin"/>
         	<!-- include production (oracle) hibernate.cfg.xml (from a svn ignored path) --> 
         	<fileset dir="not_vcs"/>
         	<!-- include external libraries -->
         	<!-- multiple conflicting licences mean this jar isn't redistributable -->            
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/antlr/antlr/2.7.7/antlr-2.7.7.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/commons-cli/commons-cli/1.2/commons-cli-1.2.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/com/lowagie/itext/2.1.7/itext-2.1.7.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/bouncycastle/bcmail-jdk14/138/bcmail-jdk14-138.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/bouncycastle/bcprov-jdk14/138/bcprov-jdk14-138.jar"/>
@@ -30,10 +32,10 @@
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/javassist/javassist/3.4.GA/javassist-3.4.GA.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/javax/transaction/jta/1.1/jta-1.1.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/com/drewnoakes/metadata-extractor/2.4.0-beta-1/metadata-extractor-2.4.0-beta-1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/com/drewnoakes/metadata-extractor/2.8.1/metadata-extractor-2.8.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/com/adobe/xmp/xmpcore/5.1.2/xmpcore-5.1.2.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/mysql/mysql-connector-java/5.1.18/mysql-connector-java-5.1.18.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/org/swinglabs/swingx/0.9.7/swingx-0.9.7.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/ojdbc/ojdbc/14/ojdbc-14.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/org/codehaus/mojo/hibernate3/maven-hibernate3-api/2.2/maven-hibernate3-api-2.2.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/org/apache/maven/maven-plugin-api/2.0.6/maven-plugin-api-2.0.6.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/org/apache/maven/maven-project/2.0.6/maven-project-2.0.6.jar"/>
@@ -58,11 +60,15 @@
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/org/slf4j/slf4j-api/1.5.6/slf4j-api-1.5.6.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/org/slf4j/jcl-over-slf4j/1.5.6/jcl-over-slf4j-1.5.6.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/org/codehaus/plexus/plexus-utils/1.5.6/plexus-utils-1.5.6.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/com/google/zxing/core/2.0/core-2.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/com/google/zxing/javase/2.0/javase-2.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/com/google/zxing/core/2.3.0/core-2.3.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/com/google/zxing/javase/2.3.0/javase-2.3.0.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/com/oracle/ojdbc14/10.2.0.5.0/ojdbc14-10.2.0.5.0.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/com/jgoodies/jgoodies-forms/1.6.0/jgoodies-forms-1.6.0.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/com/jgoodies/jgoodies-common/1.4.0/jgoodies-common-1.4.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/org/imgscalr/imgscalr-lib/4.2/imgscalr-lib-4.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/org/apache/commons/commons-csv/1.1/commons-csv-1.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="/home/mole/.m2/repository/commons-codec/commons-codec/1.8/commons-codec-1.8.jar"/>
         </jar>
     </target>
 </project>
