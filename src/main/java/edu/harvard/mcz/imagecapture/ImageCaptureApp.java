@@ -63,7 +63,7 @@ public class ImageCaptureApp {
 	
 	private static final Log log = LogFactory.getLog(ImageCaptureApp.class);
 	
-	public static final String APP_VERSION = "1.0.2";
+	public static final String APP_VERSION = "1.0.3-SNAPSHOT";
 	public static final String APP_NAME = "RapidCapture";
 	public static final String APP_DESCRIPTION = "Rapid capture of data from images of pin Labels and pinned insect \nspecimens developed for the MCZ Lepidoptera collection";
 	public static final String APP_COPYRIGHT = "Copyright © 2009-2016 President and Fellows of Harvard College";
@@ -81,7 +81,7 @@ public class ImageCaptureApp {
     "51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.\n ";
     public static final String APP_CONTRIBUTORS = "Design: Brendan Haley, Linda Ford, Rodney Eastwood, Paul J. Morris.  Code: Paul J. Morris";
     public static final String APP_LIBRARIES = "Hibernate, Tesseract, ZXing, Log4J, drew.metadata.exif, iText";
-    public static final String APP_REV = "$Rev$";  // ImageCapture.jar file will be one revision behind latest commit. 
+    public static final String APP_REV = "$Rev$";  // ImageCapture.jar file built before commit will be one revision behind latest commit with changes to this file. 
     
     /** 
      * Use MCZEntBarcode class instead.
@@ -90,7 +90,11 @@ public class ImageCaptureApp {
     //public static final String REGEX_BARCODE = "^MCZ-ENT[0-9]{8}$";
     
     /**
-     * Regular expression for recognizing drawer numbers and unit tray numbers
+     * Default regular expression for recognizing drawer numbers and unit tray numbers,
+     * used to set default value of property ImageCaptureProperties.KEY_REGEX_DRAWERNUMBER, use 
+     * that property instead of this hard coded constant.
+     * 
+     * @see edu.harvard.mec.imagecapture.ImageCaptureProperties.KEY_REGEX_DRAWERNUMBER 
      */
     public static final String REGEX_DRAWERNUMBER = "[0-9]{3}\\Q.\\E[0-9]+";
     /**

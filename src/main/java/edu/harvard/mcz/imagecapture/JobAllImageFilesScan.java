@@ -695,7 +695,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 										isSpecimenImage = true;
 										System.out.println("Specimen Image");
 									} else { 
-										if (exifComment.matches(ImageCaptureApp.REGEX_DRAWERNUMBER)) { 
+										if (exifComment.matches(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REGEX_DRAWERNUMBER))) { 
 											isDrawerImage = true;
 											System.out.println("Drawer Image");
 										} else {

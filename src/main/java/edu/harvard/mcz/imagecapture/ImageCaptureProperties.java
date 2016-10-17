@@ -42,24 +42,100 @@ import edu.harvard.mcz.imagecapture.exceptions.NoSuchTemplateException;
  */
 public class ImageCaptureProperties  extends AbstractTableModel {
 	
+	/**
+	 * The most recent location selected for scanning a barcode.
+	 */
 	public static final String KEY_LASTPATH = "scanonebarcode.lastpath";
-	public static final String KEY_IMAGEBASE = "images.basedirectory";
-	public static final String KEY_IMAGEBASEURI = "images.basedirectoryurimap";
-	public static final String KEY_IMAGEREGEX = "images.filenameregex";
-	public static final String KEY_IMAGERESCALE = "images.barcoderescalesize";
-	public static final String KEY_TEMPLATEDEFAULT = "template.default";
-	public static final String KEY_TESSERACT_EXECUTABLE = "program.tesseract";
-	public static final String KEY_CONVERT_EXECUTABLE = "program.convert";
-	public static final String KEY_MOGRIFY_EXECUTABLE = "program.mogrify";
-	public static final String KEY_CONVERT_PARAMETERS = "convert.parameters";
-	public static final String KEY_DETAILS_SCROLL = "details.scroll";
-	public static final String KEY_ENABLE_BROWSE = "browse.enabled";
-	public static final String KEY_DEFAULT_PREPARATION = "default.preparation";
-	public static final String KEY_FILTER_LENGTH_THRESHOLD = "picklist.filterlength";
-	public static final String KEY_SHOW_ALL_NUMBER_TYPES = "numbertypes.showall";
-	public static final String KEY_THUMBNAIL_HEIGHT = "images.thumbnailheight";
-	public static final String KEY_THUMBNAIL_WIDTH = "images.thumbnailwidth";
 	
+	/**
+	 * Root of the path of the place where all image files should be stored.
+	 */
+	public static final String KEY_IMAGEBASE = "images.basedirectory";
+	/**
+	 * URI to the root of the path of the place where all image files should be stored, 
+	 * that is, the URI on the image server that points to the same location as 
+	 * KEY_IMAGEBASE does on the local filesystem.
+	 */
+	public static final String KEY_IMAGEBASEURI = "images.basedirectoryurimap";
+	/**
+	 * Regular expression that image files to be preprocessed must match.
+	 */
+	public static final String KEY_IMAGEREGEX = "images.filenameregex";
+	/**
+	 * Size to which to rescale width of unit tray label barcode to on retry of 
+	 * barcode read.
+	 */
+	public static final String KEY_IMAGERESCALE = "images.barcoderescalesize";
+	/**
+	 * PostitionTemplate to use by default (to try first).
+	 */
+	public static final String KEY_TEMPLATEDEFAULT = "template.default";
+	/**
+	 * The path and name of the tesseract executable for OCR failover.
+	 */
+	public static final String KEY_TESSERACT_EXECUTABLE = "program.tesseract";
+	/**
+	 * Path and executable for the ImageMagick program convert.
+	 */
+	public static final String KEY_CONVERT_EXECUTABLE = "program.convert";
+	/**
+	 * Path and executable for the ImageMagick program mogrify.  If blank, 
+	 * thumbnails will be generated using Java.
+	 */
+	public static final String KEY_MOGRIFY_EXECUTABLE = "program.mogrify";
+	/**
+	 * Default ImageMagick convert properties used for JPG to TIFF conversion to 
+	 * prepare a file for tesseract.
+	 */
+	public static final String KEY_CONVERT_PARAMETERS = "convert.parameters";
+	/**
+	 * Should the specimen details view pane have the scroll bars forced to be
+	 * turned on.   If value is VALUE_DETAILS_SCROLL_FORCE_ON, then they will 
+	 * be on.
+	 * 
+	 * @see #VALUE_DETAILS_SCROLL_FORCE_ON
+	 */
+	public static final String KEY_DETAILS_SCROLL = "details.scroll";
+	/**
+	 * Enable or disable the browse option on the main menu.  It is recommended
+	 * that browse be disabled in production deployments.
+	 */
+	public static final String KEY_ENABLE_BROWSE = "browse.enabled";
+	/**
+	 * The default value for preparation type (e.g. pinned).
+	 * 
+	 * @see edu.harvard.mcz.imagecapture.data.SpecimenPart.preserveMethod
+	 */
+	public static final String KEY_DEFAULT_PREPARATION = "default.preparation";
+	/**
+	 * How many characters need to be typed before a filtering select picklist will
+	 * start filtering on the entered string.
+	 */
+	public static final String KEY_FILTER_LENGTH_THRESHOLD = "picklist.filterlength";
+	/**
+	 * Should all other number types (select distinct on all values) be shown, or just
+	 * a controlled vocabulary of number types on the other number type picklist.
+	 */
+	public static final String KEY_SHOW_ALL_NUMBER_TYPES = "numbertypes.showall";
+	/**
+	 * Pixel height for generated thumbnail images.
+	 */
+	public static final String KEY_THUMBNAIL_HEIGHT = "images.thumbnailheight";
+	/**
+	 * Pixel width for generated thumbnail images.
+	 */
+	public static final String KEY_THUMBNAIL_WIDTH = "images.thumbnailwidth";
+	/**
+	 * Regular expression to identify drawer numbers in strings.
+	 */
+	public static final String KEY_REGEX_DRAWERNUMBER = "images.regexdrawernumber";
+	
+	/**
+	 *  Value for KEY_DETAILS_SCROLL that will cause the specimen details view pane to
+	 *  have scroll bars forced to be turned on.
+	 *   
+	 *  @see #KEY_DETAILS_SCROLL
+	 */
 	public static final String VALUE_DETAILS_SCROLL_FORCE_ON = "on";
 	
 	private static final Log log = LogFactory.getLog(ImageCaptureProperties.class);
@@ -348,7 +424,7 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 			properties.setProperty(KEY_ENABLE_BROWSE, "false");
 		}
 		if (!properties.containsKey(KEY_DEFAULT_PREPARATION)) { 
-			// default value is disabled browse on main menu.
+			// default preparation type
 			properties.setProperty(KEY_DEFAULT_PREPARATION, "pinned");
 		}		
 		if (!properties.containsKey(KEY_FILTER_LENGTH_THRESHOLD)) { 
@@ -366,6 +442,10 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 		if (!properties.containsKey(KEY_THUMBNAIL_WIDTH)) { 
 			// default value is 120 pixels.
 			properties.setProperty(KEY_THUMBNAIL_WIDTH, "80");
+		}			
+		if (!properties.containsKey(KEY_REGEX_DRAWERNUMBER)) { 
+			// default value is 120 pixels.
+			properties.setProperty(KEY_REGEX_DRAWERNUMBER, ImageCaptureApp.REGEX_DRAWERNUMBER);
 		}			
 		
 		
