@@ -219,7 +219,7 @@ public class UnitTrayLabelParser implements TaxonNameReturner, DrawerNameReturne
 				try {
 					setAuthorship(lines[lines.length-2].trim());
 					setDrawerNumber(lines[lines.length-1].trim());	
-					if (lines[lines.length-2].trim().matches(ImageCaptureApp.REGEX_DRAWERNUMBER)) { 
+					if (lines[lines.length-2].trim().matches(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REGEX_DRAWERNUMBER))) { 
 						setAuthorship(lines[lines.length-3].trim());
 						setDrawerNumber(lines[lines.length-2].trim());
 					} 
@@ -244,7 +244,7 @@ public class UnitTrayLabelParser implements TaxonNameReturner, DrawerNameReturne
 				int drawernumberOnLine = -1;
 				int authorshipOnLine = -1;
 				for (int i=0; i<lines.length; i++) {
-					if (lines[i].trim().matches(ImageCaptureApp.REGEX_DRAWERNUMBER)) { 
+					if (lines[i].trim().matches(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REGEX_DRAWERNUMBER))) { 
 						drawernumberOnLine = i;
 					}
 					//   \(?[A-Za-z& ]*,[0-9]{4}\)?

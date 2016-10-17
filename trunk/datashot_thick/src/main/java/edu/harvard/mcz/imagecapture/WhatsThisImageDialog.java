@@ -156,7 +156,7 @@ public class WhatsThisImageDialog extends JDialog {
 	public boolean isDrawerImage() { 
 		boolean result = false;
 		if (((String)jComboBox.getSelectedItem()).equals(SEL_DRAWER) 
-				&& jTextFieldDrawerNumber.getText().matches(ImageCaptureApp.REGEX_DRAWERNUMBER)) { 
+				&& jTextFieldDrawerNumber.getText().matches(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REGEX_DRAWERNUMBER))) { 
 			result = true;
 		}
 		return result;
@@ -326,7 +326,7 @@ public class WhatsThisImageDialog extends JDialog {
 						}
 					}
 					if (((String)jComboBox.getSelectedItem()).equals(SEL_DRAWER)) { 
-						if (jTextFieldDrawerNumber.getText().matches(ImageCaptureApp.REGEX_DRAWERNUMBER)) {
+						if (jTextFieldDrawerNumber.getText().matches(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REGEX_DRAWERNUMBER))) {
 							okToClose = true;
 						} else { 
 							jTextFieldDrawerNumber.setBackground(MainFrame.BG_COLOR_ERROR);
@@ -384,7 +384,7 @@ public class WhatsThisImageDialog extends JDialog {
 			}
 		}
 		if (((String)jComboBox.getSelectedItem()).equals(SEL_DRAWER)) { 
-			if (jTextFieldDrawerNumber.getText().matches(ImageCaptureApp.REGEX_DRAWERNUMBER)) {
+			if (jTextFieldDrawerNumber.getText().matches(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REGEX_DRAWERNUMBER))) {
 				jTextFieldDrawerNumber.setBackground(MainFrame.BG_COLOR_ENT_FIELD);
 			} else { 
 				jTextFieldDrawerNumber.setBackground(MainFrame.BG_COLOR_ERROR);
