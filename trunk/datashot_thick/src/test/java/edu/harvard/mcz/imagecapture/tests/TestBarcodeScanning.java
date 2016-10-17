@@ -47,7 +47,9 @@ public class TestBarcodeScanning extends TestCase {
 	public void testGetBarcodeText() {
 		CandidateImageFile file;
 		try {
-			file = new CandidateImageFile(new File(this.getClass().getResource(AllTests.FILE_VALID_BARCODE).getFile()), new PositionTemplate());
+			File testFile = new File(this.getClass().getResource(AllTests.FILE_VALID_BARCODE).getFile());
+			System.out.println(testFile.getPath());
+			file = new CandidateImageFile(testFile, new PositionTemplate());
 			assertEquals(AllTests.BARCODE_IN_FILE_VALID_BARCODE,file.getBarcodeText());
 			assertEquals(CandidateImageFile.RESULT_BARCODE_SCANNED, file.getBarcodeStatus());
 		} catch (UnreadableFileException e) {

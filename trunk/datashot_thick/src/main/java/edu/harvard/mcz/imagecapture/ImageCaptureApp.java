@@ -63,10 +63,10 @@ public class ImageCaptureApp {
 	
 	private static final Log log = LogFactory.getLog(ImageCaptureApp.class);
 	
-	public static final String APP_VERSION = "1.0.0";
+	public static final String APP_VERSION = "1.0.2";
 	public static final String APP_NAME = "RapidCapture";
 	public static final String APP_DESCRIPTION = "Rapid capture of data from images of pin Labels and pinned insect \nspecimens developed for the MCZ Lepidoptera collection";
-	public static final String APP_COPYRIGHT = "Copyright © 2009-2014 President and Fellows of Harvard College";
+	public static final String APP_COPYRIGHT = "Copyright © 2009-2016 President and Fellows of Harvard College";
 	public static final String APP_LICENSE = "This program is free software; you can redistribute it and/or modify \n " + 
     "it under the terms of Version 2 of the GNU General Public License \n" +
     "as published by the Free Software Foundation" +
@@ -94,7 +94,11 @@ public class ImageCaptureApp {
      */
     public static final String REGEX_DRAWERNUMBER = "[0-9]{3}\\Q.\\E[0-9]+";
     /**
-     * Regular expression for recognizing image filenames in pattern decided on for project.
+     * Default regular expression for recognizing image filenames in pattern decided on for project.  
+     * Used to set the default value of property ImageCaptureProperties.KEY_IMAGEREGEX, use that 
+     * property instead of this hard coded constant.
+     * 
+     * @see edu.harvard.mcz.imagecapture.ImageCaptureProperties.KEY_IMAGEREGEX
      */
     public static final String REGEX_IMAGEFILE = "^IMG_[0-9]{6}\\.JPG$";
     

@@ -29,6 +29,7 @@ public class RunStatus {
 	// use values less than STATUS_FAILED for jobs that aren't complete.
 	public static final int STATUS_NEW = 0;
 	public static final int STATUS_RUNNING = 1;
+	public static final int STATUS_CANCEL_REQUESTED = 50;
 	// use values greater than or equal to STATUS_FAILED for completed jobs.
 	public static final int STATUS_FAILED = 100;
 	public static final int STATUS_TERMINATED = 102;

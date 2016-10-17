@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 import javax.imageio.ImageIO;
 
@@ -43,13 +44,19 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.adobe.xmp.XMPException;
+import com.adobe.xmp.XMPMeta;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
 import com.drew.imaging.jpeg.JpegMetadataReader;
 import com.drew.imaging.jpeg.JpegProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.MetadataException;
+import com.drew.metadata.Tag;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifSubIFDDescriptor;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
+import com.drew.metadata.xmp.XmpDirectory;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.LuminanceSource;
@@ -766,7 +773,10 @@ public class CandidateImageFile {
 			// read, or re-read the file for a comment
 			String exifComment = "";
 			try {
-				Metadata metadata = JpegMetadataReader.readMetadata(candidateFile);
+				Metadata metadata = JpegMetadataReader.readMetadata(candidateFile, JpegMetadataReader.ALL_READERS);
+				
+
+				
 				// [Exif] User Comment
 				Directory exifDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
 				ExifSubIFDDescriptor descriptor = new ExifSubIFDDescriptor((ExifSubIFDDirectory) exifDirectory);
@@ -775,13 +785,56 @@ public class CandidateImageFile {
 			} catch (JpegProcessingException e2) {
 				log.error("Error reading exif metadata.");
 				log.error(e2.getMessage());
+			} catch (NullPointerException e1) {
+				log.error("Error reading exif metadata, ExifSubIFDDirectory not found.");
+				log.error(e1.getMessage());
 			} catch (IOException e) {
 				log.error("Error reading file for exif metadata.");
 				log.error(e.getMessage());
+			} catch (ImageProcessingException e) {
+				log.error("Error processing file for metadata.");
+				log.error(e.getMessage());
+			}
+			if (exifComment==null || exifComment.trim().length()==0) { 
+				// Try to see if there is an xmp dc:description block
+				Metadata metadata;
+				try {
+					metadata = JpegMetadataReader.readMetadata(candidateFile, JpegMetadataReader.ALL_READERS);
+
+					XmpDirectory xmpDirectory = (XmpDirectory)metadata.getFirstDirectoryOfType(XmpDirectory.class);
+					if (xmpDirectory!=null && xmpDirectory.getXMPMeta()!=null) { 
+					log.debug(xmpDirectory.getXMPMeta().dumpObject());
+					/* 
+				    http://purl.org/dc/elements/1.1/ = "dc:"	(0x80000000 : SCHEMA_NODE)
+					    dc:description	(0x1e00 : ARRAY | ARRAY_ORDERED | ARRAY_ALTERNATE | ARRAY_ALT_TEXT)
+						    [1] = "MCZ-ENT00597110"	(0x50 : HAS_QUALIFIER | HAS_LANGUAGE)
+								?xml:lang = "x-default"	(0x20 : QUALIFIER)
+					 */
+					XMPMeta xmpMeta = xmpDirectory.getXMPMeta();
+					try {
+						String description = xmpMeta.getArrayItem("http://purl.org/dc/elements/1.1/", "dc:description", 1).getValue();
+						log.debug(description);
+						if (description!=null && description.trim().length()>0) { 
+							exifComment = description;
+						}
+					} catch (XMPException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}				
+					}
+				} catch (JpegProcessingException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
 			}
 			// cache the comment if one was found, otherwise an empty string.
 			exifCommentText = exifComment;
 		} 
+		
 		return exifCommentText;
 	}
 	
