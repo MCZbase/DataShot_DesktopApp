@@ -80,7 +80,11 @@ public class JobCleanDirectory implements RunnableJob, Runnable {
 	private int percentComplete = 0;
 
 	/**
-	 * Default constructor, launch a dialog.
+	 * Default constructor, launch a dialog.  JobCleanDirectory only
+	 * works on a directory within the mount path, and must find the
+	 * target directory (as readable) before running, otherwise image 
+	 * records for files that do exist could be removed when the 
+	 * file system is not mounted (at the configured location).
 	 */
 	public JobCleanDirectory() { 
 		init(SCAN_SELECT,null);
@@ -88,7 +92,7 @@ public class JobCleanDirectory implements RunnableJob, Runnable {
 	
 	/**
 	 * Create a clean images job to bring up dialog to pick a specific directory  
-	 * on which to clean up image records.
+	 * on which to clean up image records.  
 	 * <BR>
 	 * Behavior:
 	 * <BR>
@@ -103,6 +107,12 @@ public class JobCleanDirectory implements RunnableJob, Runnable {
 		init(whatToScan, startAt);
 	}
 		
+	/**
+	 * Setup initial parameters before run.
+	 * 
+	 * @param whatToScan one of SCAN_SPECIFIC, SCAN_SELECT
+	 * @param startAt null or a directory starting point.
+	 */
 	public void init(int whatToScan, File startAt) { 	
 		scan = SCAN_SELECT;
 		// store startPoint as base for dialog if SCAN_SELECT, or directory to scan if SCAN_SPECIFIC
@@ -204,9 +214,16 @@ public class JobCleanDirectory implements RunnableJob, Runnable {
 				String base = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(
 						ImageCaptureProperties.KEY_IMAGEBASE);
 				log.error("Tried to scan directory ("+ startPoint.getPath() +") outside of base image directory (" + base + ")");
-				String message = "Can't scan and database files outside of base image directory (" + base + ")";
+				String message = "Can't scan and cleanup files outside of base image directory (" + base + ")";
 				JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), message, "Can't Scan outside image base directory.", JOptionPane.YES_NO_OPTION);	
-			} else { 
+			} else if (ImageCaptureProperties.getPathBelowBase(startPoint).trim().length()==0) {
+				String base = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(
+						ImageCaptureProperties.KEY_IMAGEBASE);
+				log.error("Tried to scan directory ("+ startPoint.getPath() +") which is the base image directory.");
+				String message = "Can only scan and cleanup files in a selected directory within the base directory  (" + base + ").\nYou must select some subdirectory within the base directory to cleanup.";
+				JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), message, "Can't Cleanup image base directory.", JOptionPane.YES_NO_OPTION);	
+				
+		    } else { 
 				if (!startPoint.canRead()) {
 					JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "Can't start scan.  Unable to read selected directory: " + startPoint.getPath(), "Can't Scan.", JOptionPane.YES_NO_OPTION);	
 				} else {

@@ -137,6 +137,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 	private JMenuItem jMenuItemRedoOCROne = null;
 	private JMenuItem jMenuItemCleanupDirectory = null;
 	private JMenuItem jMenuItemRecheckTemplates = null;
+	private JMenuItem jMenuItemRecheckAllTemplates = null;
 	
 	public MainFrame() { 
         thisMainFrame = this;
@@ -153,7 +154,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 		case STATE_INIT:
 			// can't return to state_init.
 			if (state==STATE_INIT) { 
-				// do initial actions
+				// do initial setup, disable most menus
 				jMenuItemLog.setEnabled(false);
 				jMenuEdit.setEnabled(false);
 				jMenuAction.setEnabled(false);
@@ -162,9 +163,11 @@ public class MainFrame extends JFrame implements RunnerListener {
 				jMenuQualityControl.setEnabled(false);
 				jMenuItemUsers.setEnabled(false);
 				jMenuItemChangePassword.setEnabled(false);
+				jMenuItemStats.setEnabled(false);
 			}
 			break;
 		case STATE_RESET:
+			// state when user logs out.
 			jMenuEdit.setEnabled(true);
 			jMenuHelp.setEnabled(true);
 			jMenuItemLogout.setEnabled(true);
@@ -176,6 +179,8 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuQualityControl.setEnabled(false);
 			jMenuItemUsers.setEnabled(false);
 			jMenuItemChangePassword.setEnabled(false);
+			// disable stats item on help menu
+			jMenuItemStats.setEnabled(false);
 			break;			
 		case STATE_RUNNING:
 			if (state==STATE_INIT) { 
@@ -232,28 +237,30 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuItemLog.setEnabled(true);
 			jMenuItemCleanupDirectory.setEnabled(false);
 			jMenuItemRecheckTemplates.setEnabled(false);
+			jMenuItemRecheckAllTemplates.setEnabled(false);
 			try { 
 				// Enable some menu items only for administrators.
 				if (UsersLifeCycle.isUserAdministrator(Singleton.getSingletonInstance().getUser().getUserid())) { 
 					//jMenuItemUsers.setEnabled(true);
 				}
-				// Moved user privileges to the chief editor.  
+				// User privileges and some other items to the chief editor.  
 				if (UsersLifeCycle.isUserChiefEditor(Singleton.getSingletonInstance().getUser().getUserid())) { 
 					jMenuItemUsers.setEnabled(true);
+					jMenuItemEditTemplates.setEnabled(true);
+					jMenuItemPreprocess.setEnabled(true);
+					jMenuItemCleanupDirectory.setEnabled(true);
 				}
 				// Enable other menu items only for those with full access rights
 				// Administrator and full roles both have full access rights
 				if (Singleton.getSingletonInstance().getUser().isUserRole(Users.ROLE_FULL)) {
 					jMenuAction.setEnabled(true);
-					jMenuItemPreprocess.setEnabled(true);
 					jMenuItemPreprocessOne.setEnabled(true);
 					jMenuConfig.setEnabled(true);
 					jMenuItemPreferences.setEnabled(true);
-					jMenuItemEditTemplates.setEnabled(true);
 					jMenuQualityControl.setEnabled(true);
 					jMenuItemQCBarcodes.setEnabled(true);
-					jMenuItemCleanupDirectory.setEnabled(true);
 					jMenuItemRecheckTemplates.setEnabled(true);
+					jMenuItemRecheckAllTemplates.setEnabled(true);
 				}
 			} catch (Exception e) { 
 				// catch any problem with testing administration or user rights and do nothing.
@@ -383,13 +390,14 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuAction = new JMenu();
 			jMenuAction.setText("Action");
 			jMenuAction.setMnemonic(KeyEvent.VK_A);
+			jMenuAction.add(getJMenuItemScanOneBarcodeSave());
 			jMenuAction.add(getJMenuItemPreprocess());
 			jMenuAction.add(getJMenuItemPreprocessOne());
-			jMenuAction.add(getJMenuItem2());
+			jMenuAction.add(getJMenuItemRedoOCROne());
 			jMenuAction.add(getJMenuItemRepeatOCR());
 			jMenuAction.add(getJMenuItemRecheckTemplates());
+			jMenuAction.add(getJMenuItemRecheckAllTemplates());
 			jMenuAction.add(getJMenuItemScanOneBarcode());
-			jMenuAction.add(getJMenuItemScanOneBarcodeSave());
 			jMenuAction.add(getJMenuItemCleanupDirectory());
 			jMenuAction.add(getJMenuItemListRunningJobs());
 			jMenuAction.add(getJMenuItemCreateLabels());
@@ -447,6 +455,12 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuItemPreprocess = new JMenuItem();
 			jMenuItemPreprocess.setText("Preprocess All");
 			jMenuItemPreprocess.setEnabled(true);
+			try { 
+				jMenuItemPreprocess.setIcon(new ImageIcon(this.getClass().getResource("/edu/harvard/mcz/imagecapture/resources/barcode_icon_16px.jpg")));
+			} catch (Exception e) { 
+				log.error("Can't open icon file for jMenuItemScanOneBarcode.");
+				log.error(e.getLocalizedMessage());
+			}
 			jMenuItemPreprocess.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					int result = JOptionPane.showConfirmDialog(Singleton.getSingletonInstance().getMainFrame(), "Are you sure, this will check all image files and may take some time.", "Preprocess All?", JOptionPane.YES_NO_OPTION);
@@ -483,7 +497,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 	private JMenuItem getJMenuItemScanOneBarcode() {
 		if (jMenuItemScanOneBarcode == null) {
 			jMenuItemScanOneBarcode = new JMenuItem();
-			jMenuItemScanOneBarcode.setText("Scan A File For Barcode");
+			jMenuItemScanOneBarcode.setText("Scan A File For Barcodes");
 			jMenuItemScanOneBarcode.setMnemonic(KeyEvent.VK_S);
 			try { 
 			    jMenuItemScanOneBarcode.setIcon(new ImageIcon(this.getClass().getResource("/edu/harvard/mcz/imagecapture/resources/barcode_icon_16px.jpg")));
@@ -915,7 +929,14 @@ public class MainFrame extends JFrame implements RunnerListener {
 		if (jMenuItemPreprocessOne == null) {
 			jMenuItemPreprocessOne = new JMenuItem();
 			jMenuItemPreprocessOne.setText("Preprocess A Directory");
+			jMenuItemPreprocessOne.setMnemonic(KeyEvent.VK_P);
 			jMenuItemPreprocessOne.setEnabled(true);
+			try { 
+				jMenuItemPreprocessOne.setIcon(new ImageIcon(this.getClass().getResource("/edu/harvard/mcz/imagecapture/resources/barcode_icon_16px.jpg")));
+			} catch (Exception e) { 
+				log.error("Can't open icon file for jMenuItemScanOneBarcode.");
+				log.error(e.getLocalizedMessage());
+			}			
 			jMenuItemPreprocessOne.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					JobAllImageFilesScan scan = new JobAllImageFilesScan(
@@ -1202,6 +1223,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 		if (jMenuItemListRunningJobs == null) {
 			jMenuItemListRunningJobs = new JMenuItem();
 			jMenuItemListRunningJobs.setText("List Running Jobs");
+			jMenuItemListRunningJobs.setMnemonic(KeyEvent.VK_L);
 			try { 
 				jMenuItemListRunningJobs.setIcon(new ImageIcon(this.getClass().getResource("/edu/harvard/mcz/imagecapture/resources/tools_icon_16px.png")));
 			} catch (Exception e) { 
@@ -1223,7 +1245,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 	 * 	
 	 * @return javax.swing.JMenuItem	
 	 */
-	private JMenuItem getJMenuItem2() {
+	private JMenuItem getJMenuItemRedoOCROne() {
 		if (jMenuItemRedoOCROne == null) {
 			jMenuItemRedoOCROne = new JMenuItem();
 			jMenuItemRedoOCROne.setText("Redo OCR for A Directory");
@@ -1251,6 +1273,12 @@ public class MainFrame extends JFrame implements RunnerListener {
 		if (jMenuItemCleanupDirectory == null) {
 			jMenuItemCleanupDirectory = new JMenuItem();
 			jMenuItemCleanupDirectory.setText("Cleanup Deleted Images");
+			try { 
+				jMenuItemCleanupDirectory.setIcon(new ImageIcon(this.getClass().getResource("/edu/harvard/mcz/imagecapture/resources/bb_trsh_icon_16px.png")));
+			} catch (Exception e) { 
+				System.out.println("Can't open icon file for jMenuItemCleanupDirectory.");
+				System.out.println(e.getLocalizedMessage());
+			}			
 			jMenuItemCleanupDirectory.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					JobCleanDirectory r = new JobCleanDirectory(
@@ -1286,6 +1314,26 @@ public class MainFrame extends JFrame implements RunnerListener {
 			});
 		}
 		return jMenuItemRecheckTemplates;
+	}		
+	
+	private JMenuItem getJMenuItemRecheckAllTemplates() {
+		if (jMenuItemRecheckAllTemplates == null) {
+			jMenuItemRecheckAllTemplates = new JMenuItem();
+			jMenuItemRecheckAllTemplates.setText("Recheck All cases of WholeImageOnly");
+			try { 
+				jMenuItemRecheckAllTemplates.setIcon(new ImageIcon(this.getClass().getResource("/edu/harvard/mcz/imagecapture/resources/reload_icon_16px.png")));
+			} catch (Exception e) { 
+				log.error("Can't open icon file for jMenuItemRecheckAllTemplates.");
+				log.error(e);
+			}			
+			jMenuItemRecheckAllTemplates.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					JobRecheckForTemplates r = new JobRecheckForTemplates();
+					(new Thread(r)).start();
+				}
+			});
+		}
+		return jMenuItemRecheckAllTemplates;
 	}		
 	
 }  //  @jve:decl-index=0:visual-constraint="21,12"

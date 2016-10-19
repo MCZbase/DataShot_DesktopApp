@@ -5,6 +5,7 @@ package edu.harvard.mcz.imagecapture.data;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -13,6 +14,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionException;
 
+import edu.harvard.mcz.imagecapture.PositionTemplate;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
 import static org.hibernate.criterion.Example.create;
 
@@ -260,6 +262,30 @@ public class ICImageLifeCycle {
 			throw re;
 		}
 	}	
+	
+	
+	@SuppressWarnings("unchecked")
+	public static List<ICImage> findNotDrawerNoTemplateImages() {
+		log.debug("finding Images for template " + PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS);
+		try {
+			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			List<ICImage> results = null;
+			try { 
+			    results = (List<ICImage>) session.createQuery("From ICImage i where SpecimenId is not null and TemplateId = '"+ PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS.trim()+"' order by i.filename").list();
+			    log.debug("find all whole image only records with specimens successful, result size: " + results.size());
+			    session.getTransaction().commit();
+		    } catch (HibernateException e) {
+		    	session.getTransaction().rollback();
+		    	log.error("find all whole image only records failed", e);	
+		    }
+		    try { session.close(); } catch (SessionException e) { }
+			return results;
+		} catch (RuntimeException re) {
+			log.error("find all whole image only records failed", re);
+			throw re;
+		}
+	}		
 	
 	/** Obtain an array of distinct values of paths suitable for populating a picklist.
 	 * Example usage: 
