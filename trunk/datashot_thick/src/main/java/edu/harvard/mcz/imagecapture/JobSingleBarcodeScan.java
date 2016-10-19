@@ -377,6 +377,23 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 					// Action: 
 					// A) Check if a specimen record exists, if not, create one from the barcode and OCR data.
 					// B) Create an image record and store the image metadata.
+					
+					// Handle a potential failure case, existing image record without a linked specimen, but which 
+					// should have one.
+					if (matches.size()==1 && isSpecimenImage) { 
+						ICImage existing = imageCont.findById(matches.get(0).getImageId());
+						if (existing.getSpecimen()==null) { 
+							// If the existing image record has no attached specimen, delete it. 
+							// We will create it again from tryMe.
+							try {
+							    Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Removing existing unlinked image record.");
+								imageCont.delete(existing);
+							    matches.remove(0);
+							} catch (SaveFailedException e) {
+								log.error(e.getMessage(), e);
+							}
+						}
+					}
 
 					if (matches.size()==0) {
 						String rawBarcode = barcode;
@@ -479,8 +496,14 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 								log.debug(e);
 								JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), 
 										filename + " " + barcode + " \n" + e.getMessage(), 
-										"Specimen Exists", 
+										"Specimen Exists, linking Image to existing record.", 
 								JOptionPane.ERROR_MESSAGE);
+								Specimen checkSpecimen = new Specimen();
+								checkSpecimen.setBarcode(barcode);
+								List <Specimen> checkResult = sh.findByExample(checkSpecimen);
+								if (checkResult.size()==1) { 
+									s = checkResult.get(0);
+								} 
 							} catch (SaveFailedException e) { 
 								// Couldn't save, but for some reason other than the
 								// specimen record already existing.
@@ -558,8 +581,9 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 						}
 						resultFrame.center();
 					} else { 
+						// found one or more matching image records.
 						setPercentComplete(80);
-						Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Loading existing record.");
+						Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Loading existing image record.");
 						ICImage existing = imageCont.findById(matches.get(0).getImageId());
 						System.out.println(existing.getRawBarcode());
 						existing.setRawBarcode(barcode);
@@ -591,8 +615,12 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 							} catch (NullPointerException e1) { 
 								log.debug("Specimen barcode not set");
 							} catch (NoSuchRecordException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								// Failure case 
+								log.error(e.getMessage(), e);
+								JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), 
+										filename + " " + barcode + "\n" + "Existing Image record with no Specimen Record. " + e.getMessage(), 
+										"Save Failed.", 
+										JOptionPane.ERROR_MESSAGE);
 							}
 							SpecimenDetailsViewPane sPane = new SpecimenDetailsViewPane(existing.getSpecimen(), controler);
 							resultFrame.addWest((JPanel)sPane);
