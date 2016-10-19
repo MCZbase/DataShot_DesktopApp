@@ -135,6 +135,8 @@ public class MainFrame extends JFrame implements RunnerListener {
 	private JMenuItem jMenuItemListRunningJobs = null;
 
 	private JMenuItem jMenuItemRedoOCROne = null;
+	private JMenuItem jMenuItemCleanupDirectory = null;
+	private JMenuItem jMenuItemRecheckTemplates = null;
 	
 	public MainFrame() { 
         thisMainFrame = this;
@@ -228,6 +230,8 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuItemSearch.setEnabled(true);
 			jMenuItemStats.setEnabled(true);
 			jMenuItemLog.setEnabled(true);
+			jMenuItemCleanupDirectory.setEnabled(false);
+			jMenuItemRecheckTemplates.setEnabled(false);
 			try { 
 				// Enable some menu items only for administrators.
 				if (UsersLifeCycle.isUserAdministrator(Singleton.getSingletonInstance().getUser().getUserid())) { 
@@ -248,6 +252,8 @@ public class MainFrame extends JFrame implements RunnerListener {
 					jMenuItemEditTemplates.setEnabled(true);
 					jMenuQualityControl.setEnabled(true);
 					jMenuItemQCBarcodes.setEnabled(true);
+					jMenuItemCleanupDirectory.setEnabled(true);
+					jMenuItemRecheckTemplates.setEnabled(true);
 				}
 			} catch (Exception e) { 
 				// catch any problem with testing administration or user rights and do nothing.
@@ -381,8 +387,10 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuAction.add(getJMenuItemPreprocessOne());
 			jMenuAction.add(getJMenuItem2());
 			jMenuAction.add(getJMenuItemRepeatOCR());
+			jMenuAction.add(getJMenuItemRecheckTemplates());
 			jMenuAction.add(getJMenuItemScanOneBarcode());
 			jMenuAction.add(getJMenuItemScanOneBarcodeSave());
+			jMenuAction.add(getJMenuItemCleanupDirectory());
 			jMenuAction.add(getJMenuItemListRunningJobs());
 			jMenuAction.add(getJMenuItemCreateLabels());
 		}
@@ -596,7 +604,6 @@ public class MainFrame extends JFrame implements RunnerListener {
 		if (jMenuItemPreferences == null) {
 			jMenuItemPreferences = new JMenuItem();
 			jMenuItemPreferences.setText("Preferences");
-			jMenuItemPreferences.setMnemonic(KeyEvent.VK_N);
 			jMenuItemPreferences.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					PropertiesEditor p = new PropertiesEditor();
@@ -1239,4 +1246,46 @@ public class MainFrame extends JFrame implements RunnerListener {
 		}
 		return jMenuItemRedoOCROne;
 	}
+	
+	private JMenuItem getJMenuItemCleanupDirectory() {
+		if (jMenuItemCleanupDirectory == null) {
+			jMenuItemCleanupDirectory = new JMenuItem();
+			jMenuItemCleanupDirectory.setText("Cleanup Deleted Images");
+			jMenuItemCleanupDirectory.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					JobCleanDirectory r = new JobCleanDirectory(
+							JobCleanDirectory.SCAN_SELECT,
+							new File(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEBASE))
+					        );
+					(new Thread(r)).start();
+				}
+			});
+		}
+		return jMenuItemCleanupDirectory;
+	}	
+	
+	private JMenuItem getJMenuItemRecheckTemplates() {
+		if (jMenuItemRecheckTemplates == null) {
+			jMenuItemRecheckTemplates = new JMenuItem();
+			jMenuItemRecheckTemplates.setText("Recheck cases of WholeImageOnly");
+			jMenuItemRecheckTemplates.setMnemonic(KeyEvent.VK_W);
+			try { 
+				jMenuItemRecheckTemplates.setIcon(new ImageIcon(this.getClass().getResource("/edu/harvard/mcz/imagecapture/resources/reload_icon_16px.png")));
+			} catch (Exception e) { 
+				log.error("Can't open icon file for jMenuItemRecheckTemplates.");
+				log.error(e);
+			}			
+			jMenuItemRecheckTemplates.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					JobRecheckForTemplates r = new JobRecheckForTemplates(
+							JobRecheckForTemplates.SCAN_SELECT,
+							new File(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEBASE))
+					        );
+					(new Thread(r)).start();
+				}
+			});
+		}
+		return jMenuItemRecheckTemplates;
+	}		
+	
 }  //  @jve:decl-index=0:visual-constraint="21,12"

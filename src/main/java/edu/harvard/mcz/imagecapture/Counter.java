@@ -39,6 +39,8 @@ public class Counter {
 	private int specimensDatabased = 0;
 	private int directories = 0;
 	private int directoriesFailed = 0;
+	private int specimensUpdated = 0;
+	private int filesUpdated = 0;
 	private StringBuffer errorReport;
 	private List<ImagePreprocessError> errors = null;
 
@@ -52,6 +54,8 @@ public class Counter {
 		specimensDatabased = 0;
 		directories = 0;
 		directoriesFailed = 0;
+		specimensUpdated = 0;
+		filesUpdated = 0;
 		errorReport = new StringBuffer();
 		errors = new ArrayList<ImagePreprocessError>();
 	}
@@ -143,7 +147,35 @@ public class Counter {
 		 return directoriesFailed;
 	 }
 
-	 public List<ImagePreprocessError> getErrors() { 
+	 /**
+	 * @return the specimensUpdated
+	 */
+	public int getSpecimensUpdated() {
+		return specimensUpdated;
+	}
+
+	/**
+	 * @param specimensUpdated the specimensUpdated to set
+	 */
+	public void incrementSpecimensUpdated() {
+		this.specimensUpdated++;
+	}
+
+	/**
+	 * @return the filesUpdated
+	 */
+	public int getFilesUpdated() {
+		return filesUpdated;
+	}
+
+	/**
+	 * @param filesUpdated the filesUpdated to set
+	 */
+	public void incrementFilesUpdated() {
+		this.filesUpdated++;
+	}
+
+	public List<ImagePreprocessError> getErrors() { 
 		 return errors;
 	 }
 

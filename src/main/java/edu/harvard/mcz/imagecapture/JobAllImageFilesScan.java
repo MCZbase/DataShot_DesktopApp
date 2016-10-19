@@ -267,7 +267,15 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 					}
 					report += "Scanned  " + counter.getFilesSeen() + " files.\n";
 					report += "Created  " + counter.getFilesDatabased() + " new image records.\n";
+					if (counter.getFilesUpdated()>0) { 
+					    report += "Updated  " + counter.getFilesUpdated() + " image records.\n";
+						
+					}
 					report += "Created  " + counter.getSpecimens() + " new specimen records.\n";
+					if (counter.getSpecimensUpdated()>0) { 
+					    report += "Updated  " + counter.getSpecimensUpdated() + " specimen records.\n";
+						
+					}					
 					report += "Found " + counter.getFilesFailed() + " files with problems.\n";
 					//report += counter.getErrors();
 					Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Preprocess scan complete");
@@ -428,15 +436,19 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 								int totalFiles = files.size();
 								while (it.hasNext() && thumbRunStatus != RunStatus.STATUS_CANCEL_REQUESTED) { 
 									File file = it.next();
-									if (!file.isDirectory() && file.exists() && file.canRead()) { 
-										makeFrom.add(file.getPath());
-										log.debug(file.getPath());
-										File target = new File(thumbsDir.getPath() + File.separatorChar + file.getName());
-										if (!target.exists()) { 
-										   BufferedImage img = new BufferedImage(Integer.parseInt(thumbWidth), Integer.parseInt(thumbHeight), BufferedImage.TYPE_INT_RGB);
-										   img.createGraphics().drawImage(ImageIO.read(file).getScaledInstance(80, 120, Image.SCALE_SMOOTH),0,0,null);
-										   ImageIO.write(img, "jpg", target);
-										   creationCounter++;
+									if (!file.isDirectory() && file.exists() && file.canRead()) {
+										// file must exist and be readable to make thumbnail
+										if (file.getName().matches(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEREGEX))) {
+											// only try to make thumbnails of files that match the image file pattern.
+											makeFrom.add(file.getPath());
+											log.debug(file.getPath());
+											File target = new File(thumbsDir.getPath() + File.separatorChar + file.getName());
+											if (!target.exists()) { 
+												BufferedImage img = new BufferedImage(Integer.parseInt(thumbWidth), Integer.parseInt(thumbHeight), BufferedImage.TYPE_INT_RGB);
+												img.createGraphics().drawImage(ImageIO.read(file).getScaledInstance(80, 120, Image.SCALE_SMOOTH),0,0,null);
+												ImageIO.write(img, "jpg", target);
+												creationCounter++;
+											}
 										}
 										this.percentComplete = (int) (((float)creationCounter/totalFiles)*100);
 									}
@@ -573,6 +585,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 							PositionTemplateDetector detector = new MCZBarcodePositionTemplateDetector();
 							boolean isSpecimenImage = false;
 							boolean isDrawerImage = false;
+							boolean reattach = false;  // image is detached instance and should be reattached instead of persisted denovo.
 							try {
 								// Check for an existing image record.
 								ICImageLifeCycle imageCont = new ICImageLifeCycle();
@@ -581,6 +594,22 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 								String path = ImageCaptureProperties.getPathBelowBase(fileToCheck);
 								tryMe.setPath(path);
 								List <ICImage> matches = imageCont.findByExample(tryMe);
+								if (matches!=null && matches.size()==1
+										&& matches.get(0).getRawBarcode()==null
+										&& matches.get(0).getRawExifBarcode()==null
+										&& (matches.get(0).getDrawerNumber()==null || matches.get(0).getDrawerNumber().trim().length()==0)
+										) {
+									// likely case for a failure to read data out of the image file 
+									// try to update the image file record.
+									try {
+										tryMe = imageCont.merge(matches.get(0));
+										matches.remove(0);
+										reattach = true;
+										log.debug(tryMe);
+									} catch (SaveFailedException e) {
+										log.error(e.getMessage(),e);
+									}
+								}
 								if (matches!=null && matches.size()==0) {
 									// No database record for this file.
 									
@@ -841,6 +870,23 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 											log.debug(e.getMessage());
 											// Expected case on scanning a second image for a specimen.
 											// Doesn't need to be reported as a parsing error.
+											// 
+											// Look up the existing record to link this specimen to it.
+											try { 
+												Specimen checkSpecimen = new Specimen();
+												checkSpecimen.setBarcode(barcode);
+												List <Specimen> checkResult = sh.findByExample(checkSpecimen);
+												if (checkResult.size()==1) { 
+													s = checkResult.get(0);
+												} 
+											} catch (Exception e2) { 
+												s = null; // so that saving the image record doesn't fail on trying to save linked transient specimen record.
+												String errorMessage = "Linking Error: \nFailed to link image to existing specimen record.\n";
+												ImagePreprocessError error =  new ImagePreprocessError(filename, barcode,
+														rawBarcode, exifComment, errorMessage,
+														(TaxonNameReturner)parser, (DrawerNameReturner)parser,
+														e2, ImagePreprocessError.TYPE_SAVE_FAILED);
+											}
 										} catch (SaveFailedException e) { 
 											// Couldn't save for some reason other than the
 											// specimen record already existing.  Check for possible 
@@ -918,9 +964,17 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 										}
 									}
 									try {
-										// *** Save a database record of the image file.
-										imageCont.persist(tryMe);
-										counter.incrementFilesDatabased();
+										if (reattach) {
+											// Update image file record
+											imageCont.attachDirty(tryMe);
+										    log.debug("Updated " + tryMe.toString());
+										    counter.incrementFilesUpdated();
+										} else { 
+										   // *** Save a database record of the image file.
+										   imageCont.persist(tryMe);
+										   log.debug("Saved " + tryMe.toString());
+										   counter.incrementFilesDatabased();
+										}
 									} catch (SaveFailedException e) {
 										// TODO Auto-generated catch block
 										log.error(e.getMessage());
@@ -941,7 +995,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 												null, ImagePreprocessError.TYPE_SAVE_FAILED);
 										counter.appendError(error);
 									} else { 
-										// found an already databased file.
+										// found an already databased file (where we have barcode/specimen or drawer number data).
 										log.debug("Record exists, skipping file " + filename);
 										counter.incrementFilesExisting();
 									}

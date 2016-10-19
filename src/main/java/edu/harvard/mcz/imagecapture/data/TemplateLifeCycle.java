@@ -23,7 +23,7 @@ import static org.hibernate.criterion.Example.create;
  */
 public class TemplateLifeCycle {
 
-	private static final Log log = LogFactory.getLog(TrackingLifeCycle.class);
+	private static final Log log = LogFactory.getLog(TemplateLifeCycle.class);
 
 
 	public void persist(Template transientInstance) throws SaveFailedException {
