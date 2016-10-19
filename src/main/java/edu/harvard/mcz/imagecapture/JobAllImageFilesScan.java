@@ -594,6 +594,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 								String path = ImageCaptureProperties.getPathBelowBase(fileToCheck);
 								tryMe.setPath(path);
 								List <ICImage> matches = imageCont.findByExample(tryMe);
+								log.debug(matches.size());
 								if (matches!=null && matches.size()==1
 										&& matches.get(0).getRawBarcode()==null
 										&& matches.get(0).getRawExifBarcode()==null
@@ -609,7 +610,18 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 									} catch (SaveFailedException e) {
 										log.error(e.getMessage(),e);
 									}
-								}
+								} else if (matches!=null && matches.size()==1 && matches.get(0).getSpecimen()==null) {
+									// likely case for a failure to create a specimen record in a previous run
+									// try to update the image file record
+									try {
+										tryMe = imageCont.merge(matches.get(0));
+										matches.remove(0);
+										reattach = true;
+										log.debug(tryMe);
+									} catch (SaveFailedException e) {
+										log.error(e.getMessage(),e);
+									}
+								}								
 								if (matches!=null && matches.size()==0) {
 									// No database record for this file.
 									
@@ -977,8 +989,14 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 										}
 									} catch (SaveFailedException e) {
 										// TODO Auto-generated catch block
-										log.error(e.getMessage());
-										e.printStackTrace();
+										log.error(e.getMessage(),e);
+										counter.incrementFilesFailed();
+										String failureMessage = "Failed to save image record.  " + e.getMessage();
+										ImagePreprocessError error =  new ImagePreprocessError(filename, "Save Failed",
+												tryMe.getFilename(), tryMe.getPath(), failureMessage,
+												null, null,
+												null, ImagePreprocessError.TYPE_SAVE_FAILED);
+										counter.appendError(error);
 									}
 									if (isSpecimenImage) {
 										if (!tryMe.getRawBarcode().equals(tryMe.getRawExifBarcode())) { 
