@@ -64,6 +64,9 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 
 	private static final Log log = LogFactory.getLog(JobRecheckForTemplates.class);
 	
+	/**
+	 * Recheck all files with no template.
+	 */
 	public static final int SCAN_ALL = 0;
 	
 	/**
@@ -83,18 +86,19 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 	private int percentComplete = 0;
 
 	/**
-	 * Default constructor, launch a dialog.
+	 * Default constructor, scan all
 	 */
 	public JobRecheckForTemplates() { 
-		init(SCAN_SELECT,null);
+		init(SCAN_ALL,null);
 	}
 	
 	/**
-	 * Create a clean images job to bring up dialog to pick a specific directory  
-	 * on which to clean up image records.
+	 * Create a recheck for templates job to bring up dialog to pick a specific directory  
+	 * on which to recheck image records for templates.
 	 * <BR>
 	 * Behavior:
 	 * <BR>
+	 * whatToScan=SCAN_ALL, all records having no template and a linked specimen are rechecked.
 	 * whatToScan=SCAN_SELECT, startAt is used as starting point for directory chooser dialog.
 	 * whatToScan=SCAN_SPECIFIC, startAt is used as starting point for repeat (if null falls back to SCAN_SELECT).
 	 * <BR> 
@@ -112,6 +116,10 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 		if (startAt!=null && startAt.canRead()) {
 			startPointSpecific = startAt;
 		} 
+		if (whatToScan==SCAN_ALL) {
+			scan = SCAN_ALL;
+			startPointSpecific = null;
+		} 		
 		if (whatToScan==SCAN_SPECIFIC) {
 			if ((startAt!=null) && startAt.canRead()) { 
 				scan = SCAN_SPECIFIC;
@@ -159,6 +167,7 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 
 	private List<ICImage> getFileList()  {
 		List<ICImage> files = new ArrayList<ICImage>();
+		if (scan!=SCAN_ALL) { 
 		String pathToCheck = "";
 		// Find the path in which to include files.
 		File imagebase = null;   // place to start the scan from, imagebase directory for SCAN_ALL
@@ -224,6 +233,12 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 					if (files!=null) { log.debug(files.size()); }
 				}
 			}
+		}
+		} else { 
+			// retrieve a list of all image records with no template
+			ICImageLifeCycle ils = new ICImageLifeCycle();
+			files = ils.findNotDrawerNoTemplateImages();
+			if (files!=null) { log.debug(files.size()); }			
 		}
 
 		log.debug("Found " + files.size() + " Image files without templates in directory to check.");
@@ -338,7 +353,7 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 	private void report() { 
 		String report = "Results of template check on Image files missing templates (WholeImageOnly).\n";
 		report += "Found  " + counter.getFilesSeen() + " image file database records without templates.\n";
-		report += "Updaed " + counter.getFilesUpdated() + " image records to a template.\n";
+		report += "Updated " + counter.getFilesUpdated() + " image records to a template.\n";
 		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Check for templates complete.");
 		PreprocessReportDialog errorReportDialog = new PreprocessReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
 		errorReportDialog.setVisible(true);
@@ -349,7 +364,7 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 	 */
 	@Override
 	public String getName() {
-		return "Redo OCR for specimens in state " + WorkFlowStatus.STAGE_0;
+		return "Recheck for Templates for images that are " + PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS;
 	}
 
 	/* (non-Javadoc)

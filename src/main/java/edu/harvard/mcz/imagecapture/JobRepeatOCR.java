@@ -168,70 +168,70 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 		String pathToCheck = "";
 		if (scan!=SCAN_ALL) { 
 			// Find the path in which to include files.
-		File imagebase = null;   // place to start the scan from, imagebase directory for SCAN_ALL
-		File startPoint = null;
-		// If it isn't null, retrieve the image base directory from properties, and test for read access.
-		if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEBASE)==null) {
-			JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "Can't start scan.  Don't know where images are stored.  Set imagbase property.", "Can't Scan.", JOptionPane.ERROR_MESSAGE);	
-		} else { 
-			imagebase = new File(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEBASE));
-			if (imagebase!=null) { 
-				if (imagebase.canRead()) {
-					startPoint = imagebase;
-				} else {
-					// If it can't be read, null out imagebase
-					imagebase = null;
-				}
-			}
-			if (scan==SCAN_SPECIFIC && startPointSpecific!=null && startPointSpecific.canRead()) {
-				// A scan start point has been provided, don't launch a dialog.
-				startPoint = startPointSpecific;  
-			}
-			if (imagebase==null || scan==SCAN_SELECT) {
-				// launch a file chooser dialog to select the directory to scan
-				final JFileChooser fileChooser = new JFileChooser();
-				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				if (scan==SCAN_SELECT && startPointSpecific!=null && startPointSpecific.canRead()) { 
-					fileChooser.setCurrentDirectory(startPointSpecific);  
-				} else { 
-					if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_LASTPATH)!=null) { 
-						fileChooser.setCurrentDirectory(new File(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_LASTPATH)));
-					} 
-				}
-				int returnValue = fileChooser.showOpenDialog(Singleton.getSingletonInstance().getMainFrame());
-				if (returnValue == JFileChooser.APPROVE_OPTION) {
-					File file = fileChooser.getSelectedFile();
-					log.debug("Selected base directory: " + file.getName() + ".");
-					startPoint = file;
-				} else {
-					//TODO: handle error condition
-					log.error("Directory selection cancelled by user.");
-				}
-				//TODO: Filechooser to pick path, then save (if SCAN_ALL) imagebase property. 
-				//Perhaps.  Might be undesirable behavior.
-				//Probably better to warn that imagebase is null;
-			}
-
-			// Check that startPoint is or is within imagebase.
-			if (!ImageCaptureProperties.isInPathBelowBase(startPoint)) { 
-				String base = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(
-						ImageCaptureProperties.KEY_IMAGEBASE);
-				log.error("Tried to scan directory ("+ startPoint.getPath() +") outside of base image directory (" + base + ")");
-				String message = "Can't scan and database files outside of base image directory (" + base + ")";
-				JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), message, "Can't Scan outside image base directory.", JOptionPane.YES_NO_OPTION);	
+			File imagebase = null;   // place to start the scan from, imagebase directory for SCAN_ALL
+			File startPoint = null;
+			// If it isn't null, retrieve the image base directory from properties, and test for read access.
+			if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEBASE)==null) {
+				JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "Can't start scan.  Don't know where images are stored.  Set imagbase property.", "Can't Scan.", JOptionPane.ERROR_MESSAGE);	
 			} else { 
+				imagebase = new File(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEBASE));
+				if (imagebase!=null) { 
+					if (imagebase.canRead()) {
+						startPoint = imagebase;
+					} else {
+						// If it can't be read, null out imagebase
+						imagebase = null;
+					}
+				}
+				if (scan==SCAN_SPECIFIC && startPointSpecific!=null && startPointSpecific.canRead()) {
+					// A scan start point has been provided, don't launch a dialog.
+					startPoint = startPointSpecific;  
+				}
+				if (imagebase==null || scan==SCAN_SELECT) {
+					// launch a file chooser dialog to select the directory to scan
+					final JFileChooser fileChooser = new JFileChooser();
+					fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+					if (scan==SCAN_SELECT && startPointSpecific!=null && startPointSpecific.canRead()) { 
+						fileChooser.setCurrentDirectory(startPointSpecific);  
+					} else { 
+						if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_LASTPATH)!=null) { 
+							fileChooser.setCurrentDirectory(new File(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_LASTPATH)));
+						} 
+					}
+					int returnValue = fileChooser.showOpenDialog(Singleton.getSingletonInstance().getMainFrame());
+					if (returnValue == JFileChooser.APPROVE_OPTION) {
+						File file = fileChooser.getSelectedFile();
+						log.debug("Selected base directory: " + file.getName() + ".");
+						startPoint = file;
+					} else {
+						//TODO: handle error condition
+						log.error("Directory selection cancelled by user.");
+					}
+					//TODO: Filechooser to pick path, then save (if SCAN_ALL) imagebase property. 
+					//Perhaps.  Might be undesirable behavior.
+					//Probably better to warn that imagebase is null;
+				}
 
-				// run in separate thread and allow cancellation and status reporting
+				// Check that startPoint is or is within imagebase.
+				if (!ImageCaptureProperties.isInPathBelowBase(startPoint)) { 
+					String base = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(
+							ImageCaptureProperties.KEY_IMAGEBASE);
+					log.error("Tried to scan directory ("+ startPoint.getPath() +") outside of base image directory (" + base + ")");
+					String message = "Can't scan and database files outside of base image directory (" + base + ")";
+					JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), message, "Can't Scan outside image base directory.", JOptionPane.YES_NO_OPTION);	
+				} else { 
 
-				// walk through directory tree
+					// run in separate thread and allow cancellation and status reporting
 
-				if (!startPoint.canRead()) {
-					JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "Can't start scan.  Unable to read selected directory: " + startPoint.getPath(), "Can't Scan.", JOptionPane.YES_NO_OPTION);	
-				} else {
-		            pathToCheck = ImageCaptureProperties.getPathBelowBase(startPoint);
+					// walk through directory tree
+
+					if (!startPoint.canRead()) {
+						JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "Can't start scan.  Unable to read selected directory: " + startPoint.getPath(), "Can't Scan.", JOptionPane.YES_NO_OPTION);	
+					} else {
+						pathToCheck = ImageCaptureProperties.getPathBelowBase(startPoint);
+					}
 				}
 			}
-		}
 		}
 		
 		// Retrieve a list of all specimens in state OCR
