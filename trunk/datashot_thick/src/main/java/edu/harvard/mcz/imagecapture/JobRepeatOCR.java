@@ -301,6 +301,7 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 				// OCR and parse UnitTray Label
 				TaxonNameReturner parser = null;
 				UnitTrayLabel labelRead = null;
+				boolean foundQRText = false;
 				try { 
 					labelRead = scannableFile.getLabelQRText(new PositionTemplate("Test template 2"));
 				} catch (NoSuchTemplateException e) {
@@ -312,11 +313,13 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 				}
 				if (labelRead!=null) { 
 					rawOCR = labelRead.toJSONString();
+					foundQRText = true;
 					parser = (TaxonNameReturner)labelRead;
 				} else { 
 					log.debug("Failing over to OCR with tesseract");
 					rawOCR = scannableFile.getLabelOCRText(templateToUse);
 					parser = new UnitTrayLabelParser(rawOCR);
+					foundQRText = ((UnitTrayLabelParser)parser).isParsedFromJSON();
 				}
 				log.debug(rawOCR);
 
@@ -438,8 +441,13 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 							try { 
 								// *** Save a database record of the specimen.
 								log.debug("Saving changes for barcode " + barcode);
+								if (foundQRText) { 
+									// if we managed to read JSON, then we can move the specimen to text entered.
+									s.setWorkFlowStatus(WorkFlowStatus.STAGE_1);
+									log.debug(s.getWorkFlowStatus());
+								}								
 								sh.attachDirty(s);
-								counter.incrementSpecimens();
+								counter.incrementSpecimensUpdated();
 							} catch (SaveFailedException e) { 
 								// couldn't save, try to figure out why and report
 								log.debug(e);
@@ -572,8 +580,8 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 
 	private void report() { 
 		String report = "Results of redone OCR on Image files.\n";
-		report += "Found  " + counter.getFilesSeen() + " image file database records in state OCR.\n";
-		report += "Saved new OCR for " + counter.getSpecimens() + " image files.\n";
+		report += "Found  " + counter.getFilesSeen() + " specimen database records in state OCR.\n";
+		report += "Saved new OCR for " + counter.getSpecimensUpdated() + " specimens.\n";
 		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("OCR re-do complete.");
 		PreprocessReportDialog errorReportDialog = new PreprocessReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
 		errorReportDialog.setVisible(true);

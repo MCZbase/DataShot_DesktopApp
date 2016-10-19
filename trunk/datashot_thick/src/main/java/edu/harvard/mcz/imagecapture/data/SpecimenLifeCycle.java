@@ -81,8 +81,16 @@ public class SpecimenLifeCycle {
 			   track(transientInstance);
 			} catch (HibernateException e) { 
 				session.getTransaction().rollback();
+				String message = e.getMessage();
+				String pmessage = "";
+				try {
+					pmessage = e.getCause().getMessage();
+				} catch (Exception ex) { 
+					// expected if e doesn't have a cause.
+				}
 				log.error("persist failed", e);
-				if (e.getMessage().matches("^Duplicate entry '.*' for key 'Barcode'$")) { 
+				String existsPattern = "^Duplicate entry '.*' for key 'Barcode'$";
+				if (message.matches(existsPattern) || pmessage.matches(existsPattern) ) { 
 					 throw new SpecimenExistsException("Specimen record exists for " + transientInstance.getBarcode());
 				} else { 
 				     throw new SaveFailedException("Unable to save specimen " + transientInstance.getBarcode());

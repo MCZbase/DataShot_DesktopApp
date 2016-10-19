@@ -35,6 +35,7 @@ public class UnitTrayLabelParser implements TaxonNameReturner, DrawerNameReturne
 	private String infraspecificRank;
 	private String drawerNumber;
 	private String collection;  // collection from which the material came
+	private boolean parsedFromJSON;
 	
 	/**
 	 * Create a unit tray label parser and parse the text.  Call the get methods of the 
@@ -49,7 +50,8 @@ public class UnitTrayLabelParser implements TaxonNameReturner, DrawerNameReturne
 	 * 
 	 * @param aStringToParse
 	 */
-	public UnitTrayLabelParser(String aStringToParse) { 
+	public UnitTrayLabelParser(String aStringToParse) {
+		parsedFromJSON = false;
 		text = aStringToParse;
 	    log.debug(aStringToParse);
 	    boolean done = false;
@@ -78,6 +80,7 @@ public class UnitTrayLabelParser implements TaxonNameReturner, DrawerNameReturne
 	    	infraspecificEpithet = label.getInfraspecificEpithet();
 	    	infraspecificRank = label.getInfraspecificRank();
 	    	drawerNumber = label.getDrawerNumber();
+	    	parsedFromJSON = true;
 	    }
 	    return result;
 	}
@@ -477,5 +480,13 @@ public class UnitTrayLabelParser implements TaxonNameReturner, DrawerNameReturne
 		return collection;
 	}
 	
+	/**
+	 * Was this Parse done from JSON.
+	 * 
+	 * @return true if parsed from json, otherwise false.
+	 */
+	public boolean isParsedFromJSON() { 
+		return parsedFromJSON;
+	}
 
 }
