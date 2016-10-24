@@ -47,10 +47,11 @@ public class SpecimenListTableModel extends AbstractTableModel {
 	public static final int COL_GENUS = 6;
 	public static final int COL_SPECIFIC = 7;
 	public static final int COL_SUBSPECIFIC = 8;
-	public static final int COL_COUNTRY = 9;
-	public static final int COL_PRIMARY = 10;
-	public static final int COL_DRAWER = 11;
-	public static final int COLUMCOUNT = 12;
+	public static final int COL_HIGHERGEOG = 9;
+	public static final int COL_VERBLOCALITY = 10;
+	public static final int COL_COUNTRY = 11;
+	public static final int COL_DRAWER = 12;
+	public static final int COLUMCOUNT = 13;
 	
 	private List<Specimen> specimens = null;
 	
@@ -110,12 +111,15 @@ public class SpecimenListTableModel extends AbstractTableModel {
 		case COL_SUBSPECIFIC: 
 			result = s.getSubspecificEpithet();
 			break;			
+		case COL_HIGHERGEOG: 
+			result = s.getHigherGeography();
+			break;
+		case COL_VERBLOCALITY: 
+			result = s.getVerbatimLocality();
+			break;
 		case COL_COUNTRY: 
 			result = s.getCountry();
-			break;
-		case COL_PRIMARY: 
-			result = s.getPrimaryDivison();
-			break;
+			break;			
 		case COL_DRAWER: 
 			result = s.getDrawerNumber();
 			break;
@@ -175,12 +179,15 @@ public class SpecimenListTableModel extends AbstractTableModel {
 		case COL_SUBSPECIFIC: 
 			result = "Subspecies";
 			break;
+		case COL_HIGHERGEOG: 
+			result = "Higher Geography";
+			break;
+		case COL_VERBLOCALITY: 
+			result = "Verbatim Locality";
+			break;
 		case COL_COUNTRY: 
 			result = "Country";
-			break;
-		case COL_PRIMARY: 
-			result = "State/Province";
-			break;
+			break;			
 		case COL_DRAWER: 
 			result = "Drawer";
 			break;			
