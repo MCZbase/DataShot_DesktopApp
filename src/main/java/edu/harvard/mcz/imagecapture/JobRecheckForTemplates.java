@@ -31,6 +31,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
 
 import edu.harvard.mcz.imagecapture.data.HigherTaxonLifeCycle;
 import edu.harvard.mcz.imagecapture.data.ICImage;
@@ -235,10 +236,17 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 			}
 		}
 		} else { 
+			try { 
 			// retrieve a list of all image records with no template
 			ICImageLifeCycle ils = new ICImageLifeCycle();
 			files = ils.findNotDrawerNoTemplateImages();
-			if (files!=null) { log.debug(files.size()); }			
+			if (files!=null) { log.debug(files.size()); }
+			} catch (HibernateException e) { 
+				log.error(e.getMessage());
+				runStatus = RunStatus.STATUS_FAILED;
+				String message = "Error loading the list of images with no templates. " + e.getMessage();
+				JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), message, "Error loading image records.", JOptionPane.YES_NO_OPTION);	
+			}
 		}
 
 		log.debug("Found " + files.size() + " Image files without templates in directory to check.");
@@ -301,7 +309,7 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 		List<ICImage> files = getFileList();
 		log.debug("ReckeckForTemplatesJob started" + this.toString());
 		int i = 0;
-		while (i < files.size()  && runStatus != RunStatus.STATUS_TERMINATED) {
+		while (i < files.size()  && runStatus!=RunStatus.STATUS_TERMINATED && runStatus!=RunStatus.STATUS_FAILED) {
 			// Find out how far along the process is
 			Float seen = 0.0f + i;
 			Float total = 0.0f + files.size();

@@ -128,12 +128,16 @@ public class JobFileReconciliation implements RunnableJob, Runnable {
 					File fileToCheck = containedFiles[i];
 					Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Reconciling: " + fileToCheck.getName());
 					// Check to see if this is a directory
-					if (fileToCheck.isDirectory()) { 
-						if (fileToCheck.canRead()) { 
-							checkFiles(fileToCheck, counter);
-							counter.incrementDirectories();
+					if (fileToCheck.isDirectory()) {
+						if (fileToCheck.getName().equals("thumbs")) { 
+							log.debug("Skipping thumbnail directory: " + fileToCheck.getPath() + File.separator + fileToCheck.getName());
 						} else { 
-							counter.incrementDirectoriesFailed();
+							if (fileToCheck.canRead()) { 
+								checkFiles(fileToCheck, counter);
+								counter.incrementDirectories();
+							} else { 
+								counter.incrementDirectoriesFailed();
+							}
 						}
 					} else {
 						// fileToCheck is a file.
@@ -155,14 +159,14 @@ public class JobFileReconciliation implements RunnableJob, Runnable {
 								counter.incrementFilesDatabased();
 								log.error("File with more than one database match by name and path");
 								ImagePreprocessError error =  new ImagePreprocessError(fileToCheck.getName(), "",
-										ImageCaptureProperties.getPathBelowBase(fileToCheck), "", "More than one Database record for this file.",
+										ImageCaptureProperties.getPathBelowBase(fileToCheck), "", "More than one database (Image) record for this file.",
 										null, null,
 										null, ImagePreprocessError.TYPE_DUPLICATE);
 								counter.appendError(error);	
 							} else {
 								counter.incrementFilesFailed();
 								ImagePreprocessError error =  new ImagePreprocessError(fileToCheck.getName(), "",
-										ImageCaptureProperties.getPathBelowBase(fileToCheck), "", "No Database record for this file.",
+										ImageCaptureProperties.getPathBelowBase(fileToCheck), "", "No database (Image) record for this file.",
 										null, null,
 										null, ImagePreprocessError.TYPE_SAVE_FAILED);
 								counter.appendError(error);			
