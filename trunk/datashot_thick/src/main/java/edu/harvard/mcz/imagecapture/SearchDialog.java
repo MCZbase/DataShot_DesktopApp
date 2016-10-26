@@ -45,6 +45,7 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.awt.Insets;
 
 /** SearchDialog
  * 
@@ -97,6 +98,8 @@ public class SearchDialog extends JDialog {
 	private JTextField jTextFieldTribe = null;
 	private JLabel jLabel19 = null;
 	private JTextField jTextFieldPrimaryDivision = null;
+	private JTextField textFieldHigherGeog;
+	private JLabel lblHigherGeography;
 	/**
 	 * @param owner
 	 */
@@ -111,10 +114,10 @@ public class SearchDialog extends JDialog {
 	 * @return void
 	 */
 	private void initialize() {
-		this.setSize(415, 500);
+		this.setSize(460, 600);
 		this.setTitle("Search For Specimens");
 		this.setContentPane(getJContentPane());
-		this.setPreferredSize(new Dimension(415, 500));
+		this.setPreferredSize(new Dimension(460, 600));
 		this.pack();
 	}
 
@@ -204,6 +207,7 @@ public class SearchDialog extends JDialog {
 						   searchCriteria.setWorkFlowStatus(jComboBoxWorkflowStatus.getSelectedItem().toString());
 						}
 					}
+					// TODO: Add higher geography
 					if (jComboBoxCountry.getSelectedItem()!=null) {
 						if (!jComboBoxCountry.getSelectedItem().toString().equals("")) { 
 						   searchCriteria.setCountry(jComboBoxCountry.getSelectedItem().toString());
@@ -274,100 +278,118 @@ public class SearchDialog extends JDialog {
 	private JPanel getJPanel1() {
 		if (jPanel1 == null) {
 			GridBagConstraints gridBagConstraints34 = new GridBagConstraints();
+			gridBagConstraints34.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints34.fill = GridBagConstraints.BOTH;
-			gridBagConstraints34.gridy = 14;
+			gridBagConstraints34.gridy = 15;
 			gridBagConstraints34.weightx = 1.0;
 			gridBagConstraints34.gridx = 1;
 			GridBagConstraints gridBagConstraints25 = new GridBagConstraints();
+			gridBagConstraints25.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints25.gridx = 0;
 			gridBagConstraints25.anchor = GridBagConstraints.NORTHEAST;
-			gridBagConstraints25.gridy = 14;
+			gridBagConstraints25.gridy = 15;
 			jLabel19 = new JLabel();
 			jLabel19.setText("State/Province");
 			GridBagConstraints gridBagConstraints24 = new GridBagConstraints();
+			gridBagConstraints24.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints24.fill = GridBagConstraints.BOTH;
 			gridBagConstraints24.gridy = 7;
 			gridBagConstraints24.weightx = 1.0;
 			gridBagConstraints24.anchor = GridBagConstraints.WEST;
 			gridBagConstraints24.gridx = 1;
 			GridBagConstraints gridBagConstraints110 = new GridBagConstraints();
+			gridBagConstraints110.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints110.gridx = 0;
 			gridBagConstraints110.anchor = GridBagConstraints.EAST;
 			gridBagConstraints110.gridy = 7;
 			jLabel18 = new JLabel();
 			jLabel18.setText("Tribe");
 			GridBagConstraints gridBagConstraints71 = new GridBagConstraints();
+			gridBagConstraints71.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints71.gridx = 0;
 			gridBagConstraints71.gridwidth = 2;
 			gridBagConstraints71.gridy = 1;
 			jLabel17 = new JLabel();
 			jLabel17.setText("Use %_% in a field to find all records with a value in that field.");
 			GridBagConstraints gridBagConstraints62 = new GridBagConstraints();
+			gridBagConstraints62.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints62.fill = GridBagConstraints.BOTH;
-			gridBagConstraints62.gridy = 18;
+			gridBagConstraints62.gridy = 19;
 			gridBagConstraints62.weightx = 1.0;
 			gridBagConstraints62.gridx = 1;
 			GridBagConstraints gridBagConstraints52 = new GridBagConstraints();
+			gridBagConstraints52.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints52.fill = GridBagConstraints.BOTH;
-			gridBagConstraints52.gridy = 13;
+			gridBagConstraints52.gridy = 14;
 			gridBagConstraints52.weightx = 1.0;
 			gridBagConstraints52.gridx = 1;
 			GridBagConstraints gridBagConstraints43 = new GridBagConstraints();
+			gridBagConstraints43.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints43.fill = GridBagConstraints.BOTH;
-			gridBagConstraints43.gridy = 12;
+			gridBagConstraints43.gridy = 13;
 			gridBagConstraints43.weightx = 1.0;
 			gridBagConstraints43.gridx = 1;
 			GridBagConstraints gridBagConstraints33 = new GridBagConstraints();
+			gridBagConstraints33.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints33.gridx = 0;
 			gridBagConstraints33.anchor = GridBagConstraints.NORTHEAST;
-			gridBagConstraints33.gridy = 13;
+			gridBagConstraints33.gridy = 14;
 			jLabel16 = new JLabel();
 			jLabel16.setText("Country");
 			GridBagConstraints gridBagConstraints23 = new GridBagConstraints();
+			gridBagConstraints23.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints23.gridx = 0;
 			gridBagConstraints23.anchor = GridBagConstraints.NORTHEAST;
-			gridBagConstraints23.gridy = 12;
+			gridBagConstraints23.gridy = 13;
 			jLabel15 = new JLabel();
 			jLabel15.setText("Verbatim Locality");
 			GridBagConstraints gridBagConstraints19 = new GridBagConstraints();
+			gridBagConstraints19.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints19.gridx = 0;
 			gridBagConstraints19.anchor = GridBagConstraints.NORTHEAST;
-			gridBagConstraints19.gridy = 18;
+			gridBagConstraints19.gridy = 19;
 			jLabel14 = new JLabel();
 			jLabel14.setText("Questions");
 			GridBagConstraints gridBagConstraints18 = new GridBagConstraints();
+			gridBagConstraints18.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints18.fill = GridBagConstraints.BOTH;
-			gridBagConstraints18.gridy = 16;
+			gridBagConstraints18.gridy = 17;
 			gridBagConstraints18.weightx = 1.0;
 			gridBagConstraints18.gridx = 1;
 			GridBagConstraints gridBagConstraints61 = new GridBagConstraints();
+			gridBagConstraints61.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints61.gridx = 1;
 			gridBagConstraints61.gridy = 0;
 			jLabel13 = new JLabel();
 			jLabel13.setText("Search for specimens. Use % as a wildcard.");
 			GridBagConstraints gridBagConstraints51 = new GridBagConstraints();
+			gridBagConstraints51.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints51.gridx = 0;
 			gridBagConstraints51.anchor = GridBagConstraints.NORTHEAST;
-			gridBagConstraints51.gridy = 16;
+			gridBagConstraints51.gridy = 17;
 			jLabel12 = new JLabel();
 			jLabel12.setText("Collector");
 			GridBagConstraints gridBagConstraints42 = new GridBagConstraints();
+			gridBagConstraints42.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints42.fill = GridBagConstraints.BOTH;
 			gridBagConstraints42.gridy = 11;
 			gridBagConstraints42.weightx = 1.0;
 			gridBagConstraints42.gridx = 1;
 			GridBagConstraints gridBagConstraints32 = new GridBagConstraints();
+			gridBagConstraints32.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints32.gridx = 0;
 			gridBagConstraints32.anchor = GridBagConstraints.NORTHEAST;
 			gridBagConstraints32.gridy = 11;
 			jLabel11 = new JLabel();
 			jLabel11.setText("Subspecies");
 			GridBagConstraints gridBagConstraints22 = new GridBagConstraints();
+			gridBagConstraints22.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints22.fill = GridBagConstraints.BOTH;
 			gridBagConstraints22.gridy = 8;
 			gridBagConstraints22.weightx = 1.0;
 			gridBagConstraints22.gridx = 1;
 			GridBagConstraints gridBagConstraints16 = new GridBagConstraints();
+			gridBagConstraints16.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints16.gridx = 0;
 			gridBagConstraints16.anchor = GridBagConstraints.NORTHEAST;
 			gridBagConstraints16.gridy = 8;
@@ -375,116 +397,137 @@ public class SearchDialog extends JDialog {
 			jLabel10.setText("Subfamily");
 			GridBagConstraints gridBagConstraints15 = new GridBagConstraints();
 			gridBagConstraints15.fill = GridBagConstraints.BOTH;
-			gridBagConstraints15.gridy = 19;
+			gridBagConstraints15.gridy = 20;
 			gridBagConstraints15.weightx = 1.0;
 			gridBagConstraints15.gridx = 1;
 			GridBagConstraints gridBagConstraints14 = new GridBagConstraints();
+			gridBagConstraints14.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints14.fill = GridBagConstraints.BOTH;
 			gridBagConstraints14.gridy = 3;
 			gridBagConstraints14.weightx = 1.0;
 			gridBagConstraints14.gridx = 1;
 			GridBagConstraints gridBagConstraints13 = new GridBagConstraints();
+			gridBagConstraints13.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints13.fill = GridBagConstraints.BOTH;
 			gridBagConstraints13.gridy = 2;
 			gridBagConstraints13.weightx = 1.0;
 			gridBagConstraints13.gridx = 1;
 			GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
+			gridBagConstraints12.insets = new Insets(0, 0, 0, 5);
 			gridBagConstraints12.gridx = 0;
 			gridBagConstraints12.anchor = GridBagConstraints.NORTHEAST;
-			gridBagConstraints12.gridy = 19;
+			gridBagConstraints12.gridy = 20;
 			jLabel9 = new JLabel();
 			jLabel9.setText("Entry By");
 			GridBagConstraints gridBagConstraints111 = new GridBagConstraints();
+			gridBagConstraints111.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints111.gridx = 0;
 			gridBagConstraints111.anchor = GridBagConstraints.NORTHEAST;
 			gridBagConstraints111.gridy = 3;
 			jLabel8 = new JLabel();
 			jLabel8.setText("Date Imaged");
 			GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
+			gridBagConstraints10.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints10.gridx = 0;
 			gridBagConstraints10.anchor = GridBagConstraints.NORTHEAST;
 			gridBagConstraints10.gridy = 2;
 			jLabel7 = new JLabel();
 			jLabel7.setText("Image Filename");
 			GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
+			gridBagConstraints9.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints9.fill = GridBagConstraints.BOTH;
-			gridBagConstraints9.gridy = 17;
+			gridBagConstraints9.gridy = 18;
 			gridBagConstraints9.weightx = 1.0;
 			gridBagConstraints9.gridx = 1;
 			GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
+			gridBagConstraints8.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints8.fill = GridBagConstraints.BOTH;
-			gridBagConstraints8.gridy = 15;
+			gridBagConstraints8.gridy = 16;
 			gridBagConstraints8.weightx = 1.0;
 			gridBagConstraints8.gridx = 1;
 			GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+			gridBagConstraints7.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints7.gridx = 0;
 			gridBagConstraints7.anchor = GridBagConstraints.NORTHEAST;
-			gridBagConstraints7.gridy = 17;
+			gridBagConstraints7.gridy = 18;
 			jLabel6 = new JLabel();
 			jLabel6.setText("Workflow Status");
 			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
+			gridBagConstraints6.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints6.gridx = 0;
 			gridBagConstraints6.anchor = GridBagConstraints.NORTHEAST;
-			gridBagConstraints6.gridy = 15;
+			gridBagConstraints6.gridy = 16;
 			jLabel5 = new JLabel();
 			jLabel5.setText("Collection");
 			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
+			gridBagConstraints5.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints5.gridx = 0;
 			gridBagConstraints5.anchor = GridBagConstraints.NORTHEAST;
 			gridBagConstraints5.gridy = 10;
 			jLabel4 = new JLabel();
 			jLabel4.setText("Species");
 			GridBagConstraints gridBagConstraints41 = new GridBagConstraints();
+			gridBagConstraints41.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints41.fill = GridBagConstraints.BOTH;
 			gridBagConstraints41.gridy = 10;
 			gridBagConstraints41.weightx = 1.0;
 			gridBagConstraints41.gridx = 1;
 			GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
+			gridBagConstraints31.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints31.fill = GridBagConstraints.BOTH;
 			gridBagConstraints31.gridy = 9;
 			gridBagConstraints31.weightx = 1.0;
 			gridBagConstraints31.gridx = 1;
 			GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
+			gridBagConstraints21.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints21.fill = GridBagConstraints.BOTH;
 			gridBagConstraints21.gridy = 6;
 			gridBagConstraints21.weightx = 1.0;
 			gridBagConstraints21.gridx = 1;
 			GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
+			gridBagConstraints11.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints11.fill = GridBagConstraints.BOTH;
 			gridBagConstraints11.gridy = 5;
 			gridBagConstraints11.weightx = 1.0;
 			gridBagConstraints11.gridx = 1;
 			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
+			gridBagConstraints4.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints4.gridx = 0;
 			gridBagConstraints4.anchor = GridBagConstraints.NORTHEAST;
 			gridBagConstraints4.gridy = 9;
 			jLabel3 = new JLabel();
 			jLabel3.setText("Genus");
 			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+			gridBagConstraints3.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints3.gridx = 0;
 			gridBagConstraints3.anchor = GridBagConstraints.NORTHEAST;
 			gridBagConstraints3.gridy = 6;
 			jLabel2 = new JLabel();
 			jLabel2.setText("Family");
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+			gridBagConstraints2.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints2.gridx = 0;
 			gridBagConstraints2.anchor = GridBagConstraints.NORTHEAST;
 			gridBagConstraints2.gridy = 5;
 			jLabel1 = new JLabel();
 			jLabel1.setText("Barcode");
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+			gridBagConstraints1.insets = new Insets(0, 0, 5, 0);
 			gridBagConstraints1.fill = GridBagConstraints.BOTH;
 			gridBagConstraints1.gridy = 4;
 			gridBagConstraints1.weightx = 1.0;
 			gridBagConstraints1.gridx = 1;
 			GridBagConstraints gridBagConstraints = new GridBagConstraints();
+			gridBagConstraints.insets = new Insets(0, 0, 5, 5);
 			gridBagConstraints.gridx = 0;
 			gridBagConstraints.anchor = GridBagConstraints.NORTHEAST;
 			gridBagConstraints.gridy = 4;
 			jLabel = new JLabel();
 			jLabel.setText("Drawer Number");
 			jPanel1 = new JPanel();
-			jPanel1.setLayout(new GridBagLayout());
+			GridBagLayout gbl_jPanel1 = new GridBagLayout();
+			gbl_jPanel1.columnWeights = new double[]{0.0, 1.0};
+			jPanel1.setLayout(gbl_jPanel1);
 			jPanel1.add(jLabel, gridBagConstraints);
 			jPanel1.add(getJTextField(), gridBagConstraints1);
 			jPanel1.add(jLabel1, gridBagConstraints2);
@@ -495,6 +538,18 @@ public class SearchDialog extends JDialog {
 			jPanel1.add(getJTextField3(), gridBagConstraints31);
 			jPanel1.add(getJTextField4(), gridBagConstraints41);
 			jPanel1.add(jLabel4, gridBagConstraints5);
+			GridBagConstraints gbc_lblHigherGeography = new GridBagConstraints();
+			gbc_lblHigherGeography.insets = new Insets(0, 0, 5, 5);
+			gbc_lblHigherGeography.anchor = GridBagConstraints.EAST;
+			gbc_lblHigherGeography.gridx = 0;
+			gbc_lblHigherGeography.gridy = 12;
+			jPanel1.add(getLblHigherGeography(), gbc_lblHigherGeography);
+			GridBagConstraints gbc_textFieldHigherGeog = new GridBagConstraints();
+			gbc_textFieldHigherGeog.insets = new Insets(0, 0, 5, 0);
+			gbc_textFieldHigherGeog.fill = GridBagConstraints.HORIZONTAL;
+			gbc_textFieldHigherGeog.gridx = 1;
+			gbc_textFieldHigherGeog.gridy = 12;
+			jPanel1.add(getTextFieldHigherGeog(), gbc_textFieldHigherGeog);
 			jPanel1.add(jLabel5, gridBagConstraints6);
 			jPanel1.add(jLabel6, gridBagConstraints7);
 			jPanel1.add(getJComboBox(), gridBagConstraints8);
@@ -796,4 +851,17 @@ public class SearchDialog extends JDialog {
 		return jTextFieldPrimaryDivision;
 	}
 
+	private JTextField getTextFieldHigherGeog() {
+		if (textFieldHigherGeog == null) {
+			textFieldHigherGeog = new JTextField();
+			textFieldHigherGeog.setColumns(10);
+		}
+		return textFieldHigherGeog;
+	}
+	private JLabel getLblHigherGeography() {
+		if (lblHigherGeography == null) {
+			lblHigherGeography = new JLabel("Higher Geography");
+		}
+		return lblHigherGeography;
+	}
 }  //  @jve:decl-index=0:visual-constraint="10,10"
