@@ -232,7 +232,7 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 				resultFrame.setBarcode("QR="+barcode + " Comment=" + exifComment + " " + warning);
 
 				try {
-					resultFrame.loadImagesFromFile(fileToCheck, defaultTemplate);
+					resultFrame.loadImagesFromFile(fileToCheck, defaultTemplate, null);
 				} catch (ImageLoadException e2) {
 					System.out.println("Error loading image file.");
 					System.out.println(e2.getMessage());
@@ -252,7 +252,7 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						resultFrame.loadImagesFromFile(fileToCheck, defaultTemplate);
+						resultFrame.loadImagesFromFile(fileToCheck, defaultTemplate, null);
 					} catch (ImageLoadException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -468,6 +468,9 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 							s.setCollection(((CollectionReturner)parser).getCollection());
 							s.setCreatingPath(ImageCaptureProperties.getPathBelowBase(fileToCheck));
 							s.setCreatingFilename(fileToCheck.getName());
+							if (parser.getIdentifiedBy()!=null && parser.getIdentifiedBy().length()>0) {
+								s.setIdentifiedBy(parser.getIdentifiedBy());
+							}							
 							log.debug(s.getCollection());
 
 							// TODO: non-general workflows

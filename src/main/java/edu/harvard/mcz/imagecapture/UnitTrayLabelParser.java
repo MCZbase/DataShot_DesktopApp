@@ -35,6 +35,7 @@ public class UnitTrayLabelParser implements TaxonNameReturner, DrawerNameReturne
 	private String infraspecificRank;
 	private String drawerNumber;
 	private String collection;  // collection from which the material came
+	private String identifiedBy;
 	private boolean parsedFromJSON;
 	
 	/**
@@ -480,6 +481,20 @@ public class UnitTrayLabelParser implements TaxonNameReturner, DrawerNameReturne
 		return collection;
 	}
 	
+	/**
+	 * @return the identifiedBy
+	 */
+	public String getIdentifiedBy() {
+		return identifiedBy;
+	}
+
+	/**
+	 * @param identifiedBy the identifiedBy to set
+	 */
+	public void setIdentifiedBy(String identifiedBy) {
+		this.identifiedBy = identifiedBy;
+	}
+
 	/**
 	 * Was this Parse done from JSON.
 	 * 

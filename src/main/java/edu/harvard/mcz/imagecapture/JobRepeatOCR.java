@@ -429,6 +429,9 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 							if (s.getCreatingFilename()==null || s.getCreatingFilename().length()==0) { 
 							    s.setCreatingFilename(file.getName());							
 							}
+							if (parser.getIdentifiedBy()!=null && parser.getIdentifiedBy().length()>0) {
+								s.setIdentifiedBy(parser.getIdentifiedBy());
+							}
 							log.debug(s.getCollection());
 
 							// TODO: non-general workflows

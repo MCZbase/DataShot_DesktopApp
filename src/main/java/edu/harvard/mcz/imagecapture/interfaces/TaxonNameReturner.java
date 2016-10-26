@@ -77,5 +77,10 @@ public interface TaxonNameReturner {
 	 * @return the infraspecificRank
 	 */
 	public String getInfraspecificRank();
+	
+	/**
+	 * @return the determiner
+	 */
+	public String getIdentifiedBy();
 
 }

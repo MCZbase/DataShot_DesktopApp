@@ -59,6 +59,7 @@ public class UnitTrayLabel implements TaxonNameReturner, DrawerNameReturner, Col
 	private Date dateLastUpdated;
 	private String collection;  // collection from which the material came
 	private Integer ordinal;     // order in which to print
+	private String identifiedBy;
 	
 
 	public UnitTrayLabel() {
@@ -231,10 +232,13 @@ public class UnitTrayLabel implements TaxonNameReturner, DrawerNameReturner, Col
 		result.append(", \"a\":\"").append(authorship).append("\"");
 		result.append(", \"d\":\"").append(drawerNumber).append("\"");
 		if (collection != null) { 
-		if (!collection.isEmpty()) { 
-		    result.append(", \"c\":\"").append(collection).append("\"");
-		}
+			if (!collection.isEmpty()) { 
+				result.append(", \"c\":\"").append(collection).append("\"");
+			}
 		} 
+		if (identifiedBy!=null && identifiedBy.trim().length()>0) { 
+			result.append(", \"id\":\"").append(identifiedBy).append("\"");
+		}
 		result.append(" }");		
 		return result.toString();
 	}
@@ -276,7 +280,15 @@ public class UnitTrayLabel implements TaxonNameReturner, DrawerNameReturner, Col
 			    	if (keyValuePair.length==2) { 
 			    		String key = keyValuePair[0];
 			    		String value = keyValuePair[1];
-			    		log.debug("key=["+ key + "], value=["+ value +"]");
+			    		log.debug("key=["+ key + "], value=["+ value +"]");	
+			    		
+			    		if (key.equals("m1p")) { 
+			    			log.debug("Configured for Project: " + value);
+			    			if (!value.equals("MCZ Lepidoptera") && !value.equals("ETHZ Entomology")) { 
+			    				log.error("Project specified in JSON is not recognized: " + value);
+			    				log.error("Warning: Keys in JSON may not be correctly interpreted.");
+			    			}
+			    		}
 			    		
 			    		// Note: Adding values here isn't sufficient to populate specimen records,
 			    		// you still need to invoke the relevant returner interface on the parser.
@@ -294,6 +306,9 @@ public class UnitTrayLabel implements TaxonNameReturner, DrawerNameReturner, Col
 			    			result.setCollection(value); 
 			    			log.debug(result.getCollection());
 			    		} 
+			    		if (key.equals("id")) { 
+			    			result.setIdentifiedBy(value);
+			    		}
 			    	}
 			    }
 			    log.debug(result.toJSONString());
@@ -577,6 +592,20 @@ public class UnitTrayLabel implements TaxonNameReturner, DrawerNameReturner, Col
 		} else { 
 		    this.ordinal = ordinal;
 		}
+	}
+
+	/**
+	 * @return the identifiedBy
+	 */
+	public String getIdentifiedBy() {
+		return identifiedBy;
+	}
+
+	/**
+	 * @param identifiedBy the identifiedBy to set
+	 */
+	public void setIdentifiedBy(String identifiedBy) {
+		this.identifiedBy = identifiedBy;
 	}
 	
 }
