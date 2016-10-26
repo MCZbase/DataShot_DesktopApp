@@ -26,11 +26,11 @@ import java.awt.Toolkit;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
-
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -38,9 +38,12 @@ import javax.swing.JTabbedPane;
 import edu.harvard.mcz.imagecapture.data.ICImage;
 import edu.harvard.mcz.imagecapture.data.ICImageLifeCycle;
 import edu.harvard.mcz.imagecapture.data.Specimen;
+import edu.harvard.mcz.imagecapture.data.UsersLifeCycle;
 import edu.harvard.mcz.imagecapture.exceptions.BadTemplateException;
 import edu.harvard.mcz.imagecapture.exceptions.ImageLoadException;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +53,7 @@ import java.util.List;
 import java.util.Set;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+
 import javax.swing.JComboBox;
 
 import org.apache.commons.logging.Log;
@@ -112,6 +116,9 @@ public class ImageDisplayFrame extends JFrame {
 	private JPanel jPanelImagesPanel = null;
 	
 	private Specimen targetSpecimen = null;
+	private ICImage selectedImage = null;
+	
+	private JButton templatePicker = null;
 
 	/**
 	 * This is the default constructor
@@ -163,7 +170,7 @@ public class ImageDisplayFrame extends JFrame {
 		jComboBoxImagePicker.setSelectedItem(image.getFilename());
 		try {
 		    PositionTemplate defaultTemplate = PositionTemplate.findTemplateForImage(image);
-			loadImagesFromFileSingle(fileToCheck, defaultTemplate);
+			loadImagesFromFileSingle(fileToCheck, defaultTemplate, image);
 		} catch (BadTemplateException e) {
 			log.error(e);
 		} catch (ImageLoadException e) {
@@ -183,9 +190,9 @@ public class ImageDisplayFrame extends JFrame {
 	 * @throws ImageLoadException if there is a problem with the image.
 	 * @throws BadTemplateException 
 	 */
-	public void loadImagesFromFile(File anImageFile, PositionTemplate template) throws ImageLoadException, BadTemplateException {
+	public void loadImagesFromFile(File anImageFile, PositionTemplate template, ICImage image) throws ImageLoadException, BadTemplateException {
 		log.debug(anImageFile.getName());
-		loadImagesFromFileSingle(anImageFile, template);
+		loadImagesFromFileSingle(anImageFile, template, image);
         jLabel1.setText("(1)");
         log.debug(1);
         if (jComboBoxImagePicker.getModel().getSize()>0) { 
@@ -206,9 +213,10 @@ public class ImageDisplayFrame extends JFrame {
 	 * @throws ImageLoadException
 	 * @throws BadTemplateException
 	 */
-	protected void loadImagesFromFileSingle(File anImageFile, PositionTemplate defaultTemplate) throws ImageLoadException, BadTemplateException {
+	protected void loadImagesFromFileSingle(File anImageFile, PositionTemplate defaultTemplate, ICImage image) throws ImageLoadException, BadTemplateException {
 		log.debug(anImageFile.getName());
 		boolean templateProblem = false;
+		selectedImage = image;
 		//TODO: template detection
 		try {
 			imagefile = ImageIO.read(anImageFile);
@@ -296,6 +304,9 @@ public class ImageDisplayFrame extends JFrame {
 			throw new BadTemplateException("Template doesn't fit file " + anImageFile.getPath());
 		}
 		log.debug(anImageFile.getPath());
+		if (UsersLifeCycle.isUserChiefEditor(Singleton.getSingletonInstance().getUser().getUserid())) { 
+		    updateTemplateList();
+		}
 	}
 
 	/**
@@ -689,7 +700,7 @@ public class ImageDisplayFrame extends JFrame {
 											PositionTemplate defaultTemplate;
 											try {
 												defaultTemplate = PositionTemplate.findTemplateForImage(image);
-												loadImagesFromFileSingle(fileToCheck, defaultTemplate);
+												loadImagesFromFileSingle(fileToCheck, defaultTemplate, image);
 											} catch (ImageLoadException e3) {
 												log.error(e3);
 											} catch (BadTemplateException e1) {
@@ -711,6 +722,49 @@ public class ImageDisplayFrame extends JFrame {
 		return jComboBoxImagePicker;
 	}
 
+	private JButton getTemplatePicker() {
+		if (templatePicker==null) { 
+		    templatePicker = new JButton();
+		    String template = "No Template Selected";
+		    if (selectedImage!=null) { 
+		       template = selectedImage.getTemplateId();
+		    }
+		    templatePicker.setText(template);
+		    log.debug(template);
+		    log.debug(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS);
+		    if (template.equals(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS)) { 
+		    	templatePicker.setEnabled(true);
+		    } else { 
+		    	templatePicker.setEnabled(false);
+		    }
+			    templatePicker.addActionListener(new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						TemplatePickerDialog dialog = new TemplatePickerDialog(selectedImage);
+						dialog.setVisible(true);
+					} 
+			    	
+			    } );		    	
+
+		}
+		return templatePicker;
+	}
+	
+	private void updateTemplateList() { 
+		getTemplatePicker();
+	    String template = "No Template Selected";
+	    if (selectedImage!=null) { 
+	       template = selectedImage.getTemplateId();
+	    }
+	    templatePicker.setText(template);	
+	    if (template.equals(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS)) { 
+	    	templatePicker.setEnabled(true);
+	    } else { 
+	    	templatePicker.setEnabled(false);
+	    }
+	}
+	
 	/**
 	 * This method initializes jPanelImagesPanel	
 	 * 	
@@ -722,6 +776,9 @@ public class ImageDisplayFrame extends JFrame {
 			jPanelImagesPanel.setLayout(new BorderLayout());
 			jPanelImagesPanel.add(getJTabbedPane(), BorderLayout.CENTER);
 			jPanelImagesPanel.add(getJPanelImagePicker(), BorderLayout.NORTH);
+			if (UsersLifeCycle.isUserChiefEditor(Singleton.getSingletonInstance().getUser().getUserid())) { 
+				jPanelImagesPanel.add(getTemplatePicker(), BorderLayout.SOUTH);
+			}
 		}
 		return jPanelImagesPanel;
 	}

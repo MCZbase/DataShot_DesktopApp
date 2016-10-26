@@ -235,7 +235,7 @@ public class SpecimenControler {
 			try {
 				PositionTemplate template = PositionTemplate.findTemplateForImage(image);
 				try {
-					resultFrame.loadImagesFromFile(fileToCheck, template);
+					resultFrame.loadImagesFromFile(fileToCheck, template, image);
 				} catch (BadTemplateException e) {
 					// TODO:  is this the right action, or should this be a fatal error? 
 					log.error("Unexptected BadTemplateException after template tests." + e.getMessage());
