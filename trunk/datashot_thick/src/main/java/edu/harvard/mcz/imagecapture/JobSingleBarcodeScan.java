@@ -20,7 +20,9 @@
 package edu.harvard.mcz.imagecapture;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JFileChooser;
@@ -78,12 +80,14 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 	private int percentComplete = 0;
 	private int runStatus = RunStatus.STATUS_NEW;
 	
+	private ArrayList<RunnerListener> listeners = null;
+	
 	/**
 	 * Default constructor, creates a single image job with persist=false, allows examination of image
 	 * extracted barcode, and OCR of label data without making a database connection.
 	 */
 	public JobSingleBarcodeScan() { 
-		
+		init();
 	}
 	/**Constructor allowing specification of persistence.
 	 * 
@@ -93,13 +97,22 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 	 */
 	public JobSingleBarcodeScan(boolean persistResult) { 
 		persist = persistResult;
+		init();
 	}	
 
+	private void init() { 
+		listeners = new ArrayList<RunnerListener>();
+	}
+	
 	private void setPercentComplete(int aPercentage) { 
 		//set value
 		percentComplete = aPercentage;
 		//notify listeners
 		Singleton.getSingletonInstance().getMainFrame().notifyListener(percentComplete, this);
+		Iterator<RunnerListener> i = listeners.iterator();
+		while (i.hasNext()) { 
+			i.next().notifyListener(percentComplete, this);
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -124,8 +137,8 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 	 */
 	@Override
 	public boolean registerListener(RunnerListener jobListener) {
-		// TODO Auto-generated method stub
-		return false;
+		if (listeners==null) { init(); } 
+		return listeners.add(jobListener);
 	}
 
 	/* (non-Javadoc)

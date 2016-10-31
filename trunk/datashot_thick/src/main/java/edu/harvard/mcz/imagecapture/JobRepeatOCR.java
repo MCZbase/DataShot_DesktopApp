@@ -80,6 +80,7 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 	private int runStatus = RunStatus.STATUS_NEW;
 	private Date startDate = null;
 	private int percentComplete = 0;
+	ArrayList<RunnerListener> listeners = null;
 
 	/**
 	 *  Default constructor.  Creates an OCR job to repeat the OCR on all 
@@ -90,6 +91,7 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 		scan = SCAN_ALL;
 		startPointSpecific = null;
 		runStatus = RunStatus.STATUS_NEW;
+		init();
 	}
 	
 	/**
@@ -127,6 +129,11 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 			}
 		}
 		runStatus = RunStatus.STATUS_NEW;
+		init();
+	}
+	
+	protected void init() { 
+		listeners = new ArrayList<RunnerListener>();
 	}
 	
 	/* (non-Javadoc)
@@ -160,8 +167,9 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 	 */
 	@Override
 	public boolean registerListener(RunnerListener jobListener) {
-		// TODO Auto-generated method stub
-		return false;
+		if (listeners==null) { init(); } 
+		log.debug(jobListener);
+		return listeners.add(jobListener);
 	}
 
 	private List<File> getFileList()  {
@@ -553,8 +561,13 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 	private void setPercentComplete(int aPercentage) { 
 		//set value
 		percentComplete = aPercentage;
+		log.debug(percentComplete);
 		//notify listeners
 		Singleton.getSingletonInstance().getMainFrame().notifyListener(percentComplete, this);
+		Iterator<RunnerListener> i = listeners.iterator();
+		while (i.hasNext()) { 
+			i.next().notifyListener(percentComplete, this);
+		}
 	}	
 	
 	/**
@@ -595,7 +608,11 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 	 */
 	@Override
 	public String getName() {
-		return "Redo OCR for specimens in state " + WorkFlowStatus.STAGE_0;
+		if ( this.scan==SCAN_ALL) { 
+		     return "Redo OCR for All specimens in state " + WorkFlowStatus.STAGE_0;
+		} else { 
+		     return "Redo OCR for specimens in state " + WorkFlowStatus.STAGE_0;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -605,5 +622,5 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 	public Date getStartTime() {
 		return startDate;
 	}	
-
+	
 }
