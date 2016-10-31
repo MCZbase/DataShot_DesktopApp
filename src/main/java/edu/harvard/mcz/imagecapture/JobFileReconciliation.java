@@ -20,6 +20,7 @@
 package edu.harvard.mcz.imagecapture;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -50,6 +51,8 @@ public class JobFileReconciliation implements RunnableJob, Runnable {
 	
 	private int runStatus = RunStatus.STATUS_NEW;
 	private Date startDate = null;
+	
+	private ArrayList<RunnerListener> listeners = null;
 	
 	/* (non-Javadoc)
 	 * @see edu.harvard.mcz.imagecapture.interfaces.RunnableJob#cancel()
@@ -82,8 +85,8 @@ public class JobFileReconciliation implements RunnableJob, Runnable {
 	 */
 	@Override
 	public boolean registerListener(RunnerListener jobListener) {
-		// TODO Auto-generated method stub
-		return false;
+		if (listeners==null) { listeners = new ArrayList<RunnerListener>(); } 
+		return listeners.add(jobListener);
 	}
 
 	/* (non-Javadoc)

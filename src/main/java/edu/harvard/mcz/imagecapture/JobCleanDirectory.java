@@ -78,6 +78,8 @@ public class JobCleanDirectory implements RunnableJob, Runnable {
 	private int runStatus = RunStatus.STATUS_NEW;
 	private Date startDate = null;
 	private int percentComplete = 0;
+	
+	ArrayList<RunnerListener> listeners = null;
 
 	/**
 	 * Default constructor, launch a dialog.  JobCleanDirectory only
@@ -113,7 +115,8 @@ public class JobCleanDirectory implements RunnableJob, Runnable {
 	 * @param whatToScan one of SCAN_SPECIFIC, SCAN_SELECT
 	 * @param startAt null or a directory starting point.
 	 */
-	public void init(int whatToScan, File startAt) { 	
+	public void init(int whatToScan, File startAt) {
+		listeners = new ArrayList<RunnerListener>();
 		scan = SCAN_SELECT;
 		// store startPoint as base for dialog if SCAN_SELECT, or directory to scan if SCAN_SPECIFIC
 		if (startAt!=null && startAt.canRead()) {
@@ -160,8 +163,7 @@ public class JobCleanDirectory implements RunnableJob, Runnable {
 	 */
 	@Override
 	public boolean registerListener(RunnerListener jobListener) {
-		// TODO Auto-generated method stub
-		return false;
+		return listeners.add(jobListener);
 	}
 
 	private List<File> getFileList()  {
@@ -320,6 +322,10 @@ public class JobCleanDirectory implements RunnableJob, Runnable {
 		percentComplete = aPercentage;
 		//notify listeners
 		Singleton.getSingletonInstance().getMainFrame().notifyListener(percentComplete, this);
+		Iterator<RunnerListener> i = listeners.iterator();
+		while (i.hasNext()) { 
+			i.next().notifyListener(percentComplete, this);
+		}
 	}	
 	
 	/**

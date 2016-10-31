@@ -21,20 +21,27 @@ package edu.harvard.mcz.imagecapture;
 
 import java.text.DateFormat;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
+import edu.harvard.mcz.imagecapture.interfaces.RunnerListener;
 
 /** JobTableModel
  * 
  * @author Paul J. Morris
  *
  */
-public class RunnableJobTableModel extends AbstractTableModel {
+public class RunnableJobTableModel extends AbstractTableModel implements RunnerListener {
 
 	private static final long serialVersionUID = 2701547555516905743L;
+	
+	private static final Log log = LogFactory.getLog(RunnableJobTableModel.class);
 	
 	private Set<RunnableJob> jobs;
 	
@@ -50,8 +57,7 @@ public class RunnableJobTableModel extends AbstractTableModel {
 	 */
 	@Override
 	public int getColumnCount() {
-		// TODO Auto-generated method stub
-		return 3;
+		return 4;
 	}
 	
 	/**
@@ -74,6 +80,9 @@ public class RunnableJobTableModel extends AbstractTableModel {
 		case 2:  
 		    result = String.class;
 		    break;
+		case 3:  
+		    result = int.class;
+		    break;		    
 		}
         return result; 
     }
@@ -98,6 +107,9 @@ public class RunnableJobTableModel extends AbstractTableModel {
 		case 2: 
 			returnvalue = "Started";
 			break;
+		case 3: 
+			returnvalue = "Progress";
+			break;			
 		}
 		return returnvalue;
 	}
@@ -122,6 +134,10 @@ public class RunnableJobTableModel extends AbstractTableModel {
 			    returnvalue = DateFormat.getTimeInstance().format(((RunnableJob)jobs.toArray()[rowIndex]).getStartTime());
 			}
 			break;
+		case 3:  
+		    returnvalue = ((RunnableJob)jobs.toArray()[rowIndex]).percentComplete();
+		    log.debug(returnvalue);
+		    break;			
 		}
 		return returnvalue;
 	}
@@ -138,6 +154,9 @@ public class RunnableJobTableModel extends AbstractTableModel {
 		case 2:  
 			returnvalue = false;
 			break;
+		case 3:  
+			returnvalue = false;
+			break;			
 		}
 		return returnvalue;
 	}
@@ -153,11 +172,28 @@ public class RunnableJobTableModel extends AbstractTableModel {
 	 */
 	public void addJob(RunnableJob aJob) { 
 		jobs.add(aJob);
+		aJob.registerListener(this);
 		this.fireTableDataChanged();
 	}
 	
 	public void removeJob(RunnableJob aJob) { 
 		jobs.remove(aJob);
+		this.fireTableDataChanged();
+	}
+	
+	public void registerListener(RunnerListener listener) { 
+		Iterator<RunnableJob> i = jobs.iterator();
+		while (i.hasNext()) { 
+			i.next().registerListener(listener);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see edu.harvard.mcz.imagecapture.interfaces.RunnerListener#notifyListener(int, edu.harvard.mcz.imagecapture.interfaces.RunnableJob)
+	 */
+	@Override
+	public void notifyListener(int anEvent, RunnableJob notifyingJob) {
+		log.debug(anEvent);
 		this.fireTableDataChanged();
 	}
 

@@ -99,6 +99,8 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 	private int percentComplete = 0;
 	private Date startTime = null;
 	
+	private ArrayList<RunnerListener> listeners = null;
+	
 	/**
 	 * Default constructor, creates a job to scan all of imagebase, unless imagebase is 
 	 * unreadable or undefined, in which case a directory chooser dialog is launched.
@@ -107,6 +109,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 		scan = SCAN_ALL;
 		startPointSpecific = null;
 		runStatus = RunStatus.STATUS_NEW;
+		init();
 	}
 	
 	/**
@@ -142,8 +145,12 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 			}
 		}
 		runStatus = RunStatus.STATUS_NEW;
+		init();
 	}
 	
+	protected void init() { 
+		listeners = new ArrayList<RunnerListener>();
+	}
 	
 	/* (non-Javadoc)
 	 * @see edu.harvard.mcz.imagecapture.Runnable#cancel()
@@ -168,8 +175,8 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 	 */
 	@Override
 	public boolean registerListener(RunnerListener jobListener) {
-		// TODO Auto-generated method stub
-		return false;
+		if (listeners==null) { init(); } 
+		return listeners.add(jobListener);
 	}
 
 	/* (non-Javadoc)
@@ -245,7 +252,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 					Counter counter = new Counter();
 					// count files to scan
 					countFiles(startPoint, counter);
-					percentComplete = 0;
+					setPercentComplete(0);
 					Singleton.getSingletonInstance().getMainFrame().notifyListener(runStatus, this);
 					counter.incrementDirectories();
 					// scan
@@ -279,7 +286,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 					report += "Found " + counter.getFilesFailed() + " files with problems.\n";
 					//report += counter.getErrors();
 					Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Preprocess scan complete");
-					percentComplete = 100;
+					setPercentComplete(100);
 					Singleton.getSingletonInstance().getMainFrame().notifyListener(runStatus, this);
 					PreprocessReportDialog errorReportDialog = new PreprocessReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
 					errorReportDialog.setVisible(true);
@@ -334,12 +341,15 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 		
 		private Date thumbStartTime = null;
 		private int thumbRunStatus = RunStatus.STATUS_NEW;
-		private int percentComplete = 0;
+		private int thumbPercentComplete = 0;
+		
+		private ArrayList<RunnerListener> thumbListeners = null;
 
 		public ThumbnailBuilderInternal(File aStartPoint) { 
 			startPoint = aStartPoint;
 			thumbHeight = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_THUMBNAIL_HEIGHT);
 			thumbWidth = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_THUMBNAIL_WIDTH);
+			thumbInit();
 		}
 		
 		public ThumbnailBuilderInternal(File aStartPoint, int thumbHeightPixels, int thumbWidthPixels) { 
@@ -352,13 +362,18 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 			if (thumbWidthPixels < 10) { 
 			    thumbWidth = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_THUMBNAIL_WIDTH);
 			}
+			thumbInit();
 		}		
+		
+		protected void thumbInit() { 
+			thumbListeners = new ArrayList<RunnerListener>();
+		}
 
 		@Override
 		public void run() {
 			thumbStartTime = new Date();
 			thumbRunStatus = RunStatus.STATUS_RUNNING;
-			percentComplete = 0;
+			setThumbPercentComplete(0);
 			Singleton.getSingletonInstance().getJobList().addJob((RunnableJob)this);
 			// mkdir thumbs ; mogrify -path thumbs -resize 80x120 *.JPG					    
 			if (startPoint.isDirectory() &&  (!startPoint.getName().equals("thumbs"))) { 
@@ -450,7 +465,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 												creationCounter++;
 											}
 										}
-										this.percentComplete = (int) (((float)creationCounter/totalFiles)*100);
+										setThumbPercentComplete( (int) (((float)creationCounter/totalFiles)*100) );
 									}
 								}
 								String message = "Finished creating thumbnails (" + creationCounter +") in: " + startPoint.getPath();
@@ -512,16 +527,27 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 		 */
 		@Override
 		public int percentComplete() {
-			return percentComplete;
+			return thumbPercentComplete;
 		}
 
+		protected void setThumbPercentComplete(int aPercentage) { 
+			//set value
+			thumbPercentComplete = aPercentage;
+			log.debug(thumbPercentComplete);
+			//notify listeners
+			Iterator<RunnerListener> i = thumbListeners.iterator();
+			while (i.hasNext()) { 
+				i.next().notifyListener(thumbPercentComplete, this);
+			}
+		}			
+		
 		/* (non-Javadoc)
 		 * @see edu.harvard.mcz.imagecapture.interfaces.RunnableJob#registerListener(edu.harvard.mcz.imagecapture.interfaces.RunnerListener)
 		 */
 		@Override
 		public boolean registerListener(RunnerListener aJobListener) {
-			// TODO Auto-generated method stub
-			return false;
+			if (thumbListeners==null) { thumbInit(); } 
+			return thumbListeners.add(aJobListener);
 		}
 
 		/* (non-Javadoc)
@@ -1040,12 +1066,25 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 				Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Scanned: " + fileToCheck.getName());
 				Float seen = 0.0f + counter.getFilesSeen();
 				Float total = 0.0f + counter.getTotal();
-				percentComplete = (int) ((seen/total)*100);
+				// thumbPercentComplete = (int) ((seen/total)*100);
+				setPercentComplete( (int) ((seen/total)*100) );
 			} 
 			Singleton.getSingletonInstance().getMainFrame().notifyListener(runStatus, this);
 		}
 
 	}
+	
+	private void setPercentComplete(int aPercentage) { 
+		//set value
+		percentComplete = aPercentage;
+		log.debug(percentComplete);
+		//notify listeners
+		Singleton.getSingletonInstance().getMainFrame().notifyListener(percentComplete, this);
+		Iterator<RunnerListener> i = listeners.iterator();
+		while (i.hasNext()) { 
+			i.next().notifyListener(percentComplete, this);
+		}
+	}	
 
 	/* (non-Javadoc)
 	 * @see java.lang.Runnable#run()

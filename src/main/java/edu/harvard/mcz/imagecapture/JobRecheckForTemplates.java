@@ -85,6 +85,8 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 	private int runStatus = RunStatus.STATUS_NEW;
 	private Date startDate = null;
 	private int percentComplete = 0;
+	
+	private ArrayList<RunnerListener> listeners = null;
 
 	/**
 	 * Default constructor, scan all
@@ -112,6 +114,7 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 	}
 		
 	public void init(int whatToScan, File startAt) { 	
+		listeners = new ArrayList<RunnerListener>();
 		scan = SCAN_SELECT;
 		// store startPoint as base for dialog if SCAN_SELECT, or directory to scan if SCAN_SPECIFIC
 		if (startAt!=null && startAt.canRead()) {
@@ -162,8 +165,7 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 	 */
 	@Override
 	public boolean registerListener(RunnerListener jobListener) {
-		// TODO Auto-generated method stub
-		return false;
+		return listeners.add(jobListener);
 	}
 
 	private List<ICImage> getFileList()  {
@@ -332,6 +334,10 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 		percentComplete = aPercentage;
 		//notify listeners
 		Singleton.getSingletonInstance().getMainFrame().notifyListener(percentComplete, this);
+		Iterator<RunnerListener> i = listeners.iterator();
+		while (i.hasNext()) { 
+			i.next().notifyListener(percentComplete, this);
+		}
 	}	
 	
 	/**

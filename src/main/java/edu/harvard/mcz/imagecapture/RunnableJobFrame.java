@@ -20,18 +20,25 @@
 package edu.harvard.mcz.imagecapture;
 
 import java.awt.BorderLayout;
+
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.JButton;
+import javax.swing.JProgressBar;
 
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
 
+import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
+import edu.harvard.mcz.imagecapture.interfaces.RunnerListener;
 import edu.harvard.mcz.imagecapture.ui.ButtonEditor;
 import edu.harvard.mcz.imagecapture.ui.ButtonRenderer;
+import edu.harvard.mcz.imagecapture.ui.ProgressBarRenderer;
 
 /** RunnableJobFrame
  * 
@@ -40,7 +47,8 @@ import edu.harvard.mcz.imagecapture.ui.ButtonRenderer;
  */
 public class RunnableJobFrame extends JFrame {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -8754185517572012300L;
+	
 	private JPanel jContentPane = null;
 	private JButton jButton = null;
 	private JPanel jPanel = null;
@@ -137,8 +145,12 @@ public class RunnableJobFrame extends JFrame {
 		if (jTable == null) {
 			jTable = new JTable(Singleton.getSingletonInstance().getJobList());
 			jTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
-			jTable.setDefaultRenderer(Integer.class, new ButtonRenderer("Cancel"));
-            jTable.setDefaultEditor(Integer.class, new ButtonEditor(ButtonEditor.ACTION_CANCEL_JOB,this));
+			jTable.getColumn(" ").setCellRenderer(new ButtonRenderer("Cancel"));
+			jTable.getColumn(" ").setCellEditor(new ButtonEditor(ButtonEditor.ACTION_CANCEL_JOB,this));
+			//jTable.setDefaultRenderer(Integer.class, new ButtonRenderer("Cancel"));
+            //jTable.setDefaultEditor(Integer.class, new ButtonEditor(ButtonEditor.ACTION_CANCEL_JOB,this));
+			// jTable.setDefaultRenderer(int.class, new ProgressBarRenderer());
+			jTable.getColumn("Progress").setCellRenderer(new ProgressBarRenderer());
             int characterWidth = Singleton.getSingletonInstance().getCharacterWidth();
             jTable.getColumnModel().getColumn(0).setPreferredWidth(characterWidth*6);
 		}
