@@ -1,5 +1,5 @@
 /**
- * JobRecheckForTemplates.java
+ * JobCleanDirectory.java
  * edu.harvard.mcz.imagecapture
  * Copyright © 2016 President and Fellows of Harvard College
  *
@@ -17,7 +17,7 @@
  * 
  * Author: Paul J. Morris
  */
-package edu.harvard.mcz.imagecapture;
+package edu.harvard.mcz.imagecapture.jobs;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,8 +31,11 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.HibernateException;
 
+import edu.harvard.mcz.imagecapture.Counter;
+import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
+import edu.harvard.mcz.imagecapture.JobReportDialog;
+import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.data.HigherTaxonLifeCycle;
 import edu.harvard.mcz.imagecapture.data.ICImage;
 import edu.harvard.mcz.imagecapture.data.ICImageLifeCycle;
@@ -55,20 +58,14 @@ import edu.harvard.mcz.imagecapture.interfaces.RunnerListener;
 import edu.harvard.mcz.imagecapture.interfaces.TaxonNameReturner;
 
 /** 
- * JobRecheckForTemplates, recheck image files that have no template identified, but should have one, 
- * and try to identify their template.  Can be run after a new template has been created.
+ * JobCleanDirectory, scan a directory for image files that have been deleted, and remove the related image records.
  * 
  * @author Paul J. Morris
  *
  */
-public class JobRecheckForTemplates implements RunnableJob, Runnable {
+public class JobCleanDirectory implements RunnableJob, Runnable {
 
-	private static final Log log = LogFactory.getLog(JobRecheckForTemplates.class);
-	
-	/**
-	 * Recheck all files with no template.
-	 */
-	public static final int SCAN_ALL = 0;
+	private static final Log log = LogFactory.getLog(JobCleanDirectory.class);
 	
 	/**
 	 * Open a dialog and scan a specific directory.
@@ -86,22 +83,25 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 	private Date startDate = null;
 	private int percentComplete = 0;
 	
-	private ArrayList<RunnerListener> listeners = null;
+	ArrayList<RunnerListener> listeners = null;
 
 	/**
-	 * Default constructor, scan all
+	 * Default constructor, launch a dialog.  JobCleanDirectory only
+	 * works on a directory within the mount path, and must find the
+	 * target directory (as readable) before running, otherwise image 
+	 * records for files that do exist could be removed when the 
+	 * file system is not mounted (at the configured location).
 	 */
-	public JobRecheckForTemplates() { 
-		init(SCAN_ALL,null);
+	public JobCleanDirectory() { 
+		init(SCAN_SELECT,null);
 	}
 	
 	/**
-	 * Create a recheck for templates job to bring up dialog to pick a specific directory  
-	 * on which to recheck image records for templates.
+	 * Create a clean images job to bring up dialog to pick a specific directory  
+	 * on which to clean up image records.  
 	 * <BR>
 	 * Behavior:
 	 * <BR>
-	 * whatToScan=SCAN_ALL, all records having no template and a linked specimen are rechecked.
 	 * whatToScan=SCAN_SELECT, startAt is used as starting point for directory chooser dialog.
 	 * whatToScan=SCAN_SPECIFIC, startAt is used as starting point for repeat (if null falls back to SCAN_SELECT).
 	 * <BR> 
@@ -109,21 +109,23 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 	 * @param whatToScan one of SCAN_SPECIFIC, SCAN_SELECT
 	 * @param startAt null or a directory starting point.
 	 */
-	public JobRecheckForTemplates(int whatToScan, File startAt) {
+	public JobCleanDirectory(int whatToScan, File startAt) {
 		init(whatToScan, startAt);
 	}
 		
-	public void init(int whatToScan, File startAt) { 	
+	/**
+	 * Setup initial parameters before run.
+	 * 
+	 * @param whatToScan one of SCAN_SPECIFIC, SCAN_SELECT
+	 * @param startAt null or a directory starting point.
+	 */
+	public void init(int whatToScan, File startAt) {
 		listeners = new ArrayList<RunnerListener>();
 		scan = SCAN_SELECT;
 		// store startPoint as base for dialog if SCAN_SELECT, or directory to scan if SCAN_SPECIFIC
 		if (startAt!=null && startAt.canRead()) {
 			startPointSpecific = startAt;
 		} 
-		if (whatToScan==SCAN_ALL) {
-			scan = SCAN_ALL;
-			startPointSpecific = null;
-		} 		
 		if (whatToScan==SCAN_SPECIFIC) {
 			if ((startAt!=null) && startAt.canRead()) { 
 				scan = SCAN_SPECIFIC;
@@ -168,9 +170,8 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 		return listeners.add(jobListener);
 	}
 
-	private List<ICImage> getFileList()  {
-		List<ICImage> files = new ArrayList<ICImage>();
-		if (scan!=SCAN_ALL) { 
+	private List<File> getFileList()  {
+		ArrayList<File> files = new ArrayList<File>();
 		String pathToCheck = "";
 		// Find the path in which to include files.
 		File imagebase = null;   // place to start the scan from, imagebase directory for SCAN_ALL
@@ -219,9 +220,16 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 				String base = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(
 						ImageCaptureProperties.KEY_IMAGEBASE);
 				log.error("Tried to scan directory ("+ startPoint.getPath() +") outside of base image directory (" + base + ")");
-				String message = "Can't scan and database files outside of base image directory (" + base + ")";
+				String message = "Can't scan and cleanup files outside of base image directory (" + base + ")";
 				JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), message, "Can't Scan outside image base directory.", JOptionPane.YES_NO_OPTION);	
-			} else { 
+			} else if (ImageCaptureProperties.getPathBelowBase(startPoint).trim().length()==0) {
+				String base = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(
+						ImageCaptureProperties.KEY_IMAGEBASE);
+				log.error("Tried to scan directory ("+ startPoint.getPath() +") which is the base image directory.");
+				String message = "Can only scan and cleanup files in a selected directory within the base directory  (" + base + ").\nYou must select some subdirectory within the base directory to cleanup.";
+				JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), message, "Can't Cleanup image base directory.", JOptionPane.YES_NO_OPTION);	
+				
+		    } else { 
 				if (!startPoint.canRead()) {
 					JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "Can't start scan.  Unable to read selected directory: " + startPoint.getPath(), "Can't Scan.", JOptionPane.YES_NO_OPTION);	
 				} else {
@@ -231,74 +239,58 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 					ICImageLifeCycle ils = new ICImageLifeCycle();
 					ICImage pattern = new ICImage();
 					pattern.setPath(pathToCheck);
-					pattern.setTemplateId(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS);
-					files = ils.findByExample(pattern);
-					if (files!=null) { log.debug(files.size()); }
+					List<ICImage> images = ils.findByExample(pattern);
+					Iterator<ICImage> iter = images.iterator();
+					while (iter.hasNext()) { 
+						ICImage image = iter.next();
+						File imageFile = new File(ImageCaptureProperties.assemblePathWithBase(image.getPath(), image.getFilename()));
+						files.add(imageFile);
+						counter.incrementFilesSeen();
+					}
+
 				}
 			}
 		}
-		} else { 
-			try { 
-			// retrieve a list of all image records with no template
-			ICImageLifeCycle ils = new ICImageLifeCycle();
-			files = ils.findNotDrawerNoTemplateImages();
-			if (files!=null) { log.debug(files.size()); }
-			} catch (HibernateException e) { 
-				log.error(e.getMessage());
-				runStatus = RunStatus.STATUS_FAILED;
-				String message = "Error loading the list of images with no templates. " + e.getMessage();
-				JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), message, "Error loading image records.", JOptionPane.YES_NO_OPTION);	
-			}
-		}
 
-		log.debug("Found " + files.size() + " Image files without templates in directory to check.");
+		log.debug("Found " + files.size() + " Image files in directory to check.");
 
 		return files;
 	}
 
 
-	private void recheckForTemplates(ICImage image) { 
-			if (image.getSpecimen()!=null) { 
-				File imageFile = new File(ImageCaptureProperties.assemblePathWithBase(image.getPath(), image.getFilename()));
-				counter.incrementFilesSeen();
-
-				MCZBarcodePositionTemplateDetector detector = new MCZBarcodePositionTemplateDetector();
+	private void cleanupFile(File file) { 
+		log.debug(file);
+		String filename = file.getName();
+		
+		if (file.exists()) { 
+			log.debug(file);
+			counter.incrementFilesExisting();
+		} else {
+			String targetPath = ImageCaptureProperties.getPathBelowBase(file.getParentFile());
+			ICImageLifeCycle ils = new ICImageLifeCycle();
+			ICImage pattern = new ICImage();
+			pattern.setPath(targetPath);
+			pattern.setFilename(file.getName());
+			log.debug(targetPath);
+			log.debug(file.getName());
+			List<ICImage> images = ils.findByExample(pattern);
+			Iterator<ICImage> iter = images.iterator();
+			log.debug(images.size());
+			while (iter.hasNext()) { 
+				ICImage image = iter.next();
+				log.debug(image.getPath());
+				log.debug(image.getFilename());
 				try {
-					ICImageLifeCycle ils = new ICImageLifeCycle();
-					String templateName = detector.detectTemplateForImage(imageFile);
-				    if (templateName!=null && !templateName.equals(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS)) { 
-				    	// update the image record with this template.
-				    	image.setTemplateId(templateName);
-				    	ils.attachDirty(image);
-				    	counter.incrementFilesUpdated();
-				    } else if (templateName!=null && templateName.equals(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS)) { 
-				    	JobError error =  new JobError(image.getFilename(), image.getRawBarcode(),
-								"", image.getRawExifBarcode(), "No Template Found.",
-								null, null,
-								null, JobError.TYPE_NO_TEMPLATE);
-						counter.appendError(error);
-				    }
-				} catch (UnreadableFileException e) {
-					log.error(e.getMessage());
-					JobError error =  new JobError(image.getFilename(), image.getRawBarcode(),
-							"", image.getRawExifBarcode(), "Unreadable File Exception checking for template.",
-							null, null,
-							null, JobError.TYPE_NO_TEMPLATE);
-					counter.appendError(error);
+					ils.delete(image);
+					counter.incrementFilesFailed();
 				} catch (SaveFailedException e) {
 					log.error(e.getMessage(),e);
-					JobError error =  new JobError(image.getFilename(), image.getRawBarcode(),
-							"", image.getRawExifBarcode(), "Save Failed Exception saving new template.",
-							null, null,
-							null, JobError.TYPE_SAVE_FAILED);
-					counter.appendError(error);
 				}
-
-			} else { 
-				log.debug(image.getPath() + image.getFilename() + " Has no attached image.");
 			}
+		}
+		
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see edu.harvard.mcz.imagecapture.interfaces.RunnableJob#start()
 	 */
@@ -308,17 +300,17 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 		Singleton.getSingletonInstance().getJobList().addJob((RunnableJob)this);
 		counter = new Counter();
 		// Obtain a list of image file records for the selected directory.
-		List<ICImage> files = getFileList();
-		log.debug("ReckeckForTemplatesJob started" + this.toString());
+		List<File> files = getFileList();
+		log.debug("CleanDirectoryJob started" + this.toString());
 		int i = 0;
-		while (i < files.size()  && runStatus!=RunStatus.STATUS_TERMINATED && runStatus!=RunStatus.STATUS_FAILED) {
+		while (i < files.size()  && runStatus != RunStatus.STATUS_TERMINATED) {
 			// Find out how far along the process is
 			Float seen = 0.0f + i;
 			Float total = 0.0f + files.size();
 			percentComplete = (int) ((seen/total)*100);
 			setPercentComplete(percentComplete);
 			// Repeat the OCR for the present file.
-			recheckForTemplates(files.get(i));	
+			cleanupFile(files.get(i));
 			i++;
 		} 
 		if (runStatus != RunStatus.STATUS_TERMINATED) { 
@@ -365,10 +357,11 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 	}
 
 	private void report() { 
-		String report = "Results of template check on Image files missing templates (WholeImageOnly).\n";
-		report += "Found  " + counter.getFilesSeen() + " image file database records without templates.\n";
-		report += "Updated " + counter.getFilesUpdated() + " image records to a template.\n";
-		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Check for templates complete.");
+		String report = "Results of directory cleanup on Image files.\n";
+		report += "Found  " + counter.getFilesSeen() + " image file database records.\n";
+		report += "Didn't remove " + counter.getFilesExisting() + " image records where file exists.\n";
+		report += "Removed " + counter.getFilesFailed() + " image records where file does not exist.\n";
+		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Directory cleanup complete.");
 		JobReportDialog errorReportDialog = new JobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
 		errorReportDialog.setVisible(true);
 	}
@@ -378,7 +371,7 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 	 */
 	@Override
 	public String getName() {
-		return "Recheck for Templates for images that are " + PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS;
+		return "Redo OCR for specimens in state " + WorkFlowStatus.STAGE_0;
 	}
 
 	/* (non-Javadoc)
