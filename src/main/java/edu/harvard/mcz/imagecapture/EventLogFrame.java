@@ -1,5 +1,5 @@
 /**
- * EventLog.java
+ * EventLogFrame.java
  * edu.harvard.mcz.imagecapture
  * Copyright © 2009 President and Fellows of Harvard College
  *
@@ -43,7 +43,7 @@ import java.util.List;
  * 
  * @author Paul J. Morris
  */
-public class EventLog extends JFrame {
+public class EventLogFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jContentPane = null;
@@ -51,13 +51,13 @@ public class EventLog extends JFrame {
 	private JScrollPane jScrollPane = null;
 	private JTable jTable = null;
 	private JPanel jPanel = null;
-	private EventLog eventLog = null;
+	private EventLogFrame eventLog = null;
 	private List<Tracking> events = null;
 
 	/**
 	 * Default constructor shows a list of all entries in tracking table.
 	 */
-	public EventLog() {
+	public EventLogFrame() {
 		super();
 		this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		//TODO: make this manageable for large numbers of records.  
@@ -67,7 +67,7 @@ public class EventLog extends JFrame {
 		initialize();
 	}
 	
-	public EventLog(List<Tracking> eventsList) {
+	public EventLogFrame(List<Tracking> eventsList) {
 		super();
 		this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		eventLog = this;
