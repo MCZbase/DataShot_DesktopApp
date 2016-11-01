@@ -1,5 +1,5 @@
 /**
- * ImagePreprocessErrorTableModel.java
+ * JobErrorTableModel.java
  * edu.harvard.mcz.imagecapture.data
  * Copyright © 2009 President and Fellows of Harvard College
  *
@@ -23,33 +23,46 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-/** ImagePreprocessErrorTableModel, table model for displaying error reports about preprocessing images.
+/** JobErrorTableModel, table model for displaying error reports about preprocessing images.
  * Can handle different types of reports by specifying a TYPE_ constant in the constructor.   
  * 
  * @author Paul J. Morris
  *
  */
-public class ImagePreprocessErrorTableModel extends AbstractTableModel {
+public class JobErrorTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 3407074726845800411L;
 	
+	/**
+	 * Constant for reporting on errors in preprocessing. 
+	 */
 	public static final int TYPE_PREPROCESS = 0;
+	/**
+	 * Constant for reporting on errors in rechecking for missing barcodes.
+	 */
 	public static final int TYPE_MISSING_BARCODES = 1;
+	/**
+	 * Constant for reporting on errors in loading data.
+	 */
+	public static final int TYPE_LOAD = 2;
 	
-	private List<ImagePreprocessError> errors;
+	private List<JobError> errors;
 	private int type;
 	
-	public ImagePreprocessErrorTableModel(List<ImagePreprocessError> errorList) { 
+	public JobErrorTableModel(List<JobError> errorList) { 
 		errors = errorList;
 		type = TYPE_PREPROCESS;
 	}
 	
-	public ImagePreprocessErrorTableModel(List<ImagePreprocessError> errorList, int listType) { 
+	public JobErrorTableModel(List<JobError> errorList, int listType) { 
 		errors = errorList;
 		type = TYPE_PREPROCESS;
 		if (listType==TYPE_MISSING_BARCODES) { 
 		    type = TYPE_MISSING_BARCODES;
-		} 
+		}
+		if (listType==TYPE_LOAD) { 
+		    type = TYPE_LOAD;
+		} 		
 	}	
 	
 	/* (non-Javadoc)
@@ -64,6 +77,9 @@ public class ImagePreprocessErrorTableModel extends AbstractTableModel {
 		   break;
 		case TYPE_MISSING_BARCODES:
 			result = 4;
+			break;
+		case TYPE_LOAD:
+			result = 6;
 			break;
 		} 
 		return result;
@@ -83,7 +99,7 @@ public class ImagePreprocessErrorTableModel extends AbstractTableModel {
 	 */
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		ImagePreprocessError error = errors.get(rowIndex);
+		JobError error = errors.get(rowIndex);
 		Object result = null;
 		switch (type) { 
 		case TYPE_PREPROCESS: 
@@ -144,6 +160,33 @@ public class ImagePreprocessErrorTableModel extends AbstractTableModel {
 				result = error.getPreviousPath();
 				break;	
 			}
+			break;
+		case TYPE_LOAD: 
+			switch (columnIndex) {
+			case (0):
+				result = error.getFailureType();
+				break;
+			case (1):
+				result = error.getFilename();
+				break;
+			case (2):
+				result = error.getLineNumber();
+				break;				
+			case (3):
+				result = error.getBarcode();
+				break;					
+			case (4):
+				result = error.getErrorMessage();
+				break;
+			case (5):
+				if (error.getException()!=null) {
+				    result = error.getException().getMessage();
+			    } else { 
+			    	result = "";
+			    }
+				break;
+			}
+			break;			
 		} 
 		
 		return result;
@@ -199,6 +242,28 @@ public class ImagePreprocessErrorTableModel extends AbstractTableModel {
 				break;
 			}
 			break;
+		case TYPE_LOAD: 
+			switch (columnIndex) {
+			case (0):
+				result = "Type";
+				break;
+			case (1):
+				result = "Filename";
+				break;
+			case (2):
+				result = "Linenumber";
+				break;				
+			case (3):
+				result = "Barcode"; 
+				break;			
+			case (4):
+				result = "Error";
+				break;
+			case (5):
+				result = "Exception";
+				break;
+			}
+		   break;			
 		} 
 
 		return result;		

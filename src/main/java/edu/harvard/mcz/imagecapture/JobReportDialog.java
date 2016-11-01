@@ -1,5 +1,5 @@
 /**
- * PreprocessReportDialog.java
+ * JobReportDialog.java
  * edu.harvard.mcz.imagecapture
  * Copyright © 2009 President and Fellows of Harvard College
  *
@@ -40,19 +40,19 @@ import javax.swing.JTextArea;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.harvard.mcz.imagecapture.data.ImagePreprocessError;
-import edu.harvard.mcz.imagecapture.data.ImagePreprocessErrorTableModel;
+import edu.harvard.mcz.imagecapture.data.JobError;
+import edu.harvard.mcz.imagecapture.data.JobErrorTableModel;
 
-/** PreprocessReportDialog
+/** JobReportDialog
  * 
  * @author Paul J. Morris
  *
  */
-public class PreprocessReportDialog extends JDialog {
+public class JobReportDialog extends JDialog {
 
 	private static final long serialVersionUID = -8151583200152856827L;
 
-	private static final Log log = LogFactory.getLog(PreprocessReportDialog.class);
+	private static final Log log = LogFactory.getLog(JobReportDialog.class);
 	
 	private JPanel jContentPane = null;
 	private JPanel jPanel = null;
@@ -63,21 +63,21 @@ public class PreprocessReportDialog extends JDialog {
 	private JTable jTable = null;
 	private JTextArea jTextArea = null;
 	private JDialog thisDialog = null;
-    private ImagePreprocessErrorTableModel model = null;
+    private JobErrorTableModel model = null;
 	
 	/**
 	 * @param owner
 	 */
-	public PreprocessReportDialog(Frame owner) {
+	public JobReportDialog(Frame owner) {
 		super(owner);
 		thisDialog = this;
 		initialize();
 	}
 	
-	public PreprocessReportDialog(Frame owner, String resultsMessage, List<ImagePreprocessError> errors) {
+	public JobReportDialog(Frame owner, String resultsMessage, List<JobError> errors) {
 		super(owner);
 		thisDialog = this;
-	    model = new ImagePreprocessErrorTableModel(errors);
+	    model = new JobErrorTableModel(errors);
 	    
 	    log.debug(model.getRowCount());
 		
@@ -88,10 +88,10 @@ public class PreprocessReportDialog extends JDialog {
 		
 	}
 	
-	public PreprocessReportDialog(Frame owner, String resultsMessage, List<ImagePreprocessError> errors, int listType) {
+	public JobReportDialog(Frame owner, String resultsMessage, List<JobError> errors, int listType) {
 		super(owner);
 		thisDialog = this;
-	    model = new ImagePreprocessErrorTableModel(errors, listType);
+	    model = new JobErrorTableModel(errors, listType);
 	    
 	    log.debug(model.getRowCount());
 		

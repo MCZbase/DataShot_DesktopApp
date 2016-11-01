@@ -56,7 +56,7 @@ public class FieldLoader {
 		sls = new SpecimenLifeCycle();
 	}
 	
-	public boolean load(String barcode, String verbatimLocality, String verbatimDate) throws LoadException { 
+	public boolean load(String barcode, String verbatimLocality, String verbatimDate, String questions) throws LoadException { 
 		boolean result = false;
 		
 		Specimen pattern = new Specimen();
@@ -69,19 +69,29 @@ public class FieldLoader {
 				throw new LoadTargetMovedOnException();
 			} else { 	
 
-				if (match.getVerbatimLocality()!=null && match.getVerbatimLocality().trim().length()==0) {
+				if (match.getVerbatimLocality()==null || match.getVerbatimLocality().trim().length()==0) {
 					match.setVerbatimLocality(verbatimLocality);
 				}  else { throw new LoadTargetPopulatedException(); }
 				
-				if (match.getDateNos()!=null && match.getVerbatimLocality().trim().length()==0) {
-					match.setVerbatimLocality(verbatimLocality);
+				if (match.getDateNos()==null || match.getDateNos().trim().length()==0) {
+					match.setDateNos(verbatimDate);
 				}  else { throw new LoadTargetPopulatedException(); }
+				
+				// append any questions to current questions.
+				if (questions!=null && questions.trim().length() > 0 ) { 
+					String currentQuestions = match.getQuestions();
+					if (currentQuestions==null) { currentQuestions = ""; } 
+					if (currentQuestions.trim().length()>0) { currentQuestions = currentQuestions + " | "; }
+					match.setQuestions(currentQuestions + questions);
+				}
+				
+				// match.setWorkFlowStatus(WorkFlowStatus.STAGE_VERBATIM);
 
 				try {
 					sls.attachDirty(match);
 				} catch (SaveFailedException e) {
 					log.error(e.getMessage(), e);
-					throw new LoadTargetSaveException();
+					throw new LoadTargetSaveException("Error saving updated target record: " + e.getMessage());
 				}
 			}
 		} else { 
@@ -92,7 +102,7 @@ public class FieldLoader {
 		return false;
 	}
 	
-	public boolean loadFromMap(String barcode, Map<String,String> data) throws LoadException { 
+	public boolean loadFromMap(String barcode, Map<String,String> data, String newWorkflowStatus) throws LoadException { 
 		boolean result = false;
 		
 		ArrayList<String> knownFields = new ArrayList<String>();
@@ -162,6 +172,10 @@ public class FieldLoader {
 
 				if (foundData) { 
 					try {
+						
+						//match.setWorkFlowStatus(newWorkflowStatus);
+						
+						
 						sls.attachDirty(match);
 					} catch (SaveFailedException e) {
 						log.error(e.getMessage(), e);

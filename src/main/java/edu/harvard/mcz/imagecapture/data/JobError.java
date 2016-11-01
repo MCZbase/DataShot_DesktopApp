@@ -1,5 +1,5 @@
 /**
- * ImagePreprocessError.java
+ * JobError.java
  * edu.harvard.mcz.imagecapture.data
  * Copyright © 2009 President and Fellows of Harvard College
  *
@@ -22,14 +22,14 @@ package edu.harvard.mcz.imagecapture.data;
 import edu.harvard.mcz.imagecapture.interfaces.DrawerNameReturner;
 import edu.harvard.mcz.imagecapture.interfaces.TaxonNameReturner;
 
-/** ImagePreprocessError, a class for logging the details of multiple sorts of problems
+/** JobError, a class for logging the details of multiple sorts of problems
  * that can be found in preproccessing an image.  Allows a report of preprocessing errors to be
  * displayed in a table.  Handles subtypes of errors with the TYPE_ constants.
  * 
  * @author Paul J. Morris
  *
  */
-public class ImagePreprocessError {
+public class JobError {
 	
 	public static final int TYPE_SAVE_FAILED = 0;
 	public static final int TYPE_NO_TEMPLATE = 1;
@@ -38,6 +38,7 @@ public class ImagePreprocessError {
 	public static final int TYPE_BAD_PARSE = 4;
 	public static final int TYPE_DUPLICATE = 5;
 	public static final int TYPE_FAILOVER_TO_OCR = 6;
+	public static final int TYPE_LOAD_FAILED = 7;
 
 	private String filename;
 	private String barcode;
@@ -50,8 +51,11 @@ public class ImagePreprocessError {
 	private int failureType;
 	private String previous;
 	private String previousPath;
+	private String lineNumber;
 	
 	/**
+	 * Constructor for errors in the expected form for Barcode number QC Checks.
+	 * 
 	 * @param filename
 	 * @param barcode
 	 * @param qrBarcode
@@ -62,7 +66,7 @@ public class ImagePreprocessError {
 	 * @param exception
 	 * @param previous
 	 */
-	public ImagePreprocessError(String filename, String barcode,
+	public JobError(String filename, String barcode,
 			String qrBarcode, String commentBarcode, String errorMessage,
 			TaxonNameReturner taxonParser, DrawerNameReturner drawerParser,
 			Exception exception, int failureType, String previous, String aPreviousPath) {
@@ -77,9 +81,11 @@ public class ImagePreprocessError {
 		this.failureType = failureType;
 		this.setPrevious(previous);
 		this.setPreviousPath(aPreviousPath);
+		this.lineNumber="";
 	}
 
 	/**
+	 * Constructor for errors in the expected form for preprocessing images and repeating OCR.
 	 * 
 	 * @param filename
 	 * @param barcode
@@ -91,7 +97,7 @@ public class ImagePreprocessError {
 	 * @param exception
 	 * @param failureType
 	 */
-	public ImagePreprocessError(String filename, String barcode,
+	public JobError(String filename, String barcode,
 			String qrBarcode, String commentBarcode, String errorMessage,
 			TaxonNameReturner taxonParser, DrawerNameReturner drawerParser,
 			Exception exception, int failureType) {
@@ -105,7 +111,34 @@ public class ImagePreprocessError {
 		this.exception = exception;
 		this.failureType = failureType;
 		this.setPrevious("");
+		this.lineNumber="";
 	}	
+	
+	/**
+	 * Constructor for errors in the expected form for data loading errors.
+	 * 
+	 * @param filename
+	 * @param barcode
+	 * @param lineNumber
+	 * @param errorMessage
+	 * @param exception
+	 * @param failureType
+	 */
+	public JobError(String filename, String barcode,
+			String lineNumber, String errorMessage,
+			Exception exception, int failureType) { 
+		this.filename = filename;
+		this.barcode = barcode;
+		this.qrBarcode = "";
+		this.commentBarcode = "";
+		this.errorMessage = errorMessage;
+		this.taxonParser = null;
+		this.drawerParser = null;
+		this.exception = exception;
+		this.failureType = failureType;
+		this.setPrevious("");		
+		this.lineNumber = lineNumber;
+	}
 	
 	public String asString() {
 		String result = "";
@@ -126,6 +159,8 @@ public class ImagePreprocessError {
 		case TYPE_BARCODE_MISSING_FROM_SEQUENCE:
 			result = getFailureType() + ":" + barcode;
 			break;
+		default: 
+			result = getFailureType() + ": " + exceptionMessage;
 		}
 		return result;
 	}
@@ -265,7 +300,10 @@ public class ImagePreprocessError {
 			break;			
 		case TYPE_FAILOVER_TO_OCR:
 			result = "Failover to OCR";
-			break;				
+			break;		
+		case TYPE_LOAD_FAILED: 
+			result = "Data Load Failed";
+			break;
 		}
 		return result;
 	}
@@ -284,6 +322,10 @@ public class ImagePreprocessError {
 
 	public String getPreviousPath() {
 		return previousPath;
+	}
+	
+	public String getLineNumber() { 
+		return lineNumber;
 	}
 	
 

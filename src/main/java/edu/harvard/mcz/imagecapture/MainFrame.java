@@ -34,8 +34,11 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+
 import javax.swing.JPanel;
+
 import java.awt.GridBagLayout;
+
 import javax.swing.JProgressBar;
 import javax.swing.JLabel;
 import javax.swing.text.DefaultEditorKit;
@@ -45,8 +48,8 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.data.HibernateUtil;
 import edu.harvard.mcz.imagecapture.data.ICImage;
-import edu.harvard.mcz.imagecapture.data.ImagePreprocessError;
-import edu.harvard.mcz.imagecapture.data.ImagePreprocessErrorTableModel;
+import edu.harvard.mcz.imagecapture.data.JobError;
+import edu.harvard.mcz.imagecapture.data.JobErrorTableModel;
 import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
 import edu.harvard.mcz.imagecapture.data.Users;
@@ -56,6 +59,7 @@ import edu.harvard.mcz.imagecapture.interfaces.BarcodeBuilder;
 import edu.harvard.mcz.imagecapture.interfaces.BarcodeMatcher;
 import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
 import edu.harvard.mcz.imagecapture.interfaces.RunnerListener;
+import edu.harvard.mcz.imagecapture.loader.JobVerbatimFieldLoad;
 
 import java.awt.GridBagConstraints;
 import java.io.File;
@@ -98,6 +102,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 	private JMenu jMenuHelp = null;
 	private JMenuItem jMenuItemAbout = null;
 	private JMenuItem jMenuItemPreprocess = null;
+	private JMenuItem jMenuItemLoadData = null;
 	private JMenuItem jMenuItemVersion = null;
 	private JMenuItem jMenuItemScanOneBarcode = null;
 	private JMenuItem jMenuItemScanOneBarcodeSave = null;
@@ -212,6 +217,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuItemChangePassword.setEnabled(false);
 			jMenuItemPreferences.setEnabled(false);
 			jMenuItemPreprocess.setEnabled(false);
+			jMenuItemLoadData.setEnabled(false);
 			jMenuItemPreprocessOne.setEnabled(false);
 			jMenuItemCreateLabels.setEnabled(false);
 			jMenuItemStats.setEnabled(false);
@@ -225,6 +231,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuAction.setEnabled(false);
 			jMenuItemUsers.setEnabled(false);
 			jMenuItemPreprocess.setEnabled(false);
+			jMenuItemLoadData.setEnabled(false);
 			jMenuItemPreprocessOne.setEnabled(false);
 			jMenuItemCreateLabels.setEnabled(true);
 			jMenuItemPreferences.setEnabled(false);
@@ -248,6 +255,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 					jMenuItemUsers.setEnabled(true);
 					jMenuItemEditTemplates.setEnabled(true);
 					jMenuItemPreprocess.setEnabled(true);
+					jMenuItemLoadData.setEnabled(true);
 					jMenuItemCleanupDirectory.setEnabled(true);
 				}
 				// Enable other menu items only for those with full access rights
@@ -399,6 +407,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuAction.add(getJMenuItemRecheckAllTemplates());
 			jMenuAction.add(getJMenuItemScanOneBarcode());
 			jMenuAction.add(getJMenuItemCleanupDirectory());
+			jMenuAction.add(getJMenuItemLoadData());
 			jMenuAction.add(getJMenuItemListRunningJobs());
 			jMenuAction.add(getJMenuItemCreateLabels());
 		}
@@ -475,6 +484,21 @@ public class MainFrame extends JFrame implements RunnerListener {
 		}
 		return jMenuItemPreprocess;
 	}
+	
+	private JMenuItem getJMenuItemLoadData() {
+		if (jMenuItemLoadData == null) {
+			jMenuItemLoadData = new JMenuItem();
+			jMenuItemLoadData.setText("Load Data");
+			jMenuItemLoadData.setEnabled(true);
+			jMenuItemLoadData.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					 JobVerbatimFieldLoad scan = new JobVerbatimFieldLoad();
+					 (new Thread(scan)).start();
+				}
+			});
+		}
+		return jMenuItemLoadData;
+	}	
 
 	/**
 	 * This method initializes jMenuItemVersion	
@@ -1075,18 +1099,18 @@ public class MainFrame extends JFrame implements RunnerListener {
 									}
 								}
 							} 
-							ImagePreprocessError err = new ImagePreprocessError(previousFile, missingBarcodes[i], previousPath, "", "Barcode not found", null, null, null, 
-									ImagePreprocessError.TYPE_BARCODE_MISSING_FROM_SEQUENCE,
+							JobError err = new JobError(previousFile, missingBarcodes[i], previousPath, "", "Barcode not found", null, null, null, 
+									JobError.TYPE_BARCODE_MISSING_FROM_SEQUENCE,
 									previousFile,
 									previousPath);
 							errorCount.appendError(err);
 						}
 						String report = "There are at least " + missingBarcodes.length + " barcodes missing from the sequence.\nMissing numbers are shown below.\nIf two or more numbers are missing in sequence, only the first will be listed here.\n\nFiles with mismmatched barcodes are shown in main window.\n";
-						PreprocessReportDialog errorReportDialog = new PreprocessReportDialog(
+						JobReportDialog errorReportDialog = new JobReportDialog(
 								Singleton.getSingletonInstance().getMainFrame(),
 								report, 
 								errorCount.getErrors(), 
-								ImagePreprocessErrorTableModel.TYPE_MISSING_BARCODES);
+								JobErrorTableModel.TYPE_MISSING_BARCODES);
 						errorReportDialog.setVisible(true);
 					} else { 
 						JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "No barcodes are missing from the sequence.\nAny missmatches are shown in table.", "Barcode QC Report", JOptionPane.OK_OPTION);	

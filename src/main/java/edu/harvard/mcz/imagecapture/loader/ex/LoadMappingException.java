@@ -26,5 +26,49 @@ package edu.harvard.mcz.imagecapture.loader.ex;
 public class LoadMappingException extends LoadException {
 
 	private static final long serialVersionUID = 8237869283328772180L;
+
+	/**
+	 * Default Constructor
+	 */
+	public LoadMappingException() {
+		super("Error in mapping loaded data onto database schema.");
+	}
+
+	/**
+	 * @param message
+	 * @param cause
+	 * @param enableSuppression
+	 * @param writableStackTrace
+	 */
+	public LoadMappingException(String message, Throwable cause,
+			boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param message
+	 * @param cause
+	 */
+	public LoadMappingException(String message, Throwable cause) {
+		super(message, cause);
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param message
+	 */
+	public LoadMappingException(String message) {
+		super(message);
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param cause
+	 */
+	public LoadMappingException(Throwable cause) {
+		super(cause);
+		// TODO Auto-generated constructor stub
+	}
 	
 }

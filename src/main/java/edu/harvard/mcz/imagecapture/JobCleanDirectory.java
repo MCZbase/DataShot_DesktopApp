@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.harvard.mcz.imagecapture.data.HigherTaxonLifeCycle;
 import edu.harvard.mcz.imagecapture.data.ICImage;
 import edu.harvard.mcz.imagecapture.data.ICImageLifeCycle;
-import edu.harvard.mcz.imagecapture.data.ImagePreprocessError;
+import edu.harvard.mcz.imagecapture.data.JobError;
 import edu.harvard.mcz.imagecapture.data.LocationInCollection;
 import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
 import edu.harvard.mcz.imagecapture.data.Specimen;
@@ -358,7 +358,7 @@ public class JobCleanDirectory implements RunnableJob, Runnable {
 		report += "Didn't remove " + counter.getFilesExisting() + " image records where file exists.\n";
 		report += "Removed " + counter.getFilesFailed() + " image records where file does not exist.\n";
 		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Directory cleanup complete.");
-		PreprocessReportDialog errorReportDialog = new PreprocessReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
+		JobReportDialog errorReportDialog = new JobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
 		errorReportDialog.setVisible(true);
 	}
 

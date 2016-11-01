@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.data.ICImage;
 import edu.harvard.mcz.imagecapture.data.ICImageLifeCycle;
-import edu.harvard.mcz.imagecapture.data.ImagePreprocessError;
+import edu.harvard.mcz.imagecapture.data.JobError;
 import edu.harvard.mcz.imagecapture.interfaces.RunStatus;
 import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
 import edu.harvard.mcz.imagecapture.interfaces.RunnerListener;
@@ -161,17 +161,17 @@ public class JobFileReconciliation implements RunnableJob, Runnable {
 							} else if (matches!=null && matches.size()>1) {
 								counter.incrementFilesDatabased();
 								log.error("File with more than one database match by name and path");
-								ImagePreprocessError error =  new ImagePreprocessError(fileToCheck.getName(), "",
+								JobError error =  new JobError(fileToCheck.getName(), "",
 										ImageCaptureProperties.getPathBelowBase(fileToCheck), "", "More than one database (Image) record for this file.",
 										null, null,
-										null, ImagePreprocessError.TYPE_DUPLICATE);
+										null, JobError.TYPE_DUPLICATE);
 								counter.appendError(error);	
 							} else {
 								counter.incrementFilesFailed();
-								ImagePreprocessError error =  new ImagePreprocessError(fileToCheck.getName(), "",
+								JobError error =  new JobError(fileToCheck.getName(), "",
 										ImageCaptureProperties.getPathBelowBase(fileToCheck), "", "No database (Image) record for this file.",
 										null, null,
-										null, ImagePreprocessError.TYPE_SAVE_FAILED);
+										null, JobError.TYPE_SAVE_FAILED);
 								counter.appendError(error);			
 							}
 						} 
@@ -188,7 +188,7 @@ public class JobFileReconciliation implements RunnableJob, Runnable {
         report += "Found  " + counter.getFilesDatabased() + " image file database records.\n";
         report += "Found " + counter.getFilesFailed() + " image files not in the database.\n";
 		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("File Reconciliation check complete");
-		PreprocessReportDialog errorReportDialog = new PreprocessReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
+		JobReportDialog errorReportDialog = new JobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
 		errorReportDialog.setVisible(true);
 	}
 	
