@@ -59,6 +59,7 @@ import edu.harvard.mcz.imagecapture.interfaces.BarcodeBuilder;
 import edu.harvard.mcz.imagecapture.interfaces.BarcodeMatcher;
 import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
 import edu.harvard.mcz.imagecapture.interfaces.RunnerListener;
+import edu.harvard.mcz.imagecapture.jobs.Counter;
 import edu.harvard.mcz.imagecapture.jobs.JobAllImageFilesScan;
 import edu.harvard.mcz.imagecapture.jobs.JobCleanDirectory;
 import edu.harvard.mcz.imagecapture.jobs.JobFileReconciliation;
