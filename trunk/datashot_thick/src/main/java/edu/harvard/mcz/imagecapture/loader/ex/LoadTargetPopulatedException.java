@@ -26,4 +26,48 @@ package edu.harvard.mcz.imagecapture.loader.ex;
 public class LoadTargetPopulatedException extends LoadException {
 
 	private static final long serialVersionUID = -8299645420265628103L;
+
+	/**
+	 * Default Constructor
+	 */
+	public LoadTargetPopulatedException() {
+		super("Unable to update, would overwrite existing data in target record.");
+	}
+
+	/**
+	 * @param message
+	 * @param cause
+	 * @param enableSuppression
+	 * @param writableStackTrace
+	 */
+	public LoadTargetPopulatedException(String message, Throwable cause,
+			boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param message
+	 * @param cause
+	 */
+	public LoadTargetPopulatedException(String message, Throwable cause) {
+		super(message, cause);
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param message
+	 */
+	public LoadTargetPopulatedException(String message) {
+		super(message);
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param cause
+	 */
+	public LoadTargetPopulatedException(Throwable cause) {
+		super(cause);
+		// TODO Auto-generated constructor stub
+	}
 }

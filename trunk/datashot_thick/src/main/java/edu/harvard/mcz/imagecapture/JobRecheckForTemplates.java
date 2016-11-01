@@ -36,7 +36,7 @@ import org.hibernate.HibernateException;
 import edu.harvard.mcz.imagecapture.data.HigherTaxonLifeCycle;
 import edu.harvard.mcz.imagecapture.data.ICImage;
 import edu.harvard.mcz.imagecapture.data.ICImageLifeCycle;
-import edu.harvard.mcz.imagecapture.data.ImagePreprocessError;
+import edu.harvard.mcz.imagecapture.data.JobError;
 import edu.harvard.mcz.imagecapture.data.LocationInCollection;
 import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
 import edu.harvard.mcz.imagecapture.data.Specimen;
@@ -272,25 +272,25 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 				    	ils.attachDirty(image);
 				    	counter.incrementFilesUpdated();
 				    } else if (templateName!=null && templateName.equals(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS)) { 
-				    	ImagePreprocessError error =  new ImagePreprocessError(image.getFilename(), image.getRawBarcode(),
+				    	JobError error =  new JobError(image.getFilename(), image.getRawBarcode(),
 								"", image.getRawExifBarcode(), "No Template Found.",
 								null, null,
-								null, ImagePreprocessError.TYPE_NO_TEMPLATE);
+								null, JobError.TYPE_NO_TEMPLATE);
 						counter.appendError(error);
 				    }
 				} catch (UnreadableFileException e) {
 					log.error(e.getMessage());
-					ImagePreprocessError error =  new ImagePreprocessError(image.getFilename(), image.getRawBarcode(),
+					JobError error =  new JobError(image.getFilename(), image.getRawBarcode(),
 							"", image.getRawExifBarcode(), "Unreadable File Exception checking for template.",
 							null, null,
-							null, ImagePreprocessError.TYPE_NO_TEMPLATE);
+							null, JobError.TYPE_NO_TEMPLATE);
 					counter.appendError(error);
 				} catch (SaveFailedException e) {
 					log.error(e.getMessage(),e);
-					ImagePreprocessError error =  new ImagePreprocessError(image.getFilename(), image.getRawBarcode(),
+					JobError error =  new JobError(image.getFilename(), image.getRawBarcode(),
 							"", image.getRawExifBarcode(), "Save Failed Exception saving new template.",
 							null, null,
-							null, ImagePreprocessError.TYPE_SAVE_FAILED);
+							null, JobError.TYPE_SAVE_FAILED);
 					counter.appendError(error);
 				}
 
@@ -369,7 +369,7 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 		report += "Found  " + counter.getFilesSeen() + " image file database records without templates.\n";
 		report += "Updated " + counter.getFilesUpdated() + " image records to a template.\n";
 		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Check for templates complete.");
-		PreprocessReportDialog errorReportDialog = new PreprocessReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
+		JobReportDialog errorReportDialog = new JobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
 		errorReportDialog.setVisible(true);
 	}
 

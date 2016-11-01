@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.data.HigherTaxonLifeCycle;
 import edu.harvard.mcz.imagecapture.data.ICImage;
-import edu.harvard.mcz.imagecapture.data.ImagePreprocessError;
+import edu.harvard.mcz.imagecapture.data.JobError;
 import edu.harvard.mcz.imagecapture.data.LocationInCollection;
 import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
 import edu.harvard.mcz.imagecapture.data.Specimen;
@@ -357,10 +357,10 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 					}
 					// Log the missmatch
 					try { 
-						ImagePreprocessError error =  new ImagePreprocessError(filename, barcode,
+						JobError error =  new JobError(filename, barcode,
 								barcode, exifComment, "Barcode/Comment missmatch.",
 								parser, (DrawerNameReturner) parser,
-								null, ImagePreprocessError.TYPE_MISMATCH);
+								null, JobError.TYPE_MISMATCH);
 						counter.appendError(error);
 					} catch (Exception e) { 
 						// we don't want an exception to stop processing 
@@ -469,10 +469,10 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 									if (((DrawerNameReturner)parser).getDrawerNumber().length()>MetadataRetriever.getFieldLength(Specimen.class, "DrawerNumber")) {
 										badParse = "Parsing problem. \nDrawer number is too long: " + s.getDrawerNumber() + "\n";
 									}
-									ImagePreprocessError error =  new ImagePreprocessError(filename, barcode,
+									JobError error =  new JobError(filename, barcode,
 											rawBarcode, exifComment, badParse,
 											(TaxonNameReturner)parser, (DrawerNameReturner)parser,
-											null, ImagePreprocessError.TYPE_BAD_PARSE);
+											null, JobError.TYPE_BAD_PARSE);
 									counter.appendError(error);
 								} catch (Exception err) {
 									log.error(e);
@@ -494,10 +494,10 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 											badParse = "Parsing problem. \nDrawer number is too long: " + s.getDrawerNumber() + "\n";
 										}
 									} 
-									ImagePreprocessError error =  new ImagePreprocessError(filename, barcode,
+									JobError error =  new JobError(filename, barcode,
 											rawBarcode, exifComment, badParse,
 											(TaxonNameReturner)parser, (DrawerNameReturner)parser,
-											err, ImagePreprocessError.TYPE_SAVE_FAILED);
+											err, JobError.TYPE_SAVE_FAILED);
 									counter.appendError(error);
 									counter.incrementFilesFailed();
 									s = null;
@@ -505,18 +505,20 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 							}
 						} else {
 							log.debug("Didn't try to save, not at workflow status OCR.");
-							ImagePreprocessError error =  new ImagePreprocessError(filename, barcode,
+							JobError error =  new JobError(filename, barcode,
 									rawBarcode, exifComment, "Didn't try to save, not at workflow status OCR",
 									(TaxonNameReturner)parser, (DrawerNameReturner)parser,
-									null, ImagePreprocessError.TYPE_SAVE_FAILED);		
+									null, JobError.TYPE_SAVE_FAILED);		
+							counter.appendError(error);
 						}
 					}
 				} else {
 					log.debug("Didn't try to save, not a specimen image.");
-					ImagePreprocessError error =  new ImagePreprocessError(filename, barcode,
+					JobError error =  new JobError(filename, barcode,
 							rawBarcode, exifComment, "Didn't try to save, not a specimen image, or rawBarcode doesn't match pattern",
 							(TaxonNameReturner)parser, (DrawerNameReturner)parser,
-							null, ImagePreprocessError.TYPE_SAVE_FAILED);
+							null, JobError.TYPE_SAVE_FAILED);
+					counter.appendError(error);
 				}
 			} catch (Exception ex) { 
 				System.out.println(ex.getMessage());	
@@ -599,7 +601,7 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 		report += "Found  " + counter.getFilesSeen() + " specimen database records in state OCR.\n";
 		report += "Saved new OCR for " + counter.getSpecimensUpdated() + " specimens.\n";
 		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("OCR re-do complete.");
-		PreprocessReportDialog errorReportDialog = new PreprocessReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
+		JobReportDialog errorReportDialog = new JobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
 		errorReportDialog.setVisible(true);
 	}
 

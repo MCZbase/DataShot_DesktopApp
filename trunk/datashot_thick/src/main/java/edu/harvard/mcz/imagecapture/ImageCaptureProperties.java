@@ -48,6 +48,11 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 	public static final String KEY_LASTPATH = "scanonebarcode.lastpath";
 	
 	/**
+	 * The most recent location selected for loading data from a file.
+	 */
+	public static final String KEY_LASTLOADPATH = "fileload.lastpath";
+	
+	/**
 	 * Root of the path of the place where all image files should be stored.
 	 */
 	public static final String KEY_IMAGEBASE = "images.basedirectory";

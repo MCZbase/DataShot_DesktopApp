@@ -30,5 +30,49 @@ package edu.harvard.mcz.imagecapture.loader.ex;
 public class LoadTargetMovedOnException extends LoadException {
 	
 	private static final long serialVersionUID = 5171194333707975248L;
+
+	/**
+	 *  Default Constructor.
+	 */
+	public LoadTargetMovedOnException() {
+		super("Target record has been updated to a workflow state that can't be updated by this load.");
+	}
+
+	/**
+	 * @param message
+	 * @param cause
+	 * @param enableSuppression
+	 * @param writableStackTrace
+	 */
+	public LoadTargetMovedOnException(String message, Throwable cause,
+			boolean enableSuppression, boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param message
+	 * @param cause
+	 */
+	public LoadTargetMovedOnException(String message, Throwable cause) {
+		super(message, cause);
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param message
+	 */
+	public LoadTargetMovedOnException(String message) {
+		super(message);
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @param cause
+	 */
+	public LoadTargetMovedOnException(Throwable cause) {
+		super(cause);
+		// TODO Auto-generated constructor stub
+	}
 	
 }

@@ -46,7 +46,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.harvard.mcz.imagecapture.data.HigherTaxonLifeCycle;
 import edu.harvard.mcz.imagecapture.data.ICImage;
 import edu.harvard.mcz.imagecapture.data.ICImageLifeCycle;
-import edu.harvard.mcz.imagecapture.data.ImagePreprocessError;
+import edu.harvard.mcz.imagecapture.data.JobError;
 import edu.harvard.mcz.imagecapture.data.LocationInCollection;
 import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
 import edu.harvard.mcz.imagecapture.data.Specimen;
@@ -288,7 +288,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 					Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Preprocess scan complete");
 					setPercentComplete(100);
 					Singleton.getSingletonInstance().getMainFrame().notifyListener(runStatus, this);
-					PreprocessReportDialog errorReportDialog = new PreprocessReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
+					JobReportDialog errorReportDialog = new JobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
 					errorReportDialog.setVisible(true);
 					//JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), report, "Preprocess complete", JOptionPane.ERROR_MESSAGE);
 				} // can read directory
@@ -717,20 +717,20 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 											log.error(e);
 											rawOCR = "";
 											log.error("Couldn't OCR file." + e.getMessage());
-											ImagePreprocessError error =  new ImagePreprocessError(filename, "OCR Failed",
+											JobError error =  new JobError(filename, "OCR Failed",
 													barcode, exifComment, "Couldn't find text to OCR",
 													null, null,
-													e, ImagePreprocessError.TYPE_NO_TEMPLATE);
+													e, JobError.TYPE_NO_TEMPLATE);
 											counter.appendError(error);
 										}
 										if (labelRead==null) { 
 										    if (rawOCR==null) { rawOCR = ""; } 
 										    state = WorkFlowStatus.STAGE_0;
 										    parser = new UnitTrayLabelParser(rawOCR);
-											ImagePreprocessError error =  new ImagePreprocessError(filename, "Failover to OCR.",
+											JobError error =  new JobError(filename, "Failover to OCR.",
 													barcode, exifComment, "Couldn't read Taxon barcode, failed over to OCR only.",
 													(TaxonNameReturner)parser, null,
-											null, ImagePreprocessError.TYPE_FAILOVER_TO_OCR);
+											null, JobError.TYPE_FAILOVER_TO_OCR);
 											counter.appendError(error);
 										}  else { 
 											state = WorkFlowStatus.STAGE_1;
@@ -769,10 +769,10 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 											if (templateId.equals(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS)) { 
 												log.debug("Image doesn't appear to contain a barcode in a templated position.");
 												counter.incrementFilesFailed();
-												ImagePreprocessError error =  new ImagePreprocessError(filename, barcode,
+												JobError error =  new JobError(filename, barcode,
 														barcode, exifComment, "Image doesn't appear to contain a barcode in a templated position.",
 														null, null,
-														null, ImagePreprocessError.TYPE_NO_TEMPLATE);
+														null, JobError.TYPE_NO_TEMPLATE);
 												counter.appendError(error);
 											}
 											// Nothing found.  Need to ask.
@@ -786,10 +786,10 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 										if (!rawBarcode.equals(exifComment)) { 
 											// Log the missmatch
 											try { 
-												ImagePreprocessError error =  new ImagePreprocessError(filename, barcode,
+												JobError error =  new JobError(filename, barcode,
 														barcode, exifComment, "Barcode/Comment missmatch.",
 														parser, (DrawerNameReturner) parser,
-														null, ImagePreprocessError.TYPE_MISMATCH);
+														null, JobError.TYPE_MISMATCH);
 												counter.appendError(error);
 											} catch (Exception e) { 
 												// we don't want an exception to stop processing 
@@ -923,10 +923,10 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 											} catch (Exception e2) { 
 												s = null; // so that saving the image record doesn't fail on trying to save linked transient specimen record.
 												String errorMessage = "Linking Error: \nFailed to link image to existing specimen record.\n";
-												ImagePreprocessError error =  new ImagePreprocessError(filename, barcode,
+												JobError error =  new JobError(filename, barcode,
 														rawBarcode, exifComment, errorMessage,
 														(TaxonNameReturner)parser, (DrawerNameReturner)parser,
-														e2, ImagePreprocessError.TYPE_SAVE_FAILED);
+														e2, JobError.TYPE_SAVE_FAILED);
 											}
 										} catch (SaveFailedException e) { 
 											// Couldn't save for some reason other than the
@@ -946,10 +946,10 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 												if (((DrawerNameReturner)parser).getDrawerNumber().length()>MetadataRetriever.getFieldLength(Specimen.class, "DrawerNumber")) {
 													badParse = "Parsing problem. \nDrawer number is too long: " + s.getDrawerNumber() + "\n";
 												}
-												ImagePreprocessError error =  new ImagePreprocessError(filename, barcode,
+												JobError error =  new JobError(filename, barcode,
 														rawBarcode, exifComment, badParse,
 														(TaxonNameReturner)parser, (DrawerNameReturner)parser,
-														null, ImagePreprocessError.TYPE_BAD_PARSE);
+														null, JobError.TYPE_BAD_PARSE);
 												counter.appendError(error);
 											} catch (Exception err) {
 												log.error(e);
@@ -971,10 +971,10 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 														badParse = "Parsing problem. \nDrawer number is too long: " + s.getDrawerNumber() + "\n";
 													}
 												} 
-												ImagePreprocessError error =  new ImagePreprocessError(filename, barcode,
+												JobError error =  new JobError(filename, barcode,
 														rawBarcode, exifComment, badParse,
 														(TaxonNameReturner)parser, (DrawerNameReturner)parser,
-														err, ImagePreprocessError.TYPE_SAVE_FAILED);
+														err, JobError.TYPE_SAVE_FAILED);
 												counter.appendError(error);
 												counter.incrementFilesFailed();
 												s = null;
@@ -1021,10 +1021,10 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 										log.error(e.getMessage(),e);
 										counter.incrementFilesFailed();
 										String failureMessage = "Failed to save image record.  " + e.getMessage();
-										ImagePreprocessError error =  new ImagePreprocessError(filename, "Save Failed",
+										JobError error =  new JobError(filename, "Save Failed",
 												tryMe.getFilename(), tryMe.getPath(), failureMessage,
 												null, null,
-												null, ImagePreprocessError.TYPE_SAVE_FAILED);
+												null, JobError.TYPE_SAVE_FAILED);
 										counter.appendError(error);
 									}
 									if (isSpecimenImage) {
@@ -1036,10 +1036,10 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 									if (matches==null) { 
 										counter.incrementFilesFailed();
 										String failureMessage = "Probable bad data in database.  Null match searching for image file.  Notify the database administrator.";
-										ImagePreprocessError error =  new ImagePreprocessError(filename, "Bad Data",
+										JobError error =  new JobError(filename, "Bad Data",
 												tryMe.getFilename(), tryMe.getPath(), failureMessage,
 												null, null,
-												null, ImagePreprocessError.TYPE_SAVE_FAILED);
+												null, JobError.TYPE_SAVE_FAILED);
 										counter.appendError(error);
 									} else { 
 										// found an already databased file (where we have barcode/specimen or drawer number data).

@@ -22,7 +22,7 @@ package edu.harvard.mcz.imagecapture;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.harvard.mcz.imagecapture.data.ImagePreprocessError;
+import edu.harvard.mcz.imagecapture.data.JobError;
 
 /** Counter
  * 
@@ -42,7 +42,7 @@ public class Counter {
 	private int specimensUpdated = 0;
 	private int filesUpdated = 0;
 	private StringBuffer errorReport;
-	private List<ImagePreprocessError> errors = null;
+	private List<JobError> errors = null;
 
 
 	public Counter() { 
@@ -57,10 +57,10 @@ public class Counter {
 		specimensUpdated = 0;
 		filesUpdated = 0;
 		errorReport = new StringBuffer();
-		errors = new ArrayList<ImagePreprocessError>();
+		errors = new ArrayList<JobError>();
 	}
 
-	public void appendError(ImagePreprocessError anError) { 
+	public void appendError(JobError anError) { 
 		errors.add(anError);
 		errorReport.append(anError.toString());
 		errorReport.append("\n");
@@ -175,7 +175,7 @@ public class Counter {
 		this.filesUpdated++;
 	}
 
-	public List<ImagePreprocessError> getErrors() { 
+	public List<JobError> getErrors() { 
 		 return errors;
 	 }
 
