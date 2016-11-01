@@ -2861,8 +2861,8 @@ public class SpecimenDetailsViewPane extends JPanel {
 					//t.setSpecimen(specimen);
 					TrackingLifeCycle tls = new TrackingLifeCycle();
 					//Request by specimen doesn't work with Oracle.  Why?  
-					//EventLog logViewer = new EventLog(new ArrayList<Tracking>(tls.findBySpecimen(specimen)));
-					EventLog logViewer = new EventLog(new ArrayList<Tracking>(tls.findBySpecimenId(specimen.getSpecimenId())));
+					//EventLogFrame logViewer = new EventLogFrame(new ArrayList<Tracking>(tls.findBySpecimen(specimen)));
+					EventLogFrame logViewer = new EventLogFrame(new ArrayList<Tracking>(tls.findBySpecimenId(specimen.getSpecimenId())));
 					logViewer.pack();
 					logViewer.setVisible(true);
 					

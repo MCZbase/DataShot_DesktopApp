@@ -707,7 +707,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuItemLog.setMnemonic(KeyEvent.VK_H);
 			jMenuItemLog.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					EventLog logWindow = new EventLog();
+					EventLogFrame logWindow = new EventLogFrame();
 					logWindow.pack();
 					logWindow.setVisible(true);
 					System.gc();
