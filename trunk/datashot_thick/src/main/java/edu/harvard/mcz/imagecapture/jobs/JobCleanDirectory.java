@@ -32,7 +32,6 @@ import javax.swing.JOptionPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.harvard.mcz.imagecapture.Counter;
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
 import edu.harvard.mcz.imagecapture.JobReportDialog;
 import edu.harvard.mcz.imagecapture.Singleton;

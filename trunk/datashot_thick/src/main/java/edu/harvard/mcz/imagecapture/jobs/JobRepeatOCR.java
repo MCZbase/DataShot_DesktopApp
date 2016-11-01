@@ -33,7 +33,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.CandidateImageFile;
-import edu.harvard.mcz.imagecapture.Counter;
 import edu.harvard.mcz.imagecapture.DefaultPositionTemplateDetector;
 import edu.harvard.mcz.imagecapture.ImageCaptureApp;
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
