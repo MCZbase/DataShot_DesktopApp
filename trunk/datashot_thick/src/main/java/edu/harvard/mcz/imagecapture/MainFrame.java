@@ -59,6 +59,12 @@ import edu.harvard.mcz.imagecapture.interfaces.BarcodeBuilder;
 import edu.harvard.mcz.imagecapture.interfaces.BarcodeMatcher;
 import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
 import edu.harvard.mcz.imagecapture.interfaces.RunnerListener;
+import edu.harvard.mcz.imagecapture.jobs.JobAllImageFilesScan;
+import edu.harvard.mcz.imagecapture.jobs.JobCleanDirectory;
+import edu.harvard.mcz.imagecapture.jobs.JobFileReconciliation;
+import edu.harvard.mcz.imagecapture.jobs.JobRecheckForTemplates;
+import edu.harvard.mcz.imagecapture.jobs.JobRepeatOCR;
+import edu.harvard.mcz.imagecapture.jobs.JobSingleBarcodeScan;
 import edu.harvard.mcz.imagecapture.loader.JobVerbatimFieldLoad;
 
 import java.awt.GridBagConstraints;

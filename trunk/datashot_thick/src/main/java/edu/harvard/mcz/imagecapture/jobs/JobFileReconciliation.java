@@ -17,7 +17,7 @@
  * 
  * Author: Paul J. Morris
  */
-package edu.harvard.mcz.imagecapture;
+package edu.harvard.mcz.imagecapture.jobs;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,6 +29,10 @@ import javax.swing.JOptionPane;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.harvard.mcz.imagecapture.Counter;
+import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
+import edu.harvard.mcz.imagecapture.JobReportDialog;
+import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.data.ICImage;
 import edu.harvard.mcz.imagecapture.data.ICImageLifeCycle;
 import edu.harvard.mcz.imagecapture.data.JobError;
