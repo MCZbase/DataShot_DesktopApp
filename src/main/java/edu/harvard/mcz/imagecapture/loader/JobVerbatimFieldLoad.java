@@ -41,11 +41,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.jobs.Counter;
+import edu.harvard.mcz.imagecapture.jobs.RunnableJobError;
+import edu.harvard.mcz.imagecapture.jobs.RunnableJobErrorTableModel;
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
 import edu.harvard.mcz.imagecapture.RunnableJobReportDialog;
 import edu.harvard.mcz.imagecapture.Singleton;
-import edu.harvard.mcz.imagecapture.data.RunnableJobError;
-import edu.harvard.mcz.imagecapture.data.RunnableJobErrorTableModel;
 import edu.harvard.mcz.imagecapture.interfaces.RunStatus;
 import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
 import edu.harvard.mcz.imagecapture.interfaces.RunnerListener;

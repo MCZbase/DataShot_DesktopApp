@@ -17,7 +17,7 @@
  * 
  * Author: Paul J. Morris
  */
-package edu.harvard.mcz.imagecapture.data;
+package edu.harvard.mcz.imagecapture.jobs;
 
 import java.util.List;
 

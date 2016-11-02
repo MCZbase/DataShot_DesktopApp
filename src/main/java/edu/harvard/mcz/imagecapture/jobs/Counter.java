@@ -22,8 +22,6 @@ package edu.harvard.mcz.imagecapture.jobs;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.harvard.mcz.imagecapture.data.RunnableJobError;
-
 /** Counter
  * 
  * @author Paul J. Morris
