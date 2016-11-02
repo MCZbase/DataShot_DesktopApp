@@ -1119,7 +1119,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 							errorCount.appendError(err);
 						}
 						String report = "There are at least " + missingBarcodes.length + " barcodes missing from the sequence.\nMissing numbers are shown below.\nIf two or more numbers are missing in sequence, only the first will be listed here.\n\nFiles with mismmatched barcodes are shown in main window.\n";
-						JobReportDialog errorReportDialog = new JobReportDialog(
+						RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(
 								Singleton.getSingletonInstance().getMainFrame(),
 								report, 
 								errorCount.getErrors(), 

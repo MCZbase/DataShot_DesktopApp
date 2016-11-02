@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
-import edu.harvard.mcz.imagecapture.JobReportDialog;
+import edu.harvard.mcz.imagecapture.RunnableJobReportDialog;
 import edu.harvard.mcz.imagecapture.MCZBarcodePositionTemplateDetector;
 import edu.harvard.mcz.imagecapture.PositionTemplate;
 import edu.harvard.mcz.imagecapture.Singleton;
@@ -374,7 +374,7 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 		report += "Found  " + counter.getFilesSeen() + " image file database records without templates.\n";
 		report += "Updated " + counter.getFilesUpdated() + " image records to a template.\n";
 		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Check for templates complete.");
-		JobReportDialog errorReportDialog = new JobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
+		RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
 		errorReportDialog.setVisible(true);
 	}
 

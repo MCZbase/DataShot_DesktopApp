@@ -46,7 +46,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.harvard.mcz.imagecapture.CandidateImageFile;
 import edu.harvard.mcz.imagecapture.ImageCaptureApp;
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
-import edu.harvard.mcz.imagecapture.JobReportDialog;
+import edu.harvard.mcz.imagecapture.RunnableJobReportDialog;
 import edu.harvard.mcz.imagecapture.MCZBarcodePositionTemplateDetector;
 import edu.harvard.mcz.imagecapture.PositionTemplate;
 import edu.harvard.mcz.imagecapture.Singleton;
@@ -296,7 +296,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 					Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Preprocess scan complete");
 					setPercentComplete(100);
 					Singleton.getSingletonInstance().getMainFrame().notifyListener(runStatus, this);
-					JobReportDialog errorReportDialog = new JobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
+					RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
 					errorReportDialog.setVisible(true);
 					//JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), report, "Preprocess complete", JOptionPane.ERROR_MESSAGE);
 				} // can read directory
