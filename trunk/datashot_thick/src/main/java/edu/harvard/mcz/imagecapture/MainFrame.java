@@ -496,6 +496,12 @@ public class MainFrame extends JFrame implements RunnerListener {
 		if (jMenuItemLoadData == null) {
 			jMenuItemLoadData = new JMenuItem();
 			jMenuItemLoadData.setText("Load Data");
+			try { 
+				jMenuItemLoadData.setIcon(new ImageIcon(this.getClass().getResource("/edu/harvard/mcz/imagecapture/resources/cycle_icon_16px.jpg")));
+			} catch (Exception e) { 
+				log.error("Can't open icon file for jMenuItemRecheckAllTemplates.");
+				log.error(e);
+			}			
 			jMenuItemLoadData.setEnabled(true);
 			jMenuItemLoadData.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {

@@ -28,7 +28,7 @@
     <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-csv</artifactId>
-        <version>1.1</version>
+        <version>1.4</version>
     </dependency>     	
   	<dependency>
   		<groupId>com.lowagie</groupId>
@@ -126,11 +126,6 @@
         <type>jar</type>
         <scope>compile</scope>
     </dependency>    
-    <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-csv</artifactId>
-        <version>1.1</version>
-    </dependency>
     <dependency>
     	<groupId>commons-codec</groupId>
     	<artifactId>commons-codec</artifactId>

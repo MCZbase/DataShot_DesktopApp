@@ -28,20 +28,36 @@ import java.awt.Toolkit;
 
 import javax.swing.JDialog;
 import javax.swing.JTable;
+
 import java.awt.GridBagLayout;
+
 import javax.swing.JLabel;
+
 import java.awt.GridBagConstraints;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.table.TableModel;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.data.JobError;
 import edu.harvard.mcz.imagecapture.data.JobErrorTableModel;
+
+import java.awt.Insets;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /** JobReportDialog
  * 
@@ -64,9 +80,11 @@ public class JobReportDialog extends JDialog {
 	private JTextArea jTextArea = null;
 	private JDialog thisDialog = null;
     private JobErrorTableModel model = null;
+    private JButton btnSave;
 	
 	/**
 	 * @param owner
+	 * @wbp.parser.constructor
 	 */
 	public JobReportDialog(Frame owner) {
 		super(owner);
@@ -116,7 +134,7 @@ public class JobReportDialog extends JDialog {
 	 * @return void
 	 */
 	private void initialize() {
-		this.setPreferredSize(new Dimension(965, 300));
+		this.setPreferredSize(new Dimension(1000, 400));
 		this.setTitle("Preprocessing Results");
 		this.setContentPane(getJContentPane());
 		this.pack();
@@ -174,7 +192,15 @@ public class JobReportDialog extends JDialog {
 		if (jPanel1 == null) {
 			jPanel1 = new JPanel();
 			jPanel1.setLayout(new GridBagLayout());
-			jPanel1.add(getJButton(), new GridBagConstraints());
+			GridBagConstraints gbc_jButtonSave = new GridBagConstraints();
+			gbc_jButtonSave.insets = new Insets(0, 0, 0, 5);
+			gbc_jButtonSave.gridx = 0;
+			gbc_jButtonSave.gridy = 0;
+			jPanel1.add(getJButtonSave(), gbc_jButtonSave);
+			GridBagConstraints gbc_jButton = new GridBagConstraints();
+			gbc_jButton.gridx = 1;
+			gbc_jButton.gridy = 0;
+			jPanel1.add(getJButton(), gbc_jButton);
 		}
 		return jPanel1;
 	}
@@ -237,4 +263,92 @@ public class JobReportDialog extends JDialog {
 		return jTextArea;
 	}
 
+	protected void serializeTableModel() {
+		PrintWriter out = null;
+		CSVPrinter writer = null;
+		try {
+			int cols = jTable.getModel().getColumnCount();
+			CSVFormat csvFormat = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL).withHeaderComments(jTextArea.getText());
+			TableModel model = jTable.getModel();
+			switch (cols) { 
+			case 9:
+				csvFormat =  CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL).
+				     withHeader(model.getColumnName(0), model.getColumnName(1), model.getColumnName(2), model.getColumnName(3),
+				        	model.getColumnName(4), model.getColumnName(5), model.getColumnName(6), model.getColumnName(7),
+				        	model.getColumnName(8)).
+				     withCommentMarker('*').
+				     withHeaderComments(jTextArea.getText());
+				break;
+			case 6: 
+				csvFormat = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL). 
+					withHeader(model.getColumnName(0), model.getColumnName(1), model.getColumnName(2), model.getColumnName(3),
+							model.getColumnName(4), model.getColumnName(5)). 
+				 	withCommentMarker('*').
+					withHeaderComments(jTextArea.getText());
+				break;
+			case 5: 
+				csvFormat = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL). 
+					withHeader(model.getColumnName(0), model.getColumnName(1), model.getColumnName(2), model.getColumnName(3),
+							model.getColumnName(4)). 
+				 	withCommentMarker('*').
+					withHeaderComments(jTextArea.getText());
+				break;				
+			case 4: 
+				csvFormat = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL). 
+				 	withHeader(model.getColumnName(0), model.getColumnName(1), model.getColumnName(2), model.getColumnName(3)). 
+				 	withCommentMarker('*').
+				 	withHeaderComments(jTextArea.getText());
+				break;
+			}
+			
+			log.debug(jTextArea.getText());
+			log.debug(csvFormat.getHeaderComments());
+			
+			
+			Date now = new Date(); 
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyymmdd_HHmmss");
+			String time = dateFormat.format(now);
+			String filename = "jobreport_"+time+".csv"; 
+			out = new PrintWriter(filename);
+ 			
+			writer = new CSVPrinter(out, csvFormat);
+			writer.flush();
+
+			int rows = jTable.getModel().getRowCount();
+			for (int i=0; i<rows; i++) {
+				ArrayList<String> values = new ArrayList();
+				for (int col=0; col<cols; col++) { 
+					values.add((String) jTable.getModel().getValueAt(i, col));
+				}
+				
+				writer.printRecord(values);
+			}
+			writer.flush();
+			writer.close();
+			JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "Saved report to file: " + filename , "Report to CSV file", JOptionPane.OK_OPTION);	
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally { 
+			try { 
+			   out.close();	
+			} catch (Exception e) {} 
+			try { 
+			   writer.close();	
+			} catch (Exception e) {} 
+			
+		}
+	}
+	
+	private JButton getJButtonSave() {
+		if (btnSave == null) {
+			btnSave = new JButton("Save");
+			btnSave.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					serializeTableModel();
+				}
+			});
+		}
+		return btnSave;
+	}
 }  //  @jve:decl-index=0:visual-constraint="10,10"
