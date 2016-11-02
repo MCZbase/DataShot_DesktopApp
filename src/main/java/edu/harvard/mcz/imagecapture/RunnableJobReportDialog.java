@@ -1,5 +1,5 @@
 /**
- * JobReportDialog.java
+ * RunnableJobReportDialog.java
  * edu.harvard.mcz.imagecapture
  * Copyright © 2009 President and Fellows of Harvard College
  *
@@ -59,16 +59,16 @@ import java.awt.Insets;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-/** JobReportDialog
+/** RunnableJobReportDialog
  * 
  * @author Paul J. Morris
  *
  */
-public class JobReportDialog extends JDialog {
+public class RunnableJobReportDialog extends JDialog {
 
 	private static final long serialVersionUID = -8151583200152856827L;
 
-	private static final Log log = LogFactory.getLog(JobReportDialog.class);
+	private static final Log log = LogFactory.getLog(RunnableJobReportDialog.class);
 	
 	private JPanel jContentPane = null;
 	private JPanel jPanel = null;
@@ -86,13 +86,13 @@ public class JobReportDialog extends JDialog {
 	 * @param owner
 	 * @wbp.parser.constructor
 	 */
-	public JobReportDialog(Frame owner) {
+	public RunnableJobReportDialog(Frame owner) {
 		super(owner);
 		thisDialog = this;
 		initialize();
 	}
 	
-	public JobReportDialog(Frame owner, String resultsMessage, List<JobError> errors) {
+	public RunnableJobReportDialog(Frame owner, String resultsMessage, List<JobError> errors) {
 		super(owner);
 		thisDialog = this;
 	    model = new JobErrorTableModel(errors);
@@ -106,7 +106,7 @@ public class JobReportDialog extends JDialog {
 		
 	}
 	
-	public JobReportDialog(Frame owner, String resultsMessage, List<JobError> errors, int listType) {
+	public RunnableJobReportDialog(Frame owner, String resultsMessage, List<JobError> errors, int listType) {
 		super(owner);
 		thisDialog = this;
 	    model = new JobErrorTableModel(errors, listType);

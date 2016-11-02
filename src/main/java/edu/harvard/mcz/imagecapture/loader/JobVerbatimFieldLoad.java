@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.jobs.Counter;
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
-import edu.harvard.mcz.imagecapture.JobReportDialog;
+import edu.harvard.mcz.imagecapture.RunnableJobReportDialog;
 import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.data.JobError;
 import edu.harvard.mcz.imagecapture.data.JobErrorTableModel;
@@ -304,7 +304,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 		report += "Saved values for " + counter.getSpecimensUpdated() + " specimens.\n";
 		report += errors.toString();
 		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Load data from file complete.");
-		JobReportDialog errorReportDialog = new JobReportDialog(
+		RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(
 				Singleton.getSingletonInstance().getMainFrame(),
 				report, counter.getErrors(),
 				JobErrorTableModel.TYPE_LOAD

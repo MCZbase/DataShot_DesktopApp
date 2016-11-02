@@ -36,7 +36,7 @@ import edu.harvard.mcz.imagecapture.CandidateImageFile;
 import edu.harvard.mcz.imagecapture.DefaultPositionTemplateDetector;
 import edu.harvard.mcz.imagecapture.ImageCaptureApp;
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
-import edu.harvard.mcz.imagecapture.JobReportDialog;
+import edu.harvard.mcz.imagecapture.RunnableJobReportDialog;
 import edu.harvard.mcz.imagecapture.PositionTemplate;
 import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.UnitTrayLabelParser;
@@ -609,7 +609,7 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 		report += "Found  " + counter.getFilesSeen() + " specimen database records in state OCR.\n";
 		report += "Saved new OCR for " + counter.getSpecimensUpdated() + " specimens.\n";
 		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("OCR re-do complete.");
-		JobReportDialog errorReportDialog = new JobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
+		RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
 		errorReportDialog.setVisible(true);
 	}
 
