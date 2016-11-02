@@ -1,5 +1,5 @@
 /**
- * JobErrorTableModel.java
+ * RunnableJobErrorTableModel.java
  * edu.harvard.mcz.imagecapture.data
  * Copyright © 2009 President and Fellows of Harvard College
  *
@@ -23,13 +23,13 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-/** JobErrorTableModel, table model for displaying error reports about preprocessing images.
+/** RunnableJobErrorTableModel, table model for displaying error reports about preprocessing images.
  * Can handle different types of reports by specifying a TYPE_ constant in the constructor.   
  * 
  * @author Paul J. Morris
  *
  */
-public class JobErrorTableModel extends AbstractTableModel {
+public class RunnableJobErrorTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 3407074726845800411L;
 	
@@ -48,15 +48,15 @@ public class JobErrorTableModel extends AbstractTableModel {
 	
 	public static final int TYPE_FILE_RECONCILIATION = 3;
 	
-	private List<JobError> errors;
+	private List<RunnableJobError> errors;
 	private int type;
 	
-	public JobErrorTableModel(List<JobError> errorList) { 
+	public RunnableJobErrorTableModel(List<RunnableJobError> errorList) { 
 		errors = errorList;
 		type = TYPE_PREPROCESS;
 	}
 	
-	public JobErrorTableModel(List<JobError> errorList, int listType) { 
+	public RunnableJobErrorTableModel(List<RunnableJobError> errorList, int listType) { 
 		errors = errorList;
 		type = TYPE_PREPROCESS;
 		if (listType==TYPE_MISSING_BARCODES) { 
@@ -104,7 +104,7 @@ public class JobErrorTableModel extends AbstractTableModel {
 	 */
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		JobError error = errors.get(rowIndex);
+		RunnableJobError error = errors.get(rowIndex);
 		Object result = null;
 		switch (type) { 
 		case TYPE_PREPROCESS: 

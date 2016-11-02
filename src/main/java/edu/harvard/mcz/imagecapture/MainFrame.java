@@ -48,8 +48,8 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.data.HibernateUtil;
 import edu.harvard.mcz.imagecapture.data.ICImage;
-import edu.harvard.mcz.imagecapture.data.JobError;
-import edu.harvard.mcz.imagecapture.data.JobErrorTableModel;
+import edu.harvard.mcz.imagecapture.data.RunnableJobError;
+import edu.harvard.mcz.imagecapture.data.RunnableJobErrorTableModel;
 import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
 import edu.harvard.mcz.imagecapture.data.Users;
@@ -1112,8 +1112,8 @@ public class MainFrame extends JFrame implements RunnerListener {
 									}
 								}
 							} 
-							JobError err = new JobError(previousFile, missingBarcodes[i], previousPath, "", "Barcode not found", null, null, null, 
-									JobError.TYPE_BARCODE_MISSING_FROM_SEQUENCE,
+							RunnableJobError err = new RunnableJobError(previousFile, missingBarcodes[i], previousPath, "", "Barcode not found", null, null, null, 
+									RunnableJobError.TYPE_BARCODE_MISSING_FROM_SEQUENCE,
 									previousFile,
 									previousPath);
 							errorCount.appendError(err);
@@ -1123,7 +1123,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 								Singleton.getSingletonInstance().getMainFrame(),
 								report, 
 								errorCount.getErrors(), 
-								JobErrorTableModel.TYPE_MISSING_BARCODES);
+								RunnableJobErrorTableModel.TYPE_MISSING_BARCODES);
 						errorReportDialog.setVisible(true);
 					} else { 
 						JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "No barcodes are missing from the sequence.\nAny missmatches are shown in table.", "Barcode QC Report", JOptionPane.OK_OPTION);	

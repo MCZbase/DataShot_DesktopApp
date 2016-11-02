@@ -1,5 +1,5 @@
 /**
- * JobError.java
+ * RunnableJobError.java
  * edu.harvard.mcz.imagecapture.data
  * Copyright © 2009 President and Fellows of Harvard College
  *
@@ -22,14 +22,14 @@ package edu.harvard.mcz.imagecapture.data;
 import edu.harvard.mcz.imagecapture.interfaces.DrawerNameReturner;
 import edu.harvard.mcz.imagecapture.interfaces.TaxonNameReturner;
 
-/** JobError, a class for logging the details of multiple sorts of problems
+/** RunnableJobError, a class for logging the details of multiple sorts of problems
  * that can be found in preproccessing an image.  Allows a report of preprocessing errors to be
  * displayed in a table.  Handles subtypes of errors with the TYPE_ constants.
  * 
  * @author Paul J. Morris
  *
  */
-public class JobError {
+public class RunnableJobError {
 	
 	public static final int TYPE_SAVE_FAILED = 0;
 	public static final int TYPE_NO_TEMPLATE = 1;
@@ -66,7 +66,7 @@ public class JobError {
 	 * @param exception
 	 * @param previous
 	 */
-	public JobError(String filename, String barcode,
+	public RunnableJobError(String filename, String barcode,
 			String qrBarcode, String commentBarcode, String errorMessage,
 			TaxonNameReturner taxonParser, DrawerNameReturner drawerParser,
 			Exception exception, int failureType, String previous, String aPreviousPath) {
@@ -97,7 +97,7 @@ public class JobError {
 	 * @param exception
 	 * @param failureType
 	 */
-	public JobError(String filename, String barcode,
+	public RunnableJobError(String filename, String barcode,
 			String qrBarcode, String commentBarcode, String errorMessage,
 			TaxonNameReturner taxonParser, DrawerNameReturner drawerParser,
 			Exception exception, int failureType) {
@@ -124,7 +124,7 @@ public class JobError {
 	 * @param exception
 	 * @param failureType
 	 */
-	public JobError(String filename, String barcode,
+	public RunnableJobError(String filename, String barcode,
 			String lineNumber, String errorMessage,
 			Exception exception, int failureType) { 
 		this.filename = filename;

@@ -44,8 +44,8 @@ import edu.harvard.mcz.imagecapture.jobs.Counter;
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
 import edu.harvard.mcz.imagecapture.RunnableJobReportDialog;
 import edu.harvard.mcz.imagecapture.Singleton;
-import edu.harvard.mcz.imagecapture.data.JobError;
-import edu.harvard.mcz.imagecapture.data.JobErrorTableModel;
+import edu.harvard.mcz.imagecapture.data.RunnableJobError;
+import edu.harvard.mcz.imagecapture.data.RunnableJobErrorTableModel;
 import edu.harvard.mcz.imagecapture.interfaces.RunStatus;
 import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
 import edu.harvard.mcz.imagecapture.interfaces.RunnerListener;
@@ -157,15 +157,15 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 									fl.load(barcode, verbatimUnclassifiedText, questions);
 									counter.incrementSpecimensUpdated();
 								} catch (IllegalArgumentException e) {
-									JobError error =  new JobError(file.getName(), 
+									RunnableJobError error =  new RunnableJobError(file.getName(), 
 											barcode, Integer.toString(lineNumber), 
-											e.getClass().getSimpleName(), e, JobError.TYPE_LOAD_FAILED);
+											e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
 									counter.appendError(error);
 									log.error(e.getMessage(), e);
 								} catch (LoadException e) {
-									JobError error =  new JobError(file.getName(), 
+									RunnableJobError error =  new RunnableJobError(file.getName(), 
 											barcode, Integer.toString(lineNumber), 
-											e.getClass().getSimpleName(), e, JobError.TYPE_LOAD_FAILED);
+											e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
 									counter.appendError(error);
 									log.error(e.getMessage(), e);
 								}
@@ -193,15 +193,15 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 									fl.load(barcode, verbatimLocality, verbatimDate, questions);
 									counter.incrementSpecimensUpdated();
 								} catch (IllegalArgumentException e) {
-									JobError error =  new JobError(file.getName(), 
+									RunnableJobError error =  new RunnableJobError(file.getName(), 
 											barcode, Integer.toString(lineNumber), 
-											e.getClass().getSimpleName(), e, JobError.TYPE_LOAD_FAILED);
+											e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
 									counter.appendError(error);
 									log.error(e.getMessage(), e);
 								} catch (LoadException e) {
-									JobError error =  new JobError(file.getName(), 
+									RunnableJobError error =  new RunnableJobError(file.getName(), 
 											barcode, Integer.toString(lineNumber), 
-											e.getClass().getSimpleName(), e, JobError.TYPE_LOAD_FAILED);
+											e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
 									counter.appendError(error);
 									log.error(e.getMessage(), e);
 								}
@@ -307,7 +307,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 		RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(
 				Singleton.getSingletonInstance().getMainFrame(),
 				report, counter.getErrors(),
-				JobErrorTableModel.TYPE_LOAD
+				RunnableJobErrorTableModel.TYPE_LOAD
 				);
 		errorReportDialog.setVisible(true);
 	}

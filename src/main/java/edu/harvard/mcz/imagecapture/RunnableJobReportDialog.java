@@ -52,8 +52,8 @@ import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.harvard.mcz.imagecapture.data.JobError;
-import edu.harvard.mcz.imagecapture.data.JobErrorTableModel;
+import edu.harvard.mcz.imagecapture.data.RunnableJobError;
+import edu.harvard.mcz.imagecapture.data.RunnableJobErrorTableModel;
 
 import java.awt.Insets;
 import java.io.IOException;
@@ -79,7 +79,7 @@ public class RunnableJobReportDialog extends JDialog {
 	private JTable jTable = null;
 	private JTextArea jTextArea = null;
 	private JDialog thisDialog = null;
-    private JobErrorTableModel model = null;
+    private RunnableJobErrorTableModel model = null;
     private JButton btnSave;
 	
 	/**
@@ -92,10 +92,10 @@ public class RunnableJobReportDialog extends JDialog {
 		initialize();
 	}
 	
-	public RunnableJobReportDialog(Frame owner, String resultsMessage, List<JobError> errors) {
+	public RunnableJobReportDialog(Frame owner, String resultsMessage, List<RunnableJobError> errors) {
 		super(owner);
 		thisDialog = this;
-	    model = new JobErrorTableModel(errors);
+	    model = new RunnableJobErrorTableModel(errors);
 	    
 	    log.debug(model.getRowCount());
 		
@@ -106,10 +106,10 @@ public class RunnableJobReportDialog extends JDialog {
 		
 	}
 	
-	public RunnableJobReportDialog(Frame owner, String resultsMessage, List<JobError> errors, int listType) {
+	public RunnableJobReportDialog(Frame owner, String resultsMessage, List<RunnableJobError> errors, int listType) {
 		super(owner);
 		thisDialog = this;
-	    model = new JobErrorTableModel(errors, listType);
+	    model = new RunnableJobErrorTableModel(errors, listType);
 	    
 	    log.debug(model.getRowCount());
 		

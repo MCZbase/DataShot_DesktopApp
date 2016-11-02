@@ -41,7 +41,7 @@ import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.data.HigherTaxonLifeCycle;
 import edu.harvard.mcz.imagecapture.data.ICImage;
 import edu.harvard.mcz.imagecapture.data.ICImageLifeCycle;
-import edu.harvard.mcz.imagecapture.data.JobError;
+import edu.harvard.mcz.imagecapture.data.RunnableJobError;
 import edu.harvard.mcz.imagecapture.data.LocationInCollection;
 import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
 import edu.harvard.mcz.imagecapture.data.Specimen;
@@ -277,25 +277,25 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 				    	ils.attachDirty(image);
 				    	counter.incrementFilesUpdated();
 				    } else if (templateName!=null && templateName.equals(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS)) { 
-				    	JobError error =  new JobError(image.getFilename(), image.getRawBarcode(),
+				    	RunnableJobError error =  new RunnableJobError(image.getFilename(), image.getRawBarcode(),
 								"", image.getRawExifBarcode(), "No Template Found.",
 								null, null,
-								null, JobError.TYPE_NO_TEMPLATE);
+								null, RunnableJobError.TYPE_NO_TEMPLATE);
 						counter.appendError(error);
 				    }
 				} catch (UnreadableFileException e) {
 					log.error(e.getMessage());
-					JobError error =  new JobError(image.getFilename(), image.getRawBarcode(),
+					RunnableJobError error =  new RunnableJobError(image.getFilename(), image.getRawBarcode(),
 							"", image.getRawExifBarcode(), "Unreadable File Exception checking for template.",
 							null, null,
-							null, JobError.TYPE_NO_TEMPLATE);
+							null, RunnableJobError.TYPE_NO_TEMPLATE);
 					counter.appendError(error);
 				} catch (SaveFailedException e) {
 					log.error(e.getMessage(),e);
-					JobError error =  new JobError(image.getFilename(), image.getRawBarcode(),
+					RunnableJobError error =  new RunnableJobError(image.getFilename(), image.getRawBarcode(),
 							"", image.getRawExifBarcode(), "Save Failed Exception saving new template.",
 							null, null,
-							null, JobError.TYPE_SAVE_FAILED);
+							null, RunnableJobError.TYPE_SAVE_FAILED);
 					counter.appendError(error);
 				}
 
