@@ -48,8 +48,6 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.data.HibernateUtil;
 import edu.harvard.mcz.imagecapture.data.ICImage;
-import edu.harvard.mcz.imagecapture.data.RunnableJobError;
-import edu.harvard.mcz.imagecapture.data.RunnableJobErrorTableModel;
 import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
 import edu.harvard.mcz.imagecapture.data.Users;
@@ -66,6 +64,8 @@ import edu.harvard.mcz.imagecapture.jobs.JobFileReconciliation;
 import edu.harvard.mcz.imagecapture.jobs.JobRecheckForTemplates;
 import edu.harvard.mcz.imagecapture.jobs.JobRepeatOCR;
 import edu.harvard.mcz.imagecapture.jobs.JobSingleBarcodeScan;
+import edu.harvard.mcz.imagecapture.jobs.RunnableJobError;
+import edu.harvard.mcz.imagecapture.jobs.RunnableJobErrorTableModel;
 import edu.harvard.mcz.imagecapture.loader.JobVerbatimFieldLoad;
 
 import java.awt.GridBagConstraints;

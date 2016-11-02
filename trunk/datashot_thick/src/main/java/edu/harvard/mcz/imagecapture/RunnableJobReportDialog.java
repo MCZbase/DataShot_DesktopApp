@@ -52,8 +52,8 @@ import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.harvard.mcz.imagecapture.data.RunnableJobError;
-import edu.harvard.mcz.imagecapture.data.RunnableJobErrorTableModel;
+import edu.harvard.mcz.imagecapture.jobs.RunnableJobError;
+import edu.harvard.mcz.imagecapture.jobs.RunnableJobErrorTableModel;
 
 import java.awt.Insets;
 import java.io.IOException;
