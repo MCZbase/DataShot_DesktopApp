@@ -22,6 +22,7 @@ package edu.harvard.mcz.imagecapture.jobs;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -162,16 +163,30 @@ public class JobFileReconciliation implements RunnableJob, Runnable {
 								//if it is, increment the found counter
 								counter.incrementFilesDatabased();
 							} else if (matches!=null && matches.size()>1) {
+								StringBuffer barcode = new StringBuffer();
+								Iterator<ICImage> ri = matches.iterator();
+								while (ri.hasNext()) { 
+									ICImage match = ri.next();
+									barcode.append(match.getSpecimen().getBarcode()).append(" ");
+								}
 								counter.incrementFilesDatabased();
 								log.error("File with more than one database match by name and path");
-								JobError error =  new JobError(fileToCheck.getName(), "",
+								JobError error =  new JobError(fileToCheck.getName(), barcode.toString().trim(),
 										ImageCaptureProperties.getPathBelowBase(fileToCheck), "", "More than one database (Image) record for this file.",
 										null, null,
 										null, JobError.TYPE_DUPLICATE);
 								counter.appendError(error);	
 							} else {
+								StringBuffer barcode = new StringBuffer();
+								if (matches!=null) { 
+									Iterator<ICImage> ri = matches.iterator();
+									while (ri.hasNext()) { 
+										ICImage match = ri.next();
+										barcode.append(match.getSpecimen().getBarcode()).append(" ");
+									}
+								}
 								counter.incrementFilesFailed();
-								JobError error =  new JobError(fileToCheck.getName(), "",
+								JobError error =  new JobError(fileToCheck.getName(), barcode.toString().trim(),
 										ImageCaptureProperties.getPathBelowBase(fileToCheck), "", "No database (Image) record for this file.",
 										null, null,
 										null, JobError.TYPE_SAVE_FAILED);

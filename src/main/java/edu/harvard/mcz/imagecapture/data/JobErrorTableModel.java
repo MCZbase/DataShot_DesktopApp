@@ -46,6 +46,8 @@ public class JobErrorTableModel extends AbstractTableModel {
 	 */
 	public static final int TYPE_LOAD = 2;
 	
+	public static final int TYPE_FILE_RECONCILIATION = 3;
+	
 	private List<JobError> errors;
 	private int type;
 	
@@ -81,6 +83,9 @@ public class JobErrorTableModel extends AbstractTableModel {
 		case TYPE_LOAD:
 			result = 6;
 			break;
+		case TYPE_FILE_RECONCILIATION:
+			result = 5;
+			break;			
 		} 
 		return result;
 	}
@@ -186,6 +191,25 @@ public class JobErrorTableModel extends AbstractTableModel {
 			    }
 				break;
 			}
+			break;
+		case TYPE_FILE_RECONCILIATION:
+			switch (columnIndex) {
+			case (0):
+				result = error.getFailureType();
+				break;
+			case (1):
+				result = error.getQrBarcode(); // overloaded, path to file
+				break;
+			case (2):
+				result = error.getFilename();
+				break;	
+			case (3):
+				result = error.getBarcode();
+				break;				
+			case (4):
+				result = error.getErrorMessage();
+				break;	
+			}
 			break;			
 		} 
 		
@@ -242,6 +266,25 @@ public class JobErrorTableModel extends AbstractTableModel {
 				break;
 			}
 			break;
+		case TYPE_FILE_RECONCILIATION:
+			switch (columnIndex) {
+			case (0):
+				result = "Type";
+				break;
+			case (1):
+				result = "Path";
+				break;
+			case (2):
+				result = "Filename";
+				break;
+			case (3):
+				result = "Barcode"; 
+				break;			
+			case (4):
+				result = "Error";
+				break;
+			}
+			break;			
 		case TYPE_LOAD: 
 			switch (columnIndex) {
 			case (0):

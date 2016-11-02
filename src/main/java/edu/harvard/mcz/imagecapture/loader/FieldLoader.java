@@ -56,6 +56,14 @@ public class FieldLoader {
 		sls = new SpecimenLifeCycle();
 	}
 	
+	public boolean load(String barcode, String verbatimUnclassifiedText, String questions) throws LoadException { 
+		boolean result = false;
+		
+		// TODO: Implement load of raw text only
+		
+		return result;
+	}
+	
 	public boolean load(String barcode, String verbatimLocality, String verbatimDate, String questions) throws LoadException { 
 		boolean result = false;
 		

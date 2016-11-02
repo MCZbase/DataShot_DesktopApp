@@ -25,12 +25,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -38,19 +40,15 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import bsh.This;
-import edu.harvard.mcz.imagecapture.Counter;
+import edu.harvard.mcz.imagecapture.jobs.Counter;
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
 import edu.harvard.mcz.imagecapture.JobReportDialog;
 import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.data.JobError;
 import edu.harvard.mcz.imagecapture.data.JobErrorTableModel;
-import edu.harvard.mcz.imagecapture.data.WorkFlowStatus;
-import edu.harvard.mcz.imagecapture.interfaces.DrawerNameReturner;
 import edu.harvard.mcz.imagecapture.interfaces.RunStatus;
 import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
 import edu.harvard.mcz.imagecapture.interfaces.RunnerListener;
-import edu.harvard.mcz.imagecapture.interfaces.TaxonNameReturner;
 import edu.harvard.mcz.imagecapture.loader.ex.LoadException;
 
 /**
@@ -65,6 +63,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 	private int percentComplete = 0;
 	private List<RunnerListener> listeners = null;
 	private Counter counter = null;
+	private StringBuffer errors = null;
 
 	public JobVerbatimFieldLoad() { 
 		listeners = new ArrayList<RunnerListener>();
@@ -72,6 +71,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 		runStatus = RunStatus.STATUS_NEW;
 		percentComplete = 0;
 		startDateTime = null;
+		errors = new StringBuffer();
 	}
 	
 	/* (non-Javadoc)
@@ -103,14 +103,14 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 		if (returnValue == JFileChooser.APPROVE_OPTION) {
 			File file = fileChooser.getSelectedFile();
 			log.debug("Selected file to load: " + file.getName() + ".");
-			
+
 			if (file.exists() && file.isFile() && file.canRead()) { 
 				// Save location
 				Singleton.getSingletonInstance().getProperties().getProperties().setProperty(ImageCaptureProperties.KEY_LASTLOADPATH, file.getPath());
 				selectedFilename = file.getName();
-				
+
 				String[] headers = new String[]{};
-				
+
 				try {
 					Reader reader = new FileReader(file);
 
@@ -120,7 +120,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 							.withQuote('"');
 
 					CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(headers);
-					
+
 					CSVParser csvParser = new CSVParser(reader, csvFormat);
 
 					Map<String,Integer> csvHeader = csvParser.getHeaderMap();
@@ -128,49 +128,96 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 					int i = 0;
 					for (String header: csvHeader.keySet()) {
 						headers[i++] = header;
-					}
-					
-					Iterator<CSVRecord> iterator = csvParser.iterator();
-					
-					FieldLoader fl = new FieldLoader();
-					
-					String barcode = "";
-					int lineNumber = 0;
-					while (iterator.hasNext()) {
-						lineNumber++;
-						counter.incrementSpecimens();
-						CSVRecord record = iterator.next();
-						try { 
-							String verbatimLocality = record.get("verbatimLocality");
-							String verbatimDate = record.get("verbatimDate");
-							barcode = record.get("barcode");
-							String questions = record.get("questions");
-						
-							fl.load(barcode, verbatimLocality, verbatimDate, questions);
-							counter.incrementSpecimensUpdated();
-						} catch (IllegalArgumentException e) {
-							JobError error =  new JobError(file.getName(), 
-									barcode, Integer.toString(lineNumber), 
-									e.getClass().getSimpleName(), e, JobError.TYPE_LOAD_FAILED);
-							counter.appendError(error);
-							log.error(e.getMessage(), e);
-						} catch (LoadException e) {
-							JobError error =  new JobError(file.getName(), 
-									barcode, Integer.toString(lineNumber), 
-									e.getClass().getSimpleName(), e, JobError.TYPE_LOAD_FAILED);
-							counter.appendError(error);
-							log.error(e.getMessage(), e);
-						}
-						
+						log.debug(header);
 					}
 
+					List<String> headerList = Arrays.asList(headers);
+					if (!headerList.contains("barcode")) { 
+						// no barcode field, we can't match the input to specimen records.
+						errors.append("Field \"barcode\" not found in csv file headers.  Unable to load data.").append("\n");
+					} else { 
+						Iterator<CSVRecord> iterator = csvParser.iterator();
+
+						FieldLoader fl = new FieldLoader();
+
+						if (headerList.size()==3 && headerList.contains("verbatimUnclassifiedText") && headerList.contains("questions")) { 
+							// Allowed case 1: unclassified text only
+
+							String barcode = "";
+							int lineNumber = 0;
+							while (iterator.hasNext()) {
+								lineNumber++;
+								counter.incrementSpecimens();
+								CSVRecord record = iterator.next();
+								try { 
+									String verbatimUnclassifiedText = record.get("verbatimUnclassifiedText");
+									barcode = record.get("barcode");
+									String questions = record.get("questions");
+
+									fl.load(barcode, verbatimUnclassifiedText, questions);
+									counter.incrementSpecimensUpdated();
+								} catch (IllegalArgumentException e) {
+									JobError error =  new JobError(file.getName(), 
+											barcode, Integer.toString(lineNumber), 
+											e.getClass().getSimpleName(), e, JobError.TYPE_LOAD_FAILED);
+									counter.appendError(error);
+									log.error(e.getMessage(), e);
+								} catch (LoadException e) {
+									JobError error =  new JobError(file.getName(), 
+											barcode, Integer.toString(lineNumber), 
+											e.getClass().getSimpleName(), e, JobError.TYPE_LOAD_FAILED);
+									counter.appendError(error);
+									log.error(e.getMessage(), e);
+								}
+							}
+							
+						} else if (headerList.size()==8) { 
+							// allowed case two, transcription into verbatim fields
+
+							String barcode = "";
+							int lineNumber = 0;
+							while (iterator.hasNext()) {
+								lineNumber++;
+								counter.incrementSpecimens();
+								CSVRecord record = iterator.next();
+								try { 
+									String verbatimLocality = record.get("verbatimLocality");
+									String verbatimDate = record.get("verbatimDate");
+									String verbatimCollector = record.get("verbatimCollector");
+									String verbatimCollection = record.get("verbatimCollection");
+									String verbatimNumbers = record.get("verbatimNumbers");
+									String verbatimUnclasifiedText = record.get("verbatimUnclassifiedText");
+									barcode = record.get("barcode");
+									String questions = record.get("questions");
+
+									fl.load(barcode, verbatimLocality, verbatimDate, questions);
+									counter.incrementSpecimensUpdated();
+								} catch (IllegalArgumentException e) {
+									JobError error =  new JobError(file.getName(), 
+											barcode, Integer.toString(lineNumber), 
+											e.getClass().getSimpleName(), e, JobError.TYPE_LOAD_FAILED);
+									counter.appendError(error);
+									log.error(e.getMessage(), e);
+								} catch (LoadException e) {
+									JobError error =  new JobError(file.getName(), 
+											barcode, Integer.toString(lineNumber), 
+											e.getClass().getSimpleName(), e, JobError.TYPE_LOAD_FAILED);
+									counter.appendError(error);
+									log.error(e.getMessage(), e);
+								}
+							}
+
+						}
+
+					} 
 
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "Unable to load data, file not found: " + e.getMessage() , "Error: File Not Found", JOptionPane.OK_OPTION);	
+					errors.append("File not found ").append(e.getMessage()).append("\n");	
+					log.error(e.getMessage(), e);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					errors.append("Error Loading data: ").append(e.getMessage()).append("\n");	
+					log.error(e.getMessage(), e);
 				}
 			}
 			
@@ -255,6 +302,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 		String report = "Results for loading data from file " + selectedFilename + ".\n";
 		report += "Found  " + counter.getSpecimens() + " rows in input file.\n";
 		report += "Saved values for " + counter.getSpecimensUpdated() + " specimens.\n";
+		report += errors.toString();
 		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Load data from file complete.");
 		JobReportDialog errorReportDialog = new JobReportDialog(
 				Singleton.getSingletonInstance().getMainFrame(),
