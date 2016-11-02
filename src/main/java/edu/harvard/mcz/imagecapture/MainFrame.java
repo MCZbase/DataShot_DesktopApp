@@ -128,7 +128,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 	private JMenuItem jMenuItemEditTemplates = null;
 	private JMenuItem jMenuItemBrowseImages = null;
 	private JLabel jLabelCount = null;
-	private JMenuItem jMenuItemPreprocessOne = null;
+	private JMenuItem jMenuItemPreprocessOneDir = null;
 	private JMenu jMenuData = null;
 	private JMenu jMenuQualityControl = null;
 	private JMenuItem jMenuItemCheckForABarcode = null;
@@ -225,7 +225,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuItemPreferences.setEnabled(false);
 			jMenuItemPreprocess.setEnabled(false);
 			jMenuItemLoadData.setEnabled(false);
-			jMenuItemPreprocessOne.setEnabled(false);
+			jMenuItemPreprocessOneDir.setEnabled(false);
 			jMenuItemCreateLabels.setEnabled(false);
 			jMenuItemStats.setEnabled(false);
 			jMenuItemLog.setEnabled(false);
@@ -239,7 +239,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuItemUsers.setEnabled(false);
 			jMenuItemPreprocess.setEnabled(false);
 			jMenuItemLoadData.setEnabled(false);
-			jMenuItemPreprocessOne.setEnabled(false);
+			jMenuItemPreprocessOneDir.setEnabled(false);
 			jMenuItemCreateLabels.setEnabled(true);
 			jMenuItemPreferences.setEnabled(false);
 			jMenuItemEditTemplates.setEnabled(false);
@@ -256,12 +256,12 @@ public class MainFrame extends JFrame implements RunnerListener {
 				// Enable some menu items only for administrators.
 				if (UsersLifeCycle.isUserAdministrator(Singleton.getSingletonInstance().getUser().getUserid())) { 
 					//jMenuItemUsers.setEnabled(true);
+					jMenuItemPreprocess.setEnabled(true);
 				}
 				// User privileges and some other items to the chief editor.  
 				if (UsersLifeCycle.isUserChiefEditor(Singleton.getSingletonInstance().getUser().getUserid())) { 
 					jMenuItemUsers.setEnabled(true);
 					jMenuItemEditTemplates.setEnabled(true);
-					jMenuItemPreprocess.setEnabled(true);
 					jMenuItemLoadData.setEnabled(true);
 					jMenuItemCleanupDirectory.setEnabled(true);
 				}
@@ -269,7 +269,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 				// Administrator and full roles both have full access rights
 				if (Singleton.getSingletonInstance().getUser().isUserRole(Users.ROLE_FULL)) {
 					jMenuAction.setEnabled(true);
-					jMenuItemPreprocessOne.setEnabled(true);
+					jMenuItemPreprocessOneDir.setEnabled(true);
 					jMenuConfig.setEnabled(true);
 					jMenuItemPreferences.setEnabled(true);
 					jMenuQualityControl.setEnabled(true);
@@ -958,23 +958,23 @@ public class MainFrame extends JFrame implements RunnerListener {
 	}
 
 	/**
-	 * This method initializes jMenuItemPreprocessOne	
+	 * This method initializes jMenuItemPreprocessOneDir	
 	 * 	
 	 * @return javax.swing.JMenuItem	
 	 */
 	private JMenuItem getJMenuItemPreprocessOne() {
-		if (jMenuItemPreprocessOne == null) {
-			jMenuItemPreprocessOne = new JMenuItem();
-			jMenuItemPreprocessOne.setText("Preprocess A Directory");
-			jMenuItemPreprocessOne.setMnemonic(KeyEvent.VK_P);
-			jMenuItemPreprocessOne.setEnabled(true);
+		if (jMenuItemPreprocessOneDir == null) {
+			jMenuItemPreprocessOneDir = new JMenuItem();
+			jMenuItemPreprocessOneDir.setText("Preprocess A Directory");
+			jMenuItemPreprocessOneDir.setMnemonic(KeyEvent.VK_P);
+			jMenuItemPreprocessOneDir.setEnabled(true);
 			try { 
-				jMenuItemPreprocessOne.setIcon(new ImageIcon(this.getClass().getResource("/edu/harvard/mcz/imagecapture/resources/barcode_icon_16px.jpg")));
+				jMenuItemPreprocessOneDir.setIcon(new ImageIcon(this.getClass().getResource("/edu/harvard/mcz/imagecapture/resources/barcode_icon_16px.jpg")));
 			} catch (Exception e) { 
 				log.error("Can't open icon file for jMenuItemScanOneBarcode.");
 				log.error(e.getLocalizedMessage());
 			}			
-			jMenuItemPreprocessOne.addActionListener(new java.awt.event.ActionListener() {
+			jMenuItemPreprocessOneDir.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					JobAllImageFilesScan scan = new JobAllImageFilesScan(
 							JobAllImageFilesScan.SCAN_SELECT,
@@ -984,7 +984,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 				}
 			});
 		}
-		return jMenuItemPreprocessOne;
+		return jMenuItemPreprocessOneDir;
 	}
 
 	/**
