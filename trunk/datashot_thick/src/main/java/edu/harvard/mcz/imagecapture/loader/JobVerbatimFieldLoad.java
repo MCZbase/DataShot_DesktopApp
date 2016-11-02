@@ -171,7 +171,9 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 								}
 							}
 							
-						} else if (headerList.size()==8) { 
+						//} else if (headerList.size()==8) {
+							// TODO: Add fields, remove the next line, uncomment the line above.
+						} else if (headerList.size()==4) { 
 							// allowed case two, transcription into verbatim fields
 
 							String barcode = "";
@@ -183,10 +185,13 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 								try { 
 									String verbatimLocality = record.get("verbatimLocality");
 									String verbatimDate = record.get("verbatimDate");
+									/** 
+									// TODO: Add support for these fields.
 									String verbatimCollector = record.get("verbatimCollector");
 									String verbatimCollection = record.get("verbatimCollection");
 									String verbatimNumbers = record.get("verbatimNumbers");
 									String verbatimUnclasifiedText = record.get("verbatimUnclassifiedText");
+									 */
 									barcode = record.get("barcode");
 									String questions = record.get("questions");
 
@@ -207,6 +212,8 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 								}
 							}
 
+						} else { 
+							errors.append("Error Loading data: Unsupported number of column headers found (").append(headerList.size()).append(").\n");	
 						}
 
 					} 
