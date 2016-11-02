@@ -42,7 +42,7 @@ import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.UnitTrayLabelParser;
 import edu.harvard.mcz.imagecapture.data.HigherTaxonLifeCycle;
 import edu.harvard.mcz.imagecapture.data.ICImage;
-import edu.harvard.mcz.imagecapture.data.JobError;
+import edu.harvard.mcz.imagecapture.data.RunnableJobError;
 import edu.harvard.mcz.imagecapture.data.LocationInCollection;
 import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
 import edu.harvard.mcz.imagecapture.data.Specimen;
@@ -365,10 +365,10 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 					}
 					// Log the missmatch
 					try { 
-						JobError error =  new JobError(filename, barcode,
+						RunnableJobError error =  new RunnableJobError(filename, barcode,
 								barcode, exifComment, "Barcode/Comment missmatch.",
 								parser, (DrawerNameReturner) parser,
-								null, JobError.TYPE_MISMATCH);
+								null, RunnableJobError.TYPE_MISMATCH);
 						counter.appendError(error);
 					} catch (Exception e) { 
 						// we don't want an exception to stop processing 
@@ -477,10 +477,10 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 									if (((DrawerNameReturner)parser).getDrawerNumber().length()>MetadataRetriever.getFieldLength(Specimen.class, "DrawerNumber")) {
 										badParse = "Parsing problem. \nDrawer number is too long: " + s.getDrawerNumber() + "\n";
 									}
-									JobError error =  new JobError(filename, barcode,
+									RunnableJobError error =  new RunnableJobError(filename, barcode,
 											rawBarcode, exifComment, badParse,
 											(TaxonNameReturner)parser, (DrawerNameReturner)parser,
-											null, JobError.TYPE_BAD_PARSE);
+											null, RunnableJobError.TYPE_BAD_PARSE);
 									counter.appendError(error);
 								} catch (Exception err) {
 									log.error(e);
@@ -502,10 +502,10 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 											badParse = "Parsing problem. \nDrawer number is too long: " + s.getDrawerNumber() + "\n";
 										}
 									} 
-									JobError error =  new JobError(filename, barcode,
+									RunnableJobError error =  new RunnableJobError(filename, barcode,
 											rawBarcode, exifComment, badParse,
 											(TaxonNameReturner)parser, (DrawerNameReturner)parser,
-											err, JobError.TYPE_SAVE_FAILED);
+											err, RunnableJobError.TYPE_SAVE_FAILED);
 									counter.appendError(error);
 									counter.incrementFilesFailed();
 									s = null;
@@ -513,19 +513,19 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 							}
 						} else {
 							log.debug("Didn't try to save, not at workflow status OCR.");
-							JobError error =  new JobError(filename, barcode,
+							RunnableJobError error =  new RunnableJobError(filename, barcode,
 									rawBarcode, exifComment, "Didn't try to save, not at workflow status OCR",
 									(TaxonNameReturner)parser, (DrawerNameReturner)parser,
-									null, JobError.TYPE_SAVE_FAILED);		
+									null, RunnableJobError.TYPE_SAVE_FAILED);		
 							counter.appendError(error);
 						}
 					}
 				} else {
 					log.debug("Didn't try to save, not a specimen image.");
-					JobError error =  new JobError(filename, barcode,
+					RunnableJobError error =  new RunnableJobError(filename, barcode,
 							rawBarcode, exifComment, "Didn't try to save, not a specimen image, or rawBarcode doesn't match pattern",
 							(TaxonNameReturner)parser, (DrawerNameReturner)parser,
-							null, JobError.TYPE_SAVE_FAILED);
+							null, RunnableJobError.TYPE_SAVE_FAILED);
 					counter.appendError(error);
 				}
 			} catch (Exception ex) { 

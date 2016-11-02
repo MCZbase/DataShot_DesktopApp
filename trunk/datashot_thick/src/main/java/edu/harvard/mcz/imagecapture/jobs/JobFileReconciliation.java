@@ -35,7 +35,7 @@ import edu.harvard.mcz.imagecapture.RunnableJobReportDialog;
 import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.data.ICImage;
 import edu.harvard.mcz.imagecapture.data.ICImageLifeCycle;
-import edu.harvard.mcz.imagecapture.data.JobError;
+import edu.harvard.mcz.imagecapture.data.RunnableJobError;
 import edu.harvard.mcz.imagecapture.interfaces.RunStatus;
 import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
 import edu.harvard.mcz.imagecapture.interfaces.RunnerListener;
@@ -171,10 +171,10 @@ public class JobFileReconciliation implements RunnableJob, Runnable {
 								}
 								counter.incrementFilesDatabased();
 								log.error("File with more than one database match by name and path");
-								JobError error =  new JobError(fileToCheck.getName(), barcode.toString().trim(),
+								RunnableJobError error =  new RunnableJobError(fileToCheck.getName(), barcode.toString().trim(),
 										ImageCaptureProperties.getPathBelowBase(fileToCheck), "", "More than one database (Image) record for this file.",
 										null, null,
-										null, JobError.TYPE_DUPLICATE);
+										null, RunnableJobError.TYPE_DUPLICATE);
 								counter.appendError(error);	
 							} else {
 								StringBuffer barcode = new StringBuffer();
@@ -186,10 +186,10 @@ public class JobFileReconciliation implements RunnableJob, Runnable {
 									}
 								}
 								counter.incrementFilesFailed();
-								JobError error =  new JobError(fileToCheck.getName(), barcode.toString().trim(),
+								RunnableJobError error =  new RunnableJobError(fileToCheck.getName(), barcode.toString().trim(),
 										ImageCaptureProperties.getPathBelowBase(fileToCheck), "", "No database (Image) record for this file.",
 										null, null,
-										null, JobError.TYPE_SAVE_FAILED);
+										null, RunnableJobError.TYPE_SAVE_FAILED);
 								counter.appendError(error);			
 							}
 						} 
