@@ -791,16 +791,29 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 									String rawBarcode = barcode;
 									if (isSpecimenImage) {
 										if (!rawBarcode.equals(exifComment)) { 
+											// Use the exifComment if it is a barcode
+											boolean barcodeInImageMetadata = false;
+											if (Singleton.getSingletonInstance().getBarcodeMatcher().matchesPattern(exifComment))  { 
+												barcodeInImageMetadata = true;
+											}
 											// Log the missmatch
-											try { 
-												RunnableJobError error =  new RunnableJobError(filename, barcode,
+											if (barcodeInImageMetadata || Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REDUNDANT_COMMENT_BARCODE).equals("true")) {
+												// If so configured, or if image metadata contains a barcode that doesn't match the barcode in the image
+												// report on barcode/comment missmatch as an error condition.
+												try { 
+													RunnableJobError error =  new RunnableJobError(filename, barcode,
 														barcode, exifComment, "Barcode/Comment missmatch.",
 														parser, (DrawerNameReturner) parser,
 														null, RunnableJobError.TYPE_MISMATCH);
-												counter.appendError(error);
-											} catch (Exception e) { 
-												// we don't want an exception to stop processing 
-												log.error(e);
+													counter.appendError(error);
+												} catch (Exception e) { 
+													// we don't want an exception to stop processing 
+													log.error(e);
+												}
+											} else {
+												// Just write into debug log
+												// This would normally the case where the image metadata doesn't contain a barcode but the image does, and reporting of this state as an error has been turned off. 
+												log.debug("Barcode/Comment missmatch: ["+barcode+"]!=["+exifComment+"]");
 											}
 										}
 										Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Creating new specimen record.");
@@ -1035,9 +1048,12 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 										counter.appendError(error);
 									}
 									if (isSpecimenImage) {
-										if (!tryMe.getRawBarcode().equals(tryMe.getRawExifBarcode())) { 
-											log.error("Warning: Scanned Image has missmatch between barcode and comment.");
-										}
+											if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REDUNDANT_COMMENT_BARCODE).equals("true")) {
+												// If so configured, log as error
+												if (!tryMe.getRawBarcode().equals(tryMe.getRawExifBarcode())) { 
+													log.error("Warning: Scanned Image has missmatch between barcode and comment.");
+												}
+											}
 									}
 								} else {
 									if (matches==null) { 

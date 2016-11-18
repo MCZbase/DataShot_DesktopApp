@@ -39,6 +39,7 @@ import edu.harvard.mcz.imagecapture.data.ICImage;
 import edu.harvard.mcz.imagecapture.data.ICImageLifeCycle;
 import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.UsersLifeCycle;
+import edu.harvard.mcz.imagecapture.data.WorkFlowStatus;
 import edu.harvard.mcz.imagecapture.exceptions.BadTemplateException;
 import edu.harvard.mcz.imagecapture.exceptions.ImageLoadException;
 
@@ -58,6 +59,8 @@ import javax.swing.JComboBox;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.awt.Insets;
 
 /** Display parts of images (and possibly a data entry form) of a specimen and its labels.
  *  
@@ -116,18 +119,21 @@ public class ImageDisplayFrame extends JFrame {
 	private JPanel jPanelImagesPanel = null;
 	
 	private Specimen targetSpecimen = null;
+	private SpecimenControler targetSpecimenController = null;
 	private ICImage selectedImage = null;
 	
 	private JButton templatePicker = null;
+	private JButton btnVerbatimtranscription;
 
 	/**
 	 * This is the default constructor
 	 * @param specimen 
 	 */
-	public ImageDisplayFrame(Specimen specimen) {
+	public ImageDisplayFrame(Specimen specimen, SpecimenControler specimenController) {
 		super();
 		this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		targetSpecimen = specimen;
+		targetSpecimenController = specimenController;
 		initialize();
 		//this.center();
 	}
@@ -619,21 +625,33 @@ public class ImageDisplayFrame extends JFrame {
 	private JPanel getJPanelImagePicker() {
 		if (jPanelImagePicker == null) {
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-			gridBagConstraints1.gridx = 1;
+			gridBagConstraints1.insets = new Insets(0, 0, 5, 5);
+			gridBagConstraints1.gridx = 2;
 			gridBagConstraints1.gridy = 0;
 			jLabel1 = new JLabel();
 			jLabel1.setText("(0)");
 			GridBagConstraints gridBagConstraints = new GridBagConstraints();
-			gridBagConstraints.fill = GridBagConstraints.VERTICAL;
+			gridBagConstraints.insets = new Insets(0, 0, 5, 0);
+			gridBagConstraints.fill = GridBagConstraints.BOTH;
 			gridBagConstraints.gridy = 0;
 			gridBagConstraints.weightx = 1.0;
-			gridBagConstraints.anchor = GridBagConstraints.WEST;
-			gridBagConstraints.gridx = 2;
+			gridBagConstraints.gridx = 3;
 			jLabel = new JLabel();
 			jLabel.setText("Images: ");
 			jPanelImagePicker = new JPanel();
-			jPanelImagePicker.setLayout(new GridBagLayout());
-			jPanelImagePicker.add(jLabel, new GridBagConstraints());
+			GridBagLayout gbl_jPanelImagePicker = new GridBagLayout();
+			gbl_jPanelImagePicker.columnWeights = new double[]{0.0, 0.0, 0.0, 1.0};
+			jPanelImagePicker.setLayout(gbl_jPanelImagePicker);
+			GridBagConstraints gbc_btnVerbatimtranscription = new GridBagConstraints();
+			gbc_btnVerbatimtranscription.insets = new Insets(0, 0, 5, 5);
+			gbc_btnVerbatimtranscription.gridx = 0;
+			gbc_btnVerbatimtranscription.gridy = 0;
+			jPanelImagePicker.add(getBtnVerbatimtranscription(), gbc_btnVerbatimtranscription);
+			GridBagConstraints gbc_jLabel = new GridBagConstraints();
+			gbc_jLabel.insets = new Insets(0, 0, 5, 5);
+			gbc_jLabel.gridx = 1;
+			gbc_jLabel.gridy = 0;
+			jPanelImagePicker.add(jLabel, gbc_jLabel);
 			jPanelImagePicker.add(getJComboBoxImagePicker(), gridBagConstraints);
 			jPanelImagePicker.add(jLabel1, gridBagConstraints1);
 		}
@@ -784,4 +802,25 @@ public class ImageDisplayFrame extends JFrame {
 	}
 
 	
+	private JButton getBtnVerbatimtranscription() {
+		if (btnVerbatimtranscription == null) {
+			btnVerbatimtranscription = new JButton("VerbatimTranscription");
+			btnVerbatimtranscription.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// TODO Auto-generated method stub
+					VerbatimCaptureDialog dialog = new VerbatimCaptureDialog(targetSpecimen, targetSpecimenController);
+					dialog.setVisible(true);
+					setVisible(false);
+				} 
+				
+			});
+			btnVerbatimtranscription.setEnabled(false);
+			if (WorkFlowStatus.allowsVerbatimUpdate(targetSpecimen.getWorkFlowStatus())) { 
+				btnVerbatimtranscription.setEnabled(true);
+			}
+		}
+		return btnVerbatimtranscription;
+	}
 }  //  @jve:decl-index=0:visual-constraint="10,10"

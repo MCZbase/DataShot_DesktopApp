@@ -323,6 +323,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 	    //    this.add(getJPanel(), BorderLayout.CENTER);
 	        
 	    // Comment this block out to use design tool.
+	    //   see also getCbTypeStatus
 	        
 	    if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(
 	    		 ImageCaptureProperties.KEY_DETAILS_SCROLL).equals(ImageCaptureProperties.VALUE_DETAILS_SCROLL_FORCE_ON)) { 
@@ -3333,6 +3334,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 	private JComboBox<String> getCbTypeStatus() {
 		if (cbTypeStatus == null) {
 			cbTypeStatus = new JComboBox<String>(TypeStatus.getTypeStatusValues());
+			// cbTypeStatus = new JComboBox(TypeStatus.getTypeStatusValues());  // for visual editor
 			cbTypeStatus.setEditable(true);
 			cbTypeStatus.setToolTipText(MetadataRetriever.getFieldHelp(Specimen.class, "TypeStatus"));
 			cbTypeStatus.addKeyListener(new java.awt.event.KeyAdapter() {

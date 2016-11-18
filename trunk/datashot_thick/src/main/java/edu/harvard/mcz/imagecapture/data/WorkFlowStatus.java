@@ -65,19 +65,61 @@ public class WorkFlowStatus {
 	 */
 	public static final String STAGE_DONE = "Moved to MCZbase";
 	
-	private static final String[] CHANGABLE_VALUES = {STAGE_0, STAGE_1, STAGE_2,STAGE_QC_FAIL,STAGE_QC_PASS,STAGE_CLEAN}; 
-	private static final String[] VALUES = {STAGE_0, STAGE_1, STAGE_2,STAGE_QC_FAIL,STAGE_QC_PASS,STAGE_CLEAN,STAGE_DONE}; 
+	private static final String[] CHANGABLE_VALUES = {STAGE_0, STAGE_1,  STAGE_VERBATIM, STAGE_CLASSIFIED, STAGE_2,STAGE_QC_FAIL,STAGE_QC_PASS,STAGE_CLEAN}; 
+	private static final String[] VALUES = {STAGE_0, STAGE_1, STAGE_VERBATIM, STAGE_CLASSIFIED, STAGE_2,STAGE_QC_FAIL,STAGE_QC_PASS,STAGE_CLEAN,STAGE_DONE}; 
+	private static final String[] VERBATIM_VALUES = {STAGE_1, STAGE_VERBATIM};
+	private static final String[] VERBATIM_CLASSIFIED_VALUES = {STAGE_VERBATIM, STAGE_CLASSIFIED};
 	
+	/**
+	 * Obtain the list of all workflow status values that a user can put a record into.
+	 * 
+	 * @return array of string constants for all workflow status values that might be
+	 * set by a user.
+	 */
 	public static String[] getWorkFlowStatusValues() { 
 		String[] result = CHANGABLE_VALUES;  
 		return result;
 	}
+	
+	/**
+	 * Obtain the list of all workflow status values that can be used when a record may be
+	 * put into a verbatim captured state.  
+	 * 
+	 * @return array of string constants
+	 */
+	public static String[] getVerbatimWorkFlowStatusValues() { 
+		String[] result = VERBATIM_VALUES;  
+		return result;
+	}	
+	/**
+	 * Obtain the list of all workflow status values that can be used when a record may
+	 * be put into a verbatim classified state.
+	 * 
+	 * @return array of string constants.
+	 */
+	public static String[] getVerbatimClassifiedWorkFlowStatusValues() { 
+		String[] result = VERBATIM_CLASSIFIED_VALUES;  
+		return result;
+	}	
 
+	/**
+	 * Obtain the complete list of all possible workflow status values.
+	 * 
+	 * @return arry of string constants for all workflow status states.
+	 */
 	public static String[] getAllWorkFlowStatusValues() { 
 		String[] result = VALUES;  
 		return result;
 	}
 	
+	/**
+	 * Test to see whether or not a state can be changed to verbatim captured. 
+	 * 
+	 * @param workflowStatus a current workflow state to check 
+	 * @return true if the record can be placed into state verbatim captured from 
+	 *   its current (other) state, false otherwise.  False if the current state
+	 *   is already verbatim captured.
+	 */
 	public static boolean allowsVerbatimUpdate(String workflowStatus) { 
 		boolean result = false;
 		
