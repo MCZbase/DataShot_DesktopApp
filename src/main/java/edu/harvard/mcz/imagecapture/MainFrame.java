@@ -33,6 +33,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JPanel;
@@ -123,6 +124,8 @@ public class MainFrame extends JFrame implements RunnerListener {
 	private JProgressBar jProgressBar = null;
 	private JPanel jPanel1 = null;
 	private JLabel jLabelStatus = null;
+	private JMenuItem jMenuItemVerbatimTranscription = null;
+	private JMenuItem jMenuItemVerbatimClassification = null;
 	private JMenuItem jMenuItemBrowseSpecimens = null;
 	private JPanel jPanelCenter = null;
 	private JMenuItem jMenuItemEditTemplates = null;
@@ -998,6 +1001,8 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuData.setText("Data");
 			jMenuData.setMnemonic(KeyEvent.VK_D);
 			jMenuData.add(getJMenuItemSearch());
+			jMenuData.add(getJMenuItemVerbatimTranscription());
+			jMenuData.add(getJMenuItemVerbatimClassification());
 			jMenuData.add(getJMenuItemBrowseImages());
 			jMenuData.add(getJMenuItemBrowseSpecimens());
 		}
@@ -1021,6 +1026,36 @@ public class MainFrame extends JFrame implements RunnerListener {
 		return jMenuQualityControl;
 	}
 
+	private JMenuItem getJMenuItemVerbatimTranscription() {
+		if (jMenuItemVerbatimTranscription == null) {
+			jMenuItemVerbatimTranscription = new JMenuItem();
+			jMenuItemVerbatimTranscription.setText("Verbatim Transcription");
+			jMenuItemVerbatimTranscription.setEnabled(true);
+			jMenuItemVerbatimTranscription.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					VerbatimToTranscribeDialog s = new VerbatimToTranscribeDialog();
+					s.setVisible(true);
+				}
+			});
+		}
+		return jMenuItemVerbatimTranscription;
+	}	
+	
+	private JMenuItem getJMenuItemVerbatimClassification() {
+		if (jMenuItemVerbatimClassification == null) {
+			jMenuItemVerbatimClassification = new JMenuItem();
+			jMenuItemVerbatimClassification.setText("Fill in from Verbatim");
+			jMenuItemVerbatimClassification.setEnabled(true);
+			jMenuItemVerbatimClassification.addActionListener(new ActionListener(){
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					VerbatimListDialog s = new VerbatimListDialog();
+					s.setVisible(true);
+				}
+			});
+		}
+		return jMenuItemVerbatimClassification;
+	}	
+	
 	/**
 	 * This method initializes jMenuItem4	
 	 * 	

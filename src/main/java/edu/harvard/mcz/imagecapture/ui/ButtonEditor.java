@@ -24,6 +24,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
@@ -40,13 +41,19 @@ import edu.harvard.mcz.imagecapture.SpecimenBrowser;
 import edu.harvard.mcz.imagecapture.SpecimenControler;
 import edu.harvard.mcz.imagecapture.SpecimenPartAttributeDialog;
 import edu.harvard.mcz.imagecapture.UserListBrowser;
+import edu.harvard.mcz.imagecapture.VerbatimCaptureDialog;
+import edu.harvard.mcz.imagecapture.VerbatimClassifyDialog;
 import edu.harvard.mcz.imagecapture.data.Specimen;
+import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
 import edu.harvard.mcz.imagecapture.data.SpecimenListTableModel;
 import edu.harvard.mcz.imagecapture.data.SpecimenPart;
 import edu.harvard.mcz.imagecapture.data.Users;
+import edu.harvard.mcz.imagecapture.data.WorkFlowStatus;
 import edu.harvard.mcz.imagecapture.exceptions.NoSuchRecordException;
 import edu.harvard.mcz.imagecapture.exceptions.NoSuchTemplateException;
 import edu.harvard.mcz.imagecapture.interfaces.DataChangeListener;
+import edu.harvard.mcz.imagecapture.struct.GenusSpeciesCount;
+import edu.harvard.mcz.imagecapture.struct.VerbatimCount;
 
 /** ButtonEditor A clickable button in a table cell that brings up a details view for the row 
  * containing the button.  Works with ButtonRenderer and a TableModel that implements isCellEditable().
@@ -80,6 +87,8 @@ public class ButtonEditor extends AbstractCellEditor implements TableCellEditor,
 	public static final int OPEN_USER = 2;
 	public static final int ACTION_CANCEL_JOB = 3;
 	public static final int OPEN_SPECIMENPARTATTRIBUTES = 4;
+	public static final int OPEN_SPECIMEN_VERBATIM = 5;
+	public static final int OPEN_VERBATIM_CLASSIFY = 6;
 
 	private JButton button;  // the button to display
 	private Object targetId = null;    // value for the cell (primary key value for tuple displayed in row).
@@ -117,6 +126,8 @@ public class ButtonEditor extends AbstractCellEditor implements TableCellEditor,
 		button = new JButton();
 		if (aFormToOpen==ACTION_CANCEL_JOB) { 
 			button.setText("Cancel");
+		} else if (aFormToOpen==OPEN_SPECIMEN_VERBATIM) { 
+			button.setText("Transcribe");
 		} else { 
 			button.setText("Edit");	
 		}
@@ -246,6 +257,33 @@ public class ButtonEditor extends AbstractCellEditor implements TableCellEditor,
 				log.debug("Open user");
 				((UserListBrowser)parentComponent).getEditUserPanel().setUser((Users)targetId);
 				break;
+			case OPEN_SPECIMEN_VERBATIM:
+				log.debug("Open Verbatim Transcription");
+				SpecimenLifeCycle sls = new SpecimenLifeCycle();
+				List<Specimen> toTranscribe = sls.findForVerbatim(((GenusSpeciesCount)targetId).getGenus(), ((GenusSpeciesCount)targetId).getSpecificEpithet(), WorkFlowStatus.STAGE_1);
+				log.debug(toTranscribe.size());
+				SpecimenListTableModel stm =  new SpecimenListTableModel(toTranscribe);
+				JTable stable = new JTable();
+				stable.setModel(stm);
+				SpecimenControler verbCont;
+				try {
+					verbCont = new SpecimenControler(toTranscribe.get(0),stm,stable,0);
+					VerbatimCaptureDialog dialog = new VerbatimCaptureDialog(toTranscribe.get(0), verbCont);
+					dialog.setVisible(true);
+				} catch (NoSuchRecordException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				break;
+			case OPEN_VERBATIM_CLASSIFY:
+				log.debug("Open Verbatim Classify dialog");
+				try { 
+					VerbatimClassifyDialog dialog = new VerbatimClassifyDialog((VerbatimCount)table.getModel().getValueAt(row, 0));
+					dialog.setVisible(true);
+				} catch (ClassCastException e1) {
+					log.error(e1.getMessage(),e1);
+				}
+				break;				
 			case ACTION_CANCEL_JOB:
 				log.debug("Action Cancel requested on job " + targetId);
 				Singleton.getSingletonInstance().getJobList().getJobAt((Integer)targetId).cancel();

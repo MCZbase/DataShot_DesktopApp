@@ -30,6 +30,9 @@ import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
 import edu.harvard.mcz.imagecapture.exceptions.SpecimenExistsException;
 import edu.harvard.mcz.imagecapture.interfaces.BarcodeBuilder;
+import edu.harvard.mcz.imagecapture.struct.CountValue;
+import edu.harvard.mcz.imagecapture.struct.GenusSpeciesCount;
+import edu.harvard.mcz.imagecapture.struct.VerbatimCount;
 import static org.hibernate.criterion.Example.create;
 
 /**
@@ -429,6 +432,196 @@ for (int i=0; i<results.size(); i++) {
 				return result.toString();
 			}
 		}
+	
+	
+	@SuppressWarnings("unchecked")
+	/**
+	 * Obtain counts of the number of specimens needing verbatim transcription by genus and species. 
+	 * 
+	 * @return
+	 */
+	public List<GenusSpeciesCount> countSpecimensForVerbatim() {
+			ArrayList<GenusSpeciesCount> result = new ArrayList<GenusSpeciesCount>();
+			try {
+				String sql = "Select count(S), genus, specificEpithet from Specimen S where S.workFlowStatus = 'Taxon Entered' group by S.genus, S.specificEpithet ";
+				Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+				try { 
+					session.beginTransaction();
+					Iterator results = session.createQuery(sql).list().iterator();
+					while ( results.hasNext() ) {
+					    Object[] row = (Object[]) results.next();
+					    Long count = Long.parseLong(row[0].toString());
+					    String genus = (String) row[1];
+					    String specificEpithet = (String) row[2];
+						result.add(new GenusSpeciesCount(count, genus, specificEpithet));
+					}
+					session.getTransaction().commit();
+				} catch (HibernateException e) { 
+					session.getTransaction().rollback();
+					log.error(e.getMessage());
+				}
+				try { session.close(); } catch (SessionException e) { }
+			} catch (RuntimeException re) {
+				log.error(re);
+			}
+			return result;
+		}	
+	
+	/**
+	 * Get counts of distinct values of verbatim data that has not yet been classified.
+	 * 
+	 * @return List of counts and distinct verbatim field values.
+	 */
+	public List<VerbatimCount> countDistinctVerbatimValues() {
+		ArrayList<VerbatimCount> result = new ArrayList<VerbatimCount>();
+		try {
+			String sql = "Select count(S), S.verbatimLocality, S.dateNos, S.verbatimCollector, S.verbatimCollection, "
+					+ "S.verbatimNumbers, S.verbatimUnclassifiedText "
+					+ "from Specimen S "
+					+ "where S.workFlowStatus = 'Verbatim Entered' "
+					+ "group by S.verbatimLocality, S.dateNos, S.verbatimCollector, S.verbatimCollection, "
+					+ "S.verbatimNumbers, S.verbatimUnclassifiedText ";
+			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+			try { 
+				session.beginTransaction();
+				Iterator results = session.createQuery(sql).list().iterator();
+				while ( results.hasNext() ) {
+				    Object[] row = (Object[]) results.next();
+				    Long count = Long.parseLong(row[0].toString());
+				    String verbatimLocality = (String) row[1];
+				    String dateNos = (String) row[2];
+				    String verbatimCollector = (String) row[3];
+				    String verbatimCollection = (String) row[4];
+				    String verbatimNumbers = (String) row[5];
+				    String verbatimUnclassifiedText = (String) row[6];
+					result.add(new VerbatimCount(count.intValue(), verbatimLocality, dateNos, verbatimCollector, verbatimCollection, verbatimNumbers, verbatimUnclassifiedText));
+				}
+				session.getTransaction().commit();
+			} catch (HibernateException e) { 
+				session.getTransaction().rollback();
+				log.error(e.getMessage());
+			}
+			try { session.close(); } catch (SessionException e) { }
+		} catch (RuntimeException re) {
+			log.error(re);
+		}
+		return result;
+	}	
+	
+	
+	
+	@SuppressWarnings("unchecked")
+	public List<Specimen> findForVerbatim(String genus, String specificEpithet, String workflowStatus) {
+		log.debug("finding Specimen instances for verbatim capture");
+		try {
+			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+			List<Specimen> results = null;
+			try { 
+				session.beginTransaction();
+				Query query  =  session.createQuery("From Specimen as s where s.genus = ? and s.specificEpithet = ? and s.workFlowStatus = ? ");
+				query.setParameter(0, genus);
+				query.setParameter(1, specificEpithet);
+				query.setParameter(2, workflowStatus);
+				results = (List<Specimen>) query.list();
+			    log.debug("find query successful, result size: " + results.size());
+			    session.getTransaction().commit();
+		    } catch (HibernateException e) {
+		    	session.getTransaction().rollback();
+		    	log.error("find by example failed", e);	
+		    }
+		    try { session.close(); } catch (SessionException e) { }
+			return results;
+		} catch (RuntimeException re) {
+			log.error("find by example failed", re);
+			throw re;
+		}
+	}	
+	
+	@SuppressWarnings("unchecked")
+	public List<CountValue> findTaxaFromVerbatim(VerbatimCount verbatim) {
+		log.debug("finding counts of taxa for verbatim values");
+		List<CountValue> result = new ArrayList<CountValue>();
+		try {
+			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+			try { 
+				session.beginTransaction();
+				Query query  =  session.createQuery("Select count(s), s.genus, s.specificEpithet "
+						+ "From Specimen as s "
+						+ "where s.verbatimLocality = ? and s.dateNos = ? "
+						+ "   and s.verbatimCollector = ? and s.verbatimCollection = ? "
+						+ "   and s.verbatimNumbers = ? and s.verbatimUnclassifiedText = ? "
+						);
+				query.setParameter(0, verbatim.getVerbatimLocality());
+				query.setParameter(1, verbatim.getVerbatimDate());
+				query.setParameter(2, verbatim.getVerbatimCollector());
+				query.setParameter(3, verbatim.getVerbatimCollection());
+				query.setParameter(4, verbatim.getVerbatimNumbers());
+				query.setParameter(5, verbatim.getVerbatimUnclassfiedText());
+				Iterator i = query.list().iterator();
+				while (i.hasNext()) { 
+					Object[] row = (Object[]) i.next();
+				    Long count = Long.parseLong(row[0].toString());
+				    String genus = (String) row[1];
+				    String specificEpithet = (String) row[2];
+				    StringBuffer taxon = new StringBuffer().append(genus).append(" ").append(specificEpithet);
+				    result.add(new CountValue(count.intValue(), taxon.toString().trim()));
+				}
+			    log.debug("count query successful, result size: " + result.size());
+			    session.getTransaction().commit();
+		    } catch (HibernateException e) {
+		    	session.getTransaction().rollback();
+		    	log.error("find for verbatim failed", e);	
+		    }
+		    try { session.close(); } catch (SessionException e) { }
+			return result;
+		} catch (RuntimeException re) {
+			log.error("find for verbatim failed", re);
+			throw re;
+		}
+	}	
+	
+	@SuppressWarnings("unchecked")
+	/**
+	 * Find specimen records that are currently in state verbatim captured and which have 
+	 * the provided values for verbatim fields.
+	 * 
+	 * @param verbatim
+	 * @return
+	 */
+	public List<Specimen> findSpecimensFromVerbatim(VerbatimCount verbatim) {
+		log.debug("finding specimens from verbatim values");
+		List<Specimen> result = new ArrayList<Specimen>();
+		try {
+			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+			try { 
+				session.beginTransaction();
+				Query query  =  session.createQuery("From Specimen as s "
+						+ "where s.verbatimLocality = ? and s.dateNos = ? "
+						+ "   and s.verbatimCollector = ? and s.verbatimCollection = ? "
+						+ "   and s.verbatimNumbers = ? and s.verbatimUnclassifiedText = ? "
+						+ "   and s.workFlowStatus = '" + WorkFlowStatus.STAGE_VERBATIM + "' "
+						);
+				query.setParameter(0, verbatim.getVerbatimLocality());
+				query.setParameter(1, verbatim.getVerbatimDate());
+				query.setParameter(2, verbatim.getVerbatimCollector());
+				query.setParameter(3, verbatim.getVerbatimCollection());
+				query.setParameter(4, verbatim.getVerbatimNumbers());
+				query.setParameter(5, verbatim.getVerbatimUnclassfiedText());
+				result = query.list();
+
+			    log.debug("specimen query successful, result size: " + result.size());
+			    session.getTransaction().commit();
+		    } catch (HibernateException e) {
+		    	session.getTransaction().rollback();
+		    	log.error("find specimens for verbatim failed", e);	
+		    }
+		    try { session.close(); } catch (SessionException e) { }
+			return result;
+		} catch (RuntimeException re) {
+			log.error("find specimens for verbatim failed", re);
+			throw re;
+		}
+	}		
 	
 	public int getFieldSize(String fieldName) { 
 		int returnValue = 0; 

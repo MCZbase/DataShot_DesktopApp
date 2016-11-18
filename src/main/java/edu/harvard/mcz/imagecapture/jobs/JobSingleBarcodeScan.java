@@ -245,15 +245,22 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 
 
 				String warning = "";
-				if (!barcode.equals(exifComment)) {
-					warning = "Warning: non-matching QR code barcode and exif Comment";
-					System.out.println(warning);	
+				if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REDUNDANT_COMMENT_BARCODE).equals("true")) {
+					if (!barcode.equals(exifComment)) {
+						warning = "Warning: non-matching QR code barcode and exif Comment";
+						System.out.println(warning);	
+					}
 				}
 
 				Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Loading image.");
 
 				ImageDisplayFrame resultFrame = new ImageDisplayFrame();
-				resultFrame.setBarcode("QR="+barcode + " Comment=" + exifComment + " " + warning);
+					
+				if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REDUNDANT_COMMENT_BARCODE).equals("true")) {
+					resultFrame.setBarcode("QR="+barcode + " Comment=" + exifComment + " " + warning);
+				} else { 
+					resultFrame.setBarcode("QR="+barcode);
+				}
 
 				try {
 					resultFrame.loadImagesFromFile(fileToCheck, defaultTemplate, null);
@@ -603,7 +610,10 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 							SpecimenDetailsViewPane sPane = new SpecimenDetailsViewPane(tryMe.getSpecimen(), controler);
 							resultFrame.addWest((JPanel)sPane);
 							if (!tryMe.getRawBarcode().equals(tryMe.getRawExifBarcode())) { 
-								sPane.setWarning("Warning: Scanned Image has missmatch between barcode and comment.");
+								if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REDUNDANT_COMMENT_BARCODE).equals("true")) {
+									// If so configured, warn about missmatch 
+									sPane.setWarning("Warning: Scanned Image has missmatch between barcode and comment.");
+								}
 							}
 						}
 						resultFrame.center();
@@ -655,7 +665,9 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 							resultFrame.setActiveTab(ImageDisplayFrame.TAB_LABELS);
 							resultFrame.fitPinLabels();
 							if (!existing.getRawBarcode().equals(existing.getRawExifBarcode())) { 
-								sPane.setWarning("Warning: Scanned Image has missmatch between barcode and comment.");
+								if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REDUNDANT_COMMENT_BARCODE).equals("true")) {
+									sPane.setWarning("Warning: Scanned Image has missmatch between barcode and comment.");
+								}
 							}
 						}
 						setPercentComplete(90);

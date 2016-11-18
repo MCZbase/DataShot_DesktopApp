@@ -19,15 +19,11 @@
  */
 package edu.harvard.mcz.imagecapture;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableModel;
 
@@ -164,7 +160,45 @@ public class SpecimenControler {
 		return result;
 	}
 		
+	/**
+	 * Is there a next specimen in the table model?
+	 * 
+	 * @return true if there is a table model and the current position isn't the last.
+	 */
+	public boolean hasNextSpecimenInTable() { 
+		boolean result = false;
+		if (inTable && model!=null && currentRow > -1) {
+			try { 
+				Specimen temp =(Specimen) model.getValueAt(table.convertRowIndexToModel(currentRow+1), 0); 
+				if (temp!=null) { 
+					result = true;
+				}
+			} catch (IndexOutOfBoundsException e) { 
+				log.debug(e);
+			}
+		}
+		return result;	
+	}
 	
+	/**
+	 * Is there a previous specimen in the table model? 
+	 * 
+	 * @return true if there is a table model and the current position isn't the first.
+	 */
+	public boolean hasPreviousSpecimenInTable() { 
+		boolean result = false;
+		if (inTable && model!=null && currentRow > -1 && currentRow > 0) {
+			try { 
+				Specimen temp =(Specimen) model.getValueAt(table.convertRowIndexToModel(currentRow-1), 0); 
+				if (temp!=null) { 
+					result = true;
+				}
+			} catch (IndexOutOfBoundsException e) { 
+				log.debug(e);
+			}
+		}
+		return result;		
+	}
 	
 	public boolean setSpecimen(Long aSpecimenID) throws NoSuchRecordException {
 		boolean result = false;
@@ -176,6 +210,10 @@ public class SpecimenControler {
 			result = true;
 		}
 		return result;
+	}
+	
+	public Specimen getSpecimen() {
+		return specimen;
 	}
 	
 	public boolean save() throws SaveFailedException { 
@@ -201,7 +239,7 @@ public class SpecimenControler {
 	public void displayInEditor() { 
 		boolean isNew = false;
 		if (resultFrame==null) { 
-		    resultFrame = new ImageDisplayFrame(specimen);
+		    resultFrame = new ImageDisplayFrame(specimen, this);
 		    isNew = true;
 		} 
 		SpecimenDetailsViewPane p = new SpecimenDetailsViewPane(specimen, this);

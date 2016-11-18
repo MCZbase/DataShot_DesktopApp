@@ -356,22 +356,32 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 				} 
 				String rawBarcode = barcode;
 
-				// Check for missmatch in barcode and comment
+				// Check for mismatch in barcode and comment
 				if (!rawBarcode.equals(exifComment)) {
 					// Use the exifComment if it is a barcode
+					boolean barcodeInImageMetadata = false;
 					if (Singleton.getSingletonInstance().getBarcodeMatcher().matchesPattern(exifComment))  { 
 						rawBarcode = exifComment;
+						barcodeInImageMetadata = true;
 					}
-					// Log the missmatch
-					try { 
-						RunnableJobError error =  new RunnableJobError(filename, barcode,
-								barcode, exifComment, "Barcode/Comment missmatch.",
-								parser, (DrawerNameReturner) parser,
-								null, RunnableJobError.TYPE_MISMATCH);
-						counter.appendError(error);
-					} catch (Exception e) { 
-						// we don't want an exception to stop processing 
-						log.error(e);
+					// Log the mismatch
+					if (barcodeInImageMetadata || Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REDUNDANT_COMMENT_BARCODE).equals("true")) {
+						// report on missmatch if the image metadata contained a value or 
+						// if the image metadata is expected to contain a value 
+						try { 
+							RunnableJobError error =  new RunnableJobError(filename, barcode,
+									barcode, exifComment, "Barcode/Comment mismatch.",
+									parser, (DrawerNameReturner) parser,
+									null, RunnableJobError.TYPE_MISMATCH);
+							counter.appendError(error);
+						} catch (Exception e) { 
+							// we don't want an exception to stop processing 
+							log.error(e);
+						}
+					} else {
+						// Just log if the image metadata is not expected to contain a value 
+						// This would be the case of a barcode in the image, but not in the image metadata.
+						log.debug("Barcode/Comment mismatch: ["+barcode+"]!=["+exifComment+"]");
 					}
 				}
 				if (isSpecimenImage && Singleton.getSingletonInstance().getBarcodeMatcher().matchesPattern(rawBarcode) ) {

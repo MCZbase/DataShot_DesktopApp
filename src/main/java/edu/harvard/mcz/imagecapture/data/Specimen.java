@@ -50,6 +50,10 @@ public class Specimen implements java.io.Serializable {
 	private String primaryDivison;
 	private String specificLocality;
 	private String verbatimLocality;
+	private String verbatimCollector;
+	private String verbatimCollection;
+	private String verbatimNumbers;
+	private String verbatimUnclassifiedText;
 	// private String verbatimElevation;
 	private Long minimum_elevation;
 	private Long maximum_elevation;
@@ -510,6 +514,62 @@ public class Specimen implements java.io.Serializable {
 //	}
 
 	/**
+	 * @return the verbatimCollector
+	 */
+	public String getVerbatimCollector() {
+		return verbatimCollector;
+	}
+
+	/**
+	 * @param verbatimCollector the verbatimCollector to set
+	 */
+	public void setVerbatimCollector(String verbatimCollector) {
+		this.verbatimCollector = verbatimCollector;
+	}
+
+	/**
+	 * @return the verbatimCollection
+	 */
+	public String getVerbatimCollection() {
+		return verbatimCollection;
+	}
+
+	/**
+	 * @param verbatimCollection the verbatimCollection to set
+	 */
+	public void setVerbatimCollection(String verbatimCollection) {
+		this.verbatimCollection = verbatimCollection;
+	}
+
+	/**
+	 * @return the verbatimNumbers
+	 */
+	public String getVerbatimNumbers() {
+		return verbatimNumbers;
+	}
+
+	/**
+	 * @param verbatimNumbers the verbatimNumbers to set
+	 */
+	public void setVerbatimNumbers(String verbatimNumbers) {
+		this.verbatimNumbers = verbatimNumbers;
+	}
+
+	/**
+	 * @return the verbatimUnclassifiedText
+	 */
+	public String getVerbatimUnclassifiedText() {
+		return verbatimUnclassifiedText;
+	}
+
+	/**
+	 * @param verbatimUnclassifiedText the verbatimUnclassifiedText to set
+	 */
+	public void setVerbatimUnclassifiedText(String verbatimUnclassifiedText) {
+		this.verbatimUnclassifiedText = verbatimUnclassifiedText;
+	}
+
+	/**
 	 * @return the minimum_elevation
 	 */
 	public Long getMinimum_elevation() {
@@ -938,6 +998,18 @@ public class Specimen implements java.io.Serializable {
 	 */
 	public void noSpecificLocalityData() { 
 		this.specificLocality = "[no specific locality data]";
+	}
+	
+	/**
+	 * Assemble relevant fields of the current identification into a scientific name.
+	 * 
+	 * @return
+	 */
+	public String assembleScientificName() { 
+		StringBuffer result = new StringBuffer();
+		result.append(genus).append(" ").append(specificEpithet).append(" ").append(this.infraspecificRank).append(" ").append(this.infraspecificEpithet);
+		
+		return result.toString().trim();
 	}
 
 }

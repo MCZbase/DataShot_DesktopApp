@@ -136,6 +136,11 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 	public static final String KEY_REGEX_DRAWERNUMBER = "images.regexdrawernumber";
 	
 	/**
+	 * Are images expected to contain the barcode number in exif or xmp metadata?
+	 */
+	public static final String KEY_REDUNDANT_COMMENT_BARCODE = "images.metadatacontainsbarcode";
+	
+	/**
 	 *  Value for KEY_DETAILS_SCROLL that will cause the specimen details view pane to
 	 *  have scroll bars forced to be turned on.
 	 *   
@@ -451,6 +456,11 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 		if (!properties.containsKey(KEY_REGEX_DRAWERNUMBER)) { 
 			// default value is 120 pixels.
 			properties.setProperty(KEY_REGEX_DRAWERNUMBER, ImageCaptureApp.REGEX_DRAWERNUMBER);
+		}			
+		if (!properties.containsKey(KEY_REDUNDANT_COMMENT_BARCODE)) { 
+			// default value is that images are expected to contain the barcode number
+			// in both the image and in its metadata.  
+			properties.setProperty(KEY_REDUNDANT_COMMENT_BARCODE, "true");
 		}			
 		
 		
