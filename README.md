@@ -51,33 +51,33 @@ from oracle.
 
 Add it to your local .m2 
 
-mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc14 \
- -Dversion=10.2.0.5.0 -Dpackaging=jar -Dfile=ojdbc14.jar -DgeneratePom=true
+    mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc14 \
+      -Dversion=10.2.0.5.0 -Dpackaging=jar -Dfile=ojdbc14.jar -DgeneratePom=true
 
 (2) Create a test database.  A dump of the schema of a working 
 test database (as of version 1.0.4) is in docs_manual/sql/mysql_ver1.0.4.sql
 the expected name, user and location of this database are in 
-src/main/java/hibernate.cfg.xml (you will need to create a database lepidoptera.
+src/main/java/hibernate.cfg.xml (you will need to create a database lepidoptera).
 
-mysql lepidoptera -p < docs_manual/sql/mysql_ver1.0.4.sql
-mysql lepidoptera -p < docs_manual/sql/mysql_post_ver1.1.0.changes.sql
+    mysql lepidoptera -p < docs_manual/sql/mysql_ver1.0.4.sql
+    mysql lepidoptera -p < docs_manual/sql/mysql_post_ver1.1.0.changes.sql
 
 Once this database has been created, you'll need to create a user that the
 application will use to connect to the database, that is a user LEPIDOPTERA 
 with select/insert/update/delete privileges on the lepidoptera schema on localhost.
 
-grant select, insert, update, delete on lepidoptera.* to 'dbuser'@'localhost'; 
+    grant select, insert, update, delete on lepidoptera.* to 'LEPIDOPTERA'@'localhost';     
 
 And then insert a row for a DataShot administrator into the LEPIDPTERA.Users table. 
 
-insert into Users (username,fullname,role,hash,description) values
-('useremail','full name','Administrator',sha1('password'),'the users role in the project');
+    insert into Users (username,fullname,role,hash,description) values
+      ('useremail','full name','Administrator',sha1('password'),'the users role in the project');
 
 (3) Create a not_vcs directory in the project root, copy the file
 src/main/java/hibernate.cfg.xml into that directory and edit it to supply 
 connection parameters for your production database, then build with:
 
-mvn package -DskipTests 
+    mvn package -DskipTests 
 
 (If you have a test database set up that fits the parameters in the 
 hibernate.cfg.xml file, then you can omit the -DskipTests to run the tests, 
@@ -87,7 +87,7 @@ put a password inside src/main/java/hibernate.cfg.xml)
 The resulting executable jar file will be in build/ImageCapture.jar,
 you can run it with:
 
-java -jar ImageCapture.jar 
+    java -jar ImageCapture.jar 
 
 You should not redistribute this file outside your organization.
 
@@ -107,12 +107,12 @@ order to build a CandidateImageFile.jar that can examine an image file or
 a directory of image files and produce a list of filenames and barcodes found
 in the files.
 
-ant -f build_CIF.xml
+    ant -f build_CIF.xml
 
 The resulting executable jar file will be in build/CandidateImageFile.jar,
 you can run it with:
 
-java -jar CandidateImageFile.jar -h
+    java -jar CandidateImageFile.jar -h
 
 == Setup ==
 
