@@ -1,4 +1,4 @@
-== About ==
+# About 
 
 This is the desktop application client for DataShot.  It is intended to 
 support an object-precapture-image-data workflow for capture of natural 
@@ -37,7 +37,7 @@ transcribe data from the labels and about the specimen in the image to
 database fields, and that a user with an editorial role will approve the
 specimen records for bulkload into the database of record.  
 
-== Building ==
+# Building
 
 Use maven to build (ant is invoked by maven to build executable jar files).  
 
@@ -114,7 +114,7 @@ you can run it with:
 
     java -jar CandidateImageFile.jar -h
 
-== Setup ==
+# Setup 
 
 Setup involves building one or more carriers, setting up an imaging station,
 producing test images, and creating template records (using the template
@@ -131,8 +131,7 @@ http://mczbase.mcz.harvard.edu/MediaSet.cfm?media_id=232908
 MCZ Ant Carrier (catalog number barcode left center): 
 http://mczbase.mcz.harvard.edu/MediaSet.cfm?media_id=227294
 
-
-== External data paths == 
+# External data paths
 
 As of version 1.1.0, there is experimental support for transcription of 
 verbatim information in other external applications and load of that data back into
@@ -146,6 +145,6 @@ verbatimLocality or DateNOS fields.  To do this, construct a csv file
 containing the data to be ingested with the columns below, and select 
 Action/Load Data from the main menu. 
 
-"barcode","verbatimLocality","verbatimDate","questions"
+    "barcode","verbatimLocality","verbatimDate","questions"
 
 This functionality is expected to change in future versions.
