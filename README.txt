@@ -57,11 +57,21 @@ mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc14 \
 (2) Create a test database.  A dump of the schema of a working 
 test database (as of version 1.0.4) is in docs_manual/sql/mysql_ver1.0.4.sql
 the expected name, user and location of this database are in 
-src/main/java/hibernate.cfg.xml (you will need to create a database lepidoptera
-and a user LEPIDOPTERA with select/insert/update/delete privileges on 
-the lepidoptera schema on localhost.
+src/main/java/hibernate.cfg.xml (you will need to create a database lepidoptera.
 
 mysql lepidoptera -p < docs_manual/sql/mysql_ver1.0.4.sql
+mysql lepidoptera -p < docs_manual/sql/mysql_post_ver1.1.0.changes.sql
+
+Once this database has been created, you'll need to create a user that the
+application will use to connect to the database, that is a user LEPIDOPTERA 
+with select/insert/update/delete privileges on the lepidoptera schema on localhost.
+
+grant select, insert, update, delete on lepidoptera.* to 'dbuser'@'localhost'; 
+
+And then insert a row for a DataShot administrator into the LEPIDPTERA.Users table. 
+
+insert into Users (username,fullname,role,hash,description) values
+('useremail','full name','Administrator',sha1('password'),'the users role in the project');
 
 (3) Create a not_vcs directory in the project root, copy the file
 src/main/java/hibernate.cfg.xml into that directory and edit it to supply 
