@@ -177,9 +177,20 @@ public class ImageCaptureApp {
 		log.debug("Properties loaded");
 		
 		// Set up a barcode (text read from barcode label for pin) matcher/builder
-		MCZENTBarcode barcodeTextBuilderMatcher = new MCZENTBarcode();
-		Singleton.getSingletonInstance().setBarcodeBuilder((BarcodeBuilder)barcodeTextBuilderMatcher);
-		Singleton.getSingletonInstance().setBarcodeMatcher((BarcodeMatcher)barcodeTextBuilderMatcher);
+		if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_COLLECTION).equals(ImageCaptureProperties.COLLECTION_MCZENT)) { 
+			// ** Configured for the MCZ Entomology Collection, use MCZ assumptions.
+		    MCZENTBarcode barcodeTextBuilderMatcher = new MCZENTBarcode();
+		    Singleton.getSingletonInstance().setBarcodeBuilder((BarcodeBuilder)barcodeTextBuilderMatcher);
+		    Singleton.getSingletonInstance().setBarcodeMatcher((BarcodeMatcher)barcodeTextBuilderMatcher);
+		} else if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_COLLECTION).equals(ImageCaptureProperties.COLLECTION_ETHZENT)) { 
+			// ** Configured for the ETHZ Entomology Collection, use MCZ assumptions.
+		    ETHZBarcode barcodeTextBuilderMatcher = new ETHZBarcode();
+		    Singleton.getSingletonInstance().setBarcodeBuilder((BarcodeBuilder)barcodeTextBuilderMatcher);
+		    Singleton.getSingletonInstance().setBarcodeMatcher((BarcodeMatcher)barcodeTextBuilderMatcher);
+		} else { 
+			log.error("Configured collection not recognized.  Unable to Start");
+			System.exit(EXIT_ERROR);
+		}
 		
 		// Setup to store a list of running RunnableJobs.
 		Singleton.getSingletonInstance().setJobList(new RunnableJobTableModel());

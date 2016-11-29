@@ -42,6 +42,14 @@ import edu.harvard.mcz.imagecapture.exceptions.NoSuchTemplateException;
  */
 public class ImageCaptureProperties  extends AbstractTableModel {
 	
+	public static final String COLLECTION_MCZENT = "MCZ-ENT";
+	public static final String COLLECTION_ETHZENT = "ETHZ-ENT";
+	
+	/**
+	 * The collection for which this deployment is configured to work with.
+	 */
+	public static final String KEY_COLLECTION = "configuration.collection";
+	
 	/**
 	 * The most recent location selected for scanning a barcode.
 	 */
@@ -390,6 +398,24 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 	 * 
 	 */
 	private void checkDefaults() { 
+		if (!properties.containsKey(KEY_COLLECTION))  {
+			// Root of the path of the place where all image files should be stored.
+			properties.setProperty(KEY_COLLECTION,ImageCaptureProperties.COLLECTION_MCZENT);	
+		} else { 
+			switch (properties.get(KEY_COLLECTION).toString().trim()) { 
+			case (ImageCaptureProperties.COLLECTION_ETHZENT):
+				log.debug("Configured for " + ImageCaptureProperties.COLLECTION_ETHZENT );
+				break;
+			case (ImageCaptureProperties.COLLECTION_MCZENT):
+				log.debug("Configured for " + ImageCaptureProperties.COLLECTION_MCZENT );
+				break;
+			default:
+				log.error("Unrecognized collection: " + properties.get(KEY_COLLECTION).toString());
+				log.error("Allowed values for " + ImageCaptureProperties.KEY_COLLECTION + " are " +
+				    ImageCaptureProperties.COLLECTION_MCZENT + " or " +
+					ImageCaptureProperties.COLLECTION_ETHZENT);
+			}
+		}
 		if (!properties.containsKey(KEY_IMAGEBASE))  {
 			// Root of the path of the place where all image files should be stored.
 			properties.setProperty(KEY_IMAGEBASE,"/mount/lepidopteraimages");	

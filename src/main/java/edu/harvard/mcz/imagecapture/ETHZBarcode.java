@@ -43,7 +43,7 @@ public class ETHZBarcode implements BarcodeMatcher, BarcodeBuilder {
 	public Integer extractNumber(String aBarcode) {
 		Integer result = null;
 		if (matchesPattern(aBarcode)) { 
-			result = Integer.valueOf(aBarcode.substring(aBarcode.length()-8,aBarcode.length()));
+			result = Integer.valueOf(aBarcode.substring(aBarcode.length()-DIGITS,aBarcode.length()));
 		}
 		return result;
 	}
@@ -52,7 +52,12 @@ public class ETHZBarcode implements BarcodeMatcher, BarcodeBuilder {
 	 * @see edu.harvard.mcz.imagecapture.BarcodeMatcher#matchesPattern(java.lang.String)
 	 */
 	public boolean matchesPattern(String aBarcode) { 
-		boolean result = aBarcode.matches("^"+PATTERN +"$");
+		boolean result = false;
+		try { 
+			result = aBarcode.matches("^"+PATTERN +"$");
+		} catch (NullPointerException e) { 
+			// if aBarcode was null, treat result as false.
+		}
 		return result;
 	}
 	

@@ -21,6 +21,9 @@ package edu.harvard.mcz.imagecapture;
 
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.harvard.mcz.imagecapture.interfaces.BarcodeBuilder;
 import edu.harvard.mcz.imagecapture.interfaces.BarcodeMatcher;
 
@@ -37,6 +40,12 @@ public class MCZENTBarcode implements BarcodeMatcher, BarcodeBuilder {
 	public static final String PREFIX = "MCZ-ENT";
 	public static final int DIGITS = 8;
 	
+	private static final Log log = LogFactory.getLog(MCZENTBarcode.class); 
+	
+	public MCZENTBarcode() { 
+		log.debug("Instatntiating " + this.getClass().toString());
+	}
+	
 	/* (non-Javadoc)
 	 * @see edu.harvard.mcz.imagecapture.BarcodeBuilder#getNumber(java.lang.String)
 	 */
@@ -52,7 +61,12 @@ public class MCZENTBarcode implements BarcodeMatcher, BarcodeBuilder {
 	 * @see edu.harvard.mcz.imagecapture.BarcodeMatcher#matchesPattern(java.lang.String)
 	 */
 	public boolean matchesPattern(String aBarcode) { 
-		boolean result = aBarcode.matches("^"+PATTERN +"$");
+		boolean result = false;
+		try { 
+			result = aBarcode.matches("^"+PATTERN +"$");
+		} catch (NullPointerException e) { 
+			// if aBarcode was null, treat result as false.
+		}
 		return result;
 	}
 	

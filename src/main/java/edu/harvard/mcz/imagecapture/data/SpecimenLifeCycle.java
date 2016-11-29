@@ -776,7 +776,7 @@ for (int i=0; i<results.size(); i++) {
 				Iterator i = results.iterator();
 				while (i.hasNext()) { 
 					BigDecimal value = (BigDecimal)i.next();
-					BarcodeBuilder builder = new MCZENTBarcode();
+					BarcodeBuilder builder = Singleton.getSingletonInstance().getBarcodeBuilder();
                     missing.add(builder.makeFromNumber(value.toBigInteger().intValue())); 
                     log.debug(value);
 				}

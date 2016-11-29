@@ -76,6 +76,7 @@ public class TestMCZENTBarcodeMatching extends TestCase {
 		assertFalse(matcher.matchesPattern("MCZ-E"));
 		assertFalse(matcher.matchesPattern("MCZ-EN"));
 		assertFalse(matcher.matchesPattern("MCZ-ENT"));
+		assertFalse(matcher.matchesPattern("ETHZ-ENT0123456"));
 	}
 
 	/**
@@ -122,6 +123,15 @@ public class TestMCZENTBarcodeMatching extends TestCase {
 			   assertFalse(matcher.matchesPattern(builder.makeFromNumber(i+1)));
 		   }
 		}
+		for (int i=99999900; i<=99999999; i = i + 1) { 
+			   assertTrue(matcher.matchesPattern(builder.makeFromNumber(i-1)));
+			   assertTrue(matcher.matchesPattern(builder.makeFromNumber(i)));
+			   if (i+1 <= 99999999) { 
+			       assertTrue(matcher.matchesPattern(builder.makeFromNumber(i+1)));
+			   } else { 
+				   assertFalse(matcher.matchesPattern(builder.makeFromNumber(i+1)));
+			   }
+			}		
 	}
 
 }

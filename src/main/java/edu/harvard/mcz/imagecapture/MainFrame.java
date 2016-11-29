@@ -1126,8 +1126,8 @@ public class MainFrame extends JFrame implements RunnerListener {
 					if (missingBarcodes.length>0) {
 						Counter errorCount = new Counter();
 						for (int i=0; i<missingBarcodes.length; i++) { 
-							BarcodeBuilder builder = new MCZENTBarcode();
-							BarcodeMatcher matcher = new MCZENTBarcode();
+							BarcodeBuilder builder = Singleton.getSingletonInstance().getBarcodeBuilder();
+							BarcodeMatcher matcher = Singleton.getSingletonInstance().getBarcodeMatcher();
 							String previous = builder.makeFromNumber(matcher.extractNumber(missingBarcodes[i]) - 1);							
 							String previousFile = ""; 
 							String previousPath = "";
