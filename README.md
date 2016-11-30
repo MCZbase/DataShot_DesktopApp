@@ -73,6 +73,9 @@ And then insert a row for a DataShot administrator into the LEPIDPTERA.Users tab
     insert into Users (username,fullname,role,hash,description) values
       ('useremail','full name','Administrator',sha1('password'),'the users role in the project');
 
+Once you have inserted the first administrator user, you should enter any additional users
+through the user interface in the application (Configuration/Users on the main menu).
+
 (3) Create a not_vcs directory in the project root, copy the file
 src/main/java/hibernate.cfg.xml into that directory and edit it to supply 
 connection parameters for your production database, then build with:
@@ -116,9 +119,82 @@ you can run it with:
 
 # Setup 
 
-Setup involves building one or more carriers, setting up an imaging station,
-producing test images, and creating template records (using the template
-record editor in this application) from those test images.
+Setup involves configuring the application, building one or more carriers, 
+setting up an imaging station, producing test images, and creating template 
+records (using the template record editor in this application 
+(Configuration/Edit Templates on the main menu) from those test images.
+
+## Configuration
+
+To configure the application, see Configuration/Properties on the main menu
+or edit the imagecapture.properties file created when the application first runs.
+
+The following configuration parameters are critical for setup:
+
+    configuration.collection=MCZ-ENT
+    images.thumbnailheight=120
+    images.thumbnailwidth=80
+    images.filenameregex=^IMG_[0-9]{6}\\.JPG$
+    images.basedirectory=/home/mole/stuff/MCZ/mcz/insects/testImages/base/
+    images.basedirectoryurimap=http\://mczbase.mcz.harvard.edu/specimen_images/
+    images.regexdrawernumber=[0-9]{3}\\Q.\\E[0-9]+
+    images.metadatacontainsbarcode=true
+    default.preparation=pinned
+
+configuration.collection must be one of MCZ-ENT or ETHZ-ENT, it configures what catalog number barcodes are expected (and, later, other behavior).
+
+images.thumbnailheight and images.thumbnailwidth determine the size of thumbnail images that will be generated when images are preprocessed.
+
+images.filenameregex only files with a filename that matches this regular expression pattern will be preprocessed.  
+
+**There is a key assumption that all images will be stored on shared storage and that every instance of the application 
+will have the images available at a known mount point**, where part of the path to the images is held as local configuration
+ and part is stored in the database.  The path below this mount point cannot change without all of the records in the 
+database having to be updated.  The local path to this mount point can vary amongst client installations. 
+
+For example, an image may have an Image.path value of: ent-lepidoptera\images\2009_04_29\IMG_000657.JPG
+
+A windows user of the deskop application might have the local image root mounted at Z:\, configured as 
+such in the desktop application, which then knows to put the local path by configuration together with 
+the path from the database to retrieve the image at: 
+Z:\ent-lepidoptera\images\2009_04_29\IMG_000657.JPG
+
+For this user, images.basedirectory=Z:\
+
+A user running the application on a Linux workstation might have a local image root = /mount/insectimages/
+which is a mount point for directory on a shared storage device, and their desktop application would find
+the same image file at /mount/insectimages/ent-lepidoptera/images/2009_04_29/IMG_000657.JPG
+
+For this user, images.basedirectory=/mount/insectimages/
+
+images.metadatacontainsbarcode, if true, the application expects that the exif comment will contain the same information as the catalog number barcode.
+
+default.preparation this is the value that will be used by default for the specimen preparation value.
+
+The following configuration parameters control the behavior of the user interface:
+
+    details.scroll=none
+    browse.enabled=false
+    picklist.filterlength=3
+    numbertypes.showall=false
+    template.default=Default template
+
+The following configuration parameters are for setting up tesseract as an OCR failover and ImageMagick for
+creating thumbnails (and transforming images for OCR failover):
+
+    images.barcoderescalesize=400
+    program.convert=/usr/bin/convert
+    program.tesseract=tesseract 
+    convert.parameters=\ -depth 8 -compress None -type Grayscale 
+    program.mogrify=mogrify 
+
+The following properties just store recent activity, they aren't involved in configuration.
+
+    fileload.lastpath=~/workspace/butterflies_sf/docs_manual/example_files/loadtest.csv
+    scanonebarcode.lastpath=~/testImages/base/problem_2016Oct12/IMG_000057.JPG
+
+
+## Templates
 
 Example images showing templates used at the MCZ are:
 
@@ -130,6 +206,25 @@ http://mczbase.mcz.harvard.edu/MediaSet.cfm?media_id=232908
 
 MCZ Ant Carrier (catalog number barcode left center): 
 http://mczbase.mcz.harvard.edu/MediaSet.cfm?media_id=227294
+
+Records from the template table for a couple of templates in use at the MCZ are below: 
+
+    Insert into Template (TEMPLATEID,TEMPLATE_NAME,IMAGESIZEX,IMAGESIZEY,BARCODEPOSITIONX,BARCODEPOSITIONY,BARCODESIZEX,BARCODESIZEY,SPECIMENPOSITIONX,SPECIMENPOSITIONY,SPECIMENSIZEX,SPECIMENSIZEY,TEXTPOSITIONX,TEXTPOSITIONY,TEXTSIZEX,TEXTSIZEY,LABELPOSITIONX,LABELPOSITIONY,LABELSIZEX,LABELSIZEY,UTLABELPOSITIONX,UTLABELPOSITIONY,UTLABELSIZEX,UTLABELSIZEY,EDITABLE,REFERENCEIMAGE,UTBARCODEPOSITIONX,UTBARCODEPOSITIONY,UTBARCODESIZEX,UTBARCODESIZEY) values ('EOS600ButterflySmall','EOS600 Butterfly Small Carriage',3456,5184,3022,109,303,303,0,2548,3456,2609,133,127,2366,858,1578,849,1820,1587,0,1031,1820,1409,'1',null,1456,127,1200,1200);
+    Insert into Template (TEMPLATEID,TEMPLATE_NAME,IMAGESIZEX,IMAGESIZEY,BARCODEPOSITIONX,BARCODEPOSITIONY,BARCODESIZEX,BARCODESIZEY,SPECIMENPOSITIONX,SPECIMENPOSITIONY,SPECIMENSIZEX,SPECIMENSIZEY,TEXTPOSITIONX,TEXTPOSITIONY,TEXTSIZEX,TEXTSIZEY,LABELPOSITIONX,LABELPOSITIONY,LABELSIZEX,LABELSIZEY,UTLABELPOSITIONX,UTLABELPOSITIONY,UTLABELSIZEX,UTLABELSIZEY,EDITABLE,REFERENCEIMAGE,UTBARCODEPOSITIONX,UTBARCODEPOSITIONY,UTBARCODESIZEX,UTBARCODESIZEY) values ('EOS600ButterflyLarge ','EOS600 Butterfly Large Carrier',3456,5184,1720,40,160,160,0,2000,3456,3184,30,30,1300,600,1500,300,1956,1700,0,650,1500,1361,'1',null,850,80,485,485);
+
+Regions are defined for each template, which matches the physical layout of a carrier
+(with the template recording x and y pixel coordinates and x and y pixel offsets for each region).
+The regions identify where in the image can be found: the barcode (barcode containing the catalog number of the pin), the specimen, 
+the human readable portion of the unit tray label (produced by the PreCapture application), the labels removed 
+from the pin, the labels found in the unit tray, and the machine readable portion of the unit tray label.
+
+## Users
+
+The first Administrator user for the application must be inserted directly into the database (see above).
+
+Enter additional users by logging in to the application as that administrator using the user dialog accessed
+through Configuration/Users off of the main menu.  
+
 
 # External data paths
 
