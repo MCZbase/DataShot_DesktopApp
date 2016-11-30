@@ -207,6 +207,22 @@ http://mczbase.mcz.harvard.edu/MediaSet.cfm?media_id=232908
 MCZ Ant Carrier (catalog number barcode left center): 
 http://mczbase.mcz.harvard.edu/MediaSet.cfm?media_id=227294
 
+You should set up a template for each image carrier you have built using the template editor in the desktop application.
+Access this via Configuration/Edit Templates on the main menu.  In the template editor, load an image from which you 
+wish to create a new template (File/Create New Template from Image), then fill in the template properties (Template ID= 
+a unique name for the template, Name= a longer human readable description) and select regions.  Height and width for
+of the entire template (Image Size) will be set from the image and can't be edited from the template editor. The 
+template editor is quite crude, you get popup dialogs to enter pixel locations for each part of an image, current 
+regions are shown with colored lines overlain on the image (but only update when you save values for a region), yes it is crude.
+Once you have selected a region for the Barcode (=catalog number barcode), you can test detection of that barcode in the 
+current image with the **Check for Barcode** button.  Once you have selected a region for the Taxon Name Barcode (machine 
+readable portion of the label created by the PreCapture application, containing the current identification), you can check
+the detection of that barcode in the current image with **Check Taxon Barcode**.  When satisfied, click **Save Template**.  
+You can edit existing templates (except for the templates you see initially Default Template, Small Template 1,  and Whole Image Only, 
+which  are hard coded in the application). When editing an existing template, File/Load Image will allow you to load an image
+to display in the template editor.
+
+
 Records from the template table for a couple of templates in use at the MCZ are below: 
 
     Insert into Template (TEMPLATEID,TEMPLATE_NAME,IMAGESIZEX,IMAGESIZEY,BARCODEPOSITIONX,BARCODEPOSITIONY,BARCODESIZEX,BARCODESIZEY,SPECIMENPOSITIONX,SPECIMENPOSITIONY,SPECIMENSIZEX,SPECIMENSIZEY,TEXTPOSITIONX,TEXTPOSITIONY,TEXTSIZEX,TEXTSIZEY,LABELPOSITIONX,LABELPOSITIONY,LABELSIZEX,LABELSIZEY,UTLABELPOSITIONX,UTLABELPOSITIONY,UTLABELSIZEX,UTLABELSIZEY,EDITABLE,REFERENCEIMAGE,UTBARCODEPOSITIONX,UTBARCODEPOSITIONY,UTBARCODESIZEX,UTBARCODESIZEY) values ('EOS600ButterflySmall','EOS600 Butterfly Small Carriage',3456,5184,3022,109,303,303,0,2548,3456,2609,133,127,2366,858,1578,849,1820,1587,0,1031,1820,1409,'1',null,1456,127,1200,1200);
