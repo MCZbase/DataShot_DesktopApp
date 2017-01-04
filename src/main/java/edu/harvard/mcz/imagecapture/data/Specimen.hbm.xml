@@ -67,7 +67,6 @@
         <property name="identifiedBy" type="string">
             <column name="IdentifiedBy" />
         </property>
-
         
         <property name="natureOfId" type="string">
             <column name="NatureOfId" length="255" />
@@ -92,7 +91,7 @@
             <column name="SpecificLocality" length="65535" />
         </property>
         <property name="verbatimLocality" type="string">
-            <column name="VerbatimLocality" length="65535" />
+            <column name="VerbatimLocality" length="65535" not-null="true" />
         </property>
         
         <property name="minimum_elevation" type="java.lang.Long">
@@ -187,16 +186,16 @@
             <column name="creatingFilename" length="255" />
         </property>   
         <property name="verbatimCollector" type="string">
-            <column name="verbatimCollector" length="2000" />
+            <column name="verbatimCollector" length="2000" not-null="true" />
         </property>
         <property name="verbatimCollection" type="string">
-            <column name="verbatimCollection" length="2000" />
+            <column name="verbatimCollection" length="2000" not-null="true" />
         </property> 
         <property name="verbatimNumbers" type="string">
-            <column name="verbatimNumbers" length="2000" />
+            <column name="verbatimNumbers" length="2000" not-null="true" />
         </property> 
         <property name="verbatimUnclassifiedText" type="string">
-            <column name="verbatimUnclassifiedText" length="65535" />
+            <column name="verbatimUnclassifiedText" length="65535" not-null="true" />
         </property> 
         <set name="collectors" inverse="true" cascade="save-update" fetch="subselect">
             <key>

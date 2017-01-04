@@ -91,7 +91,8 @@ public class MCZBarcodePositionTemplateDetector implements	PositionTemplateDetec
 						if (text.length()>0) {
 							// a barcode was scanned 
 							// Check to see if it matches the expected pattern.
-							if (text.matches(MCZENTBarcode.PATTERN)) { 
+							if (Singleton.getSingletonInstance().getBarcodeMatcher().matchesPattern(text)) { 
+							// if (text.matches(MCZENTBarcode.PATTERN)) { 
 								found = true;
 								log.debug("Match to:" + template.getTemplateId());
 								result = template.getTemplateId();

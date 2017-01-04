@@ -817,9 +817,10 @@ public class CandidateImageFile {
 						if (description!=null && description.trim().length()>0) { 
 							exifComment = description;
 						}
+					} catch (NullPointerException e1) {
+						log.error(e1.getMessage(),e1);
 					} catch (XMPException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						log.error(e.getMessage(),e);
 					}				
 					}
 				} catch (JpegProcessingException e1) {

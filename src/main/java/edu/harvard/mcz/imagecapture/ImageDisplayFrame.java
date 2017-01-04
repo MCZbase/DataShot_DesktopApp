@@ -817,7 +817,7 @@ public class ImageDisplayFrame extends JFrame {
 				
 			});
 			btnVerbatimtranscription.setEnabled(false);
-			if (WorkFlowStatus.allowsVerbatimUpdate(targetSpecimen.getWorkFlowStatus())) { 
+			if (targetSpecimen!=null && WorkFlowStatus.allowsVerbatimUpdate(targetSpecimen.getWorkFlowStatus())) { 
 				btnVerbatimtranscription.setEnabled(true);
 			}
 		}

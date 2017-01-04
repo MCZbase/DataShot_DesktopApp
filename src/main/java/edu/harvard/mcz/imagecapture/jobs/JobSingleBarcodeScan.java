@@ -20,6 +20,9 @@
 package edu.harvard.mcz.imagecapture.jobs;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -30,6 +33,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -589,6 +593,15 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 						tryMe.setRawOcr(rawOCR);
 						tryMe.setTemplateId(defaultTemplate.getTemplateId());
 						tryMe.setPath(path);
+						if (tryMe.getMd5sum()==null || tryMe.getMd5sum().length()==0) { 
+							try {
+								tryMe.setMd5sum(DigestUtils.md5Hex(new FileInputStream(fileToCheck)));
+							} catch (FileNotFoundException e) {
+								log.error(e.getMessage());
+							} catch (IOException e) {
+								log.error(e.getMessage());
+							}
+						}						
 						try {
 							imageCont.persist(tryMe);
 						} catch (SaveFailedException e) {

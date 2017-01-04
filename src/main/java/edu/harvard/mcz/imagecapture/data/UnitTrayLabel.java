@@ -284,7 +284,7 @@ public class UnitTrayLabel implements TaxonNameReturner, DrawerNameReturner, Col
 			    		
 			    		if (key.equals("m1p")) { 
 			    			log.debug("Configured for Project: " + value);
-			    			if (!value.equals("MCZ Lepidoptera") && !value.equals("ETHZ Entomology")) { 
+			    			if (!value.equals("MCZ Lepidoptera") && !value.equals("ETHZ Entomology") && !value.equals("[ETHZ Entomology]")) { 
 			    				log.error("Project specified in JSON is not recognized: " + value);
 			    				log.error("Warning: Keys in JSON may not be correctly interpreted.");
 			    			}

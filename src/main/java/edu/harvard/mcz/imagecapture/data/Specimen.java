@@ -49,11 +49,11 @@ public class Specimen implements java.io.Serializable {
 	private String country;
 	private String primaryDivison;
 	private String specificLocality;
-	private String verbatimLocality;
-	private String verbatimCollector;
-	private String verbatimCollection;
-	private String verbatimNumbers;
-	private String verbatimUnclassifiedText;
+	private String verbatimLocality = "";
+	private String verbatimCollector = "";
+	private String verbatimCollection = "";
+	private String verbatimNumbers = "";
+	private String verbatimUnclassifiedText = "";
 	// private String verbatimElevation;
 	private Long minimum_elevation;
 	private Long maximum_elevation;
@@ -112,6 +112,11 @@ public class Specimen implements java.io.Serializable {
 		this.flagAncilaryAlsoInMCZbase = false;
 		//this.preparationType = "Pinned";
 		this.natureOfId = NatureOfId.LEGACY;
+		if (this.verbatimCollection==null) { this.verbatimCollection = ""; }
+		if (this.verbatimCollector==null) { this.verbatimCollector = ""; }
+		if (this.verbatimLocality==null) { this.verbatimLocality = ""; }
+		if (this.verbatimNumbers==null) { this.verbatimNumbers = ""; }
+		if (this.verbatimUnclassifiedText==null) { this.verbatimUnclassifiedText = ""; }
 	}
 	
 	/** Clear the default values for a new specimen object, as in one that

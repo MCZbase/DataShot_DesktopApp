@@ -1015,7 +1015,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 									tryMe.setTemplateId(template.getTemplateId());
 									tryMe.setPath(path);
 									// TODO: Create md5hash of image file, persist with image 
-									if (tryMe.getMd5sum()==null || tryMe.getMd5sum().length()>0) { 
+									if (tryMe.getMd5sum()==null || tryMe.getMd5sum().length()==0) { 
 										try {
 											tryMe.setMd5sum(DigestUtils.md5Hex(new FileInputStream(fileToCheck)));
 										} catch (FileNotFoundException e) {
