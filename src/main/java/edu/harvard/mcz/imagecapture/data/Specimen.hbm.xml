@@ -91,7 +91,7 @@
             <column name="SpecificLocality" length="65535" />
         </property>
         <property name="verbatimLocality" type="string">
-            <column name="VerbatimLocality" length="65535" not-null="true" />
+            <column name="VerbatimLocality" length="65535" />
         </property>
         
         <property name="minimum_elevation" type="java.lang.Long">
@@ -186,16 +186,16 @@
             <column name="creatingFilename" length="255" />
         </property>   
         <property name="verbatimCollector" type="string">
-            <column name="verbatimCollector" length="2000" not-null="true" />
+            <column name="verbatimCollector" length="2000" />
         </property>
         <property name="verbatimCollection" type="string">
-            <column name="verbatimCollection" length="2000" not-null="true" />
+            <column name="verbatimCollection" length="2000" />
         </property> 
         <property name="verbatimNumbers" type="string">
-            <column name="verbatimNumbers" length="2000" not-null="true" />
+            <column name="verbatimNumbers" length="2000" />
         </property> 
         <property name="verbatimUnclassifiedText" type="string">
-            <column name="verbatimUnclassifiedText" length="65535" not-null="true" />
+            <column name="verbatimUnclassifiedText" length="65535"  />
         </property> 
         <set name="collectors" inverse="true" cascade="save-update" fetch="subselect">
             <key>
