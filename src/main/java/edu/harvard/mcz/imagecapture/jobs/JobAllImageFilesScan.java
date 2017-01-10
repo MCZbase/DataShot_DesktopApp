@@ -912,7 +912,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 												s.setFamily("Formicidae");
 											}
 										}
-										s.setLocationInCollection(LocationInCollection.GENERAL);
+										s.setLocationInCollection(LocationInCollection.getDefaultLocation());
 										if (s.getFamily().equals("Formicidae")) { 
 											// ***** Special case, families in Formicidae are in Ant collection
 										    s.setLocationInCollection(LocationInCollection.GENERALANT);

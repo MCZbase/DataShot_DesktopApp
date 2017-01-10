@@ -460,7 +460,7 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 							log.debug(s.getCollection());
 
 							// TODO: non-general workflows
-							s.setLocationInCollection(LocationInCollection.GENERAL);
+							s.setLocationInCollection(LocationInCollection.getDefaultLocation());
 							if (s.getFamily().equals("Formicidae")) { 
 							      s.setLocationInCollection(LocationInCollection.GENERALANT);
 							}							
