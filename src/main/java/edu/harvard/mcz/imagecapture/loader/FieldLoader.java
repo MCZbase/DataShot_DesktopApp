@@ -59,12 +59,46 @@ public class FieldLoader {
 	public boolean load(String barcode, String verbatimUnclassifiedText, String questions) throws LoadException { 
 		boolean result = false;
 		
-		// TODO: Implement load of raw text only
+		Specimen pattern = new Specimen();
+		pattern.setBarcode(barcode);
+		
+		List<Specimen> matches = sls.findByExample(pattern);
+		if (matches!=null && matches.size()==1) { 
+			Specimen match = matches.get(0);
+			if (!WorkFlowStatus.allowsVerbatimUpdate(match.getWorkFlowStatus())) { 
+				throw new LoadTargetMovedOnException();
+			} else { 	
+
+				if (match.getVerbatimUnclassifiedText()==null || match.getVerbatimUnclassifiedText().trim().length()==0) {
+					match.setVerbatimUnclassifiedText(verbatimUnclassifiedText);
+				}  else { throw new LoadTargetPopulatedException(); }
+				
+				// append any questions to current questions.
+				if (questions!=null && questions.trim().length() > 0 ) { 
+					String currentQuestions = match.getQuestions();
+					if (currentQuestions==null) { currentQuestions = ""; } 
+					if (currentQuestions.trim().length()>0) { currentQuestions = currentQuestions + " | "; }
+					match.setQuestions(currentQuestions + questions);
+				}
+				
+				match.setWorkFlowStatus(WorkFlowStatus.STAGE_VERBATIM);
+
+				try {
+					sls.attachDirty(match);
+					result = true;
+				} catch (SaveFailedException e) {
+					log.error(e.getMessage(), e);
+					throw new LoadTargetSaveException("Error saving updated target record: " + e.getMessage());
+				}
+			}
+		} else { 
+			throw new LoadTargetRecordNotFoundException();
+		}
 		
 		return result;
 	}
 	
-	public boolean load(String barcode, String verbatimLocality, String verbatimDate, String questions) throws LoadException { 
+	public boolean load(String barcode, String verbatimLocality, String verbatimDate, String verbatimCollector, String verbatimCollection, String verbatimNumbers, String verbatimUnclassifiedText, String questions) throws LoadException { 
 		boolean result = false;
 		
 		Specimen pattern = new Specimen();
@@ -85,6 +119,22 @@ public class FieldLoader {
 					match.setDateNos(verbatimDate);
 				}  else { throw new LoadTargetPopulatedException(); }
 				
+				if (match.getVerbatimCollector()==null || match.getVerbatimCollector().trim().length()==0) {
+					match.setVerbatimCollector(verbatimCollector);
+				}  else { throw new LoadTargetPopulatedException(); }
+				
+				if (match.getVerbatimCollection()==null || match.getVerbatimCollection().trim().length()==0) {
+					match.setVerbatimCollection(verbatimCollection);
+				}  else { throw new LoadTargetPopulatedException(); }	
+				
+				if (match.getVerbatimNumbers()==null || match.getVerbatimNumbers().trim().length()==0) {
+					match.setVerbatimNumbers(verbatimNumbers);
+				}  else { throw new LoadTargetPopulatedException(); }						
+				
+				if (match.getVerbatimUnclassifiedText()==null || match.getVerbatimUnclassifiedText().trim().length()==0) {
+					match.setVerbatimUnclassifiedText(verbatimUnclassifiedText);
+				}  else { throw new LoadTargetPopulatedException(); }
+				
 				// append any questions to current questions.
 				if (questions!=null && questions.trim().length() > 0 ) { 
 					String currentQuestions = match.getQuestions();
@@ -93,7 +143,7 @@ public class FieldLoader {
 					match.setQuestions(currentQuestions + questions);
 				}
 				
-				// match.setWorkFlowStatus(WorkFlowStatus.STAGE_VERBATIM);
+				match.setWorkFlowStatus(WorkFlowStatus.STAGE_VERBATIM);
 
 				try {
 					sls.attachDirty(match);
@@ -106,8 +156,7 @@ public class FieldLoader {
 			throw new LoadTargetRecordNotFoundException();
 		}
 		
-		
-		return false;
+		return result;
 	}
 	
 	public boolean loadFromMap(String barcode, Map<String,String> data, String newWorkflowStatus) throws LoadException { 
@@ -123,6 +172,12 @@ public class FieldLoader {
 			    knownFields.add(specimenMethods[j].getName().replaceAll("^set", ""));
 			}
 		}
+		// List of input fields that will need to be parsed into relational tables
+		ArrayList<String> toParseFields = new ArrayList<String>();
+		toParseFields.add("collectors");
+		toParseFields.add("numbers");
+		// TODO: Add support for parsing collectors and numbers from input data
+//		knownFields.addAll(toParseFields);
 		
 		
 		Specimen pattern = new Specimen();

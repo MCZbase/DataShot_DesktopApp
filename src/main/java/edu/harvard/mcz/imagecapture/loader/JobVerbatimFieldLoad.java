@@ -131,6 +131,8 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 						log.debug(header);
 					}
 
+					// TODO: Change load type recognition from number of columns to columns present. 
+					
 					List<String> headerList = Arrays.asList(headers);
 					if (!headerList.contains("barcode")) { 
 						// no barcode field, we can't match the input to specimen records.
@@ -140,7 +142,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 
 						FieldLoader fl = new FieldLoader();
 
-						if (headerList.size()==3 && headerList.contains("verbatimUnclassifiedText") && headerList.contains("questions")) { 
+						if (headerList.size()==3 && headerList.contains("verbatimUnclassifiedText") && headerList.contains("questions") && headerList.contains("barcode")) { 
 							// Allowed case 1: unclassified text only
 
 							String barcode = "";
@@ -171,9 +173,11 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 								}
 							}
 							
-						//} else if (headerList.size()==8) {
-							// TODO: Add fields, remove the next line, uncomment the line above.
-						} else if (headerList.size()==4) { 
+						} else if (headerList.size()==8 
+								 && headerList.contains("verbatimUnclassifiedText") && headerList.contains("questions") && headerList.contains("barcode")
+							     && headerList.contains("verbatimLocality") && headerList.contains("verbatimDate") && headerList.contains("verbatimNumbers")
+							     && headerList.contains("verbatimCollector") && headerList.contains("verbatimCollection")
+								) {
 							// allowed case two, transcription into verbatim fields
 
 							String barcode = "";
@@ -185,17 +189,14 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 								try { 
 									String verbatimLocality = record.get("verbatimLocality");
 									String verbatimDate = record.get("verbatimDate");
-									/** 
-									// TODO: Add support for these fields.
 									String verbatimCollector = record.get("verbatimCollector");
 									String verbatimCollection = record.get("verbatimCollection");
 									String verbatimNumbers = record.get("verbatimNumbers");
 									String verbatimUnclasifiedText = record.get("verbatimUnclassifiedText");
-									 */
 									barcode = record.get("barcode");
 									String questions = record.get("questions");
 
-									fl.load(barcode, verbatimLocality, verbatimDate, questions);
+									fl.load(barcode, verbatimLocality, verbatimDate, verbatimCollector, verbatimCollection, verbatimNumbers, verbatimUnclassifiedText, questions)
 									counter.incrementSpecimensUpdated();
 								} catch (IllegalArgumentException e) {
 									RunnableJobError error =  new RunnableJobError(file.getName(), 
@@ -213,6 +214,10 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 							}
 
 						} else { 
+							// allowed case three, transcription into arbitrary sets verbatim or other fields
+							
+							// TODO: Support arbitrary column load, without overwritting for absent columns.
+							
 							errors.append("Error Loading data: Unsupported number of column headers found (").append(headerList.size()).append(").\n");	
 						}
 

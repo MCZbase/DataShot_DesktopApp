@@ -248,14 +248,34 @@ As of version 1.1.0, there is experimental support for transcription of
 verbatim information in other external applications and load of that data back into
 the datashot staging database.  
 
+## Transcription of (pin) label data without any interpretation.
+
+If you export the barcode number for a specimen and an image file with pin 
+label data for that specimen, values for verbatimUnclassifiedText and 
+questions can be loaded back into the database if the Specimen record has not 
+been processed beyond TaxonEntered, and if no values are present in the 
+verbatimUnclassifiedText field.  To do this, construct a csv file
+containing the data to be ingested with the columns below, and select 
+Action/Load Data from the main menu. Column names are case sensitive.  Exactly 
+these three columns must be present (no more, no fewer), but column order does not matter. 
+
+    "barcode","verbatimUnclassifiedText","questions"
+    
+## Transcription of (pin) label data with minimal interpretation into verbatim fields.
+
 If you export the barcode number for a specimen and an image file with pin 
 label data for that specimen, values for verbatimLocality, verbatimDate, and 
 questions can be loaded back into the database if the Specimen record has not 
 been processed beyond TaxonEntered, and if no values are present in the 
 verbatimLocality or DateNOS fields.  To do this, construct a csv file
 containing the data to be ingested with the columns below, and select 
-Action/Load Data from the main menu. 
+Action/Load Data from the main menu.  Column names are case sensitive. Exactly 
+these columns must be present (no more, no fewer), but column order does not matter. 
 
-    "barcode","verbatimLocality","verbatimDate","questions"
+    "barcode","verbatimLocality","verbatimDate","verbatimCollector","verbatimCollection","verbatimNumbers","verbatimUnclassifiedText","questions"
+
+## Transcription of (pin) label data with interpretation.
+
+Planned, not supported yet.
 
 This functionality is expected to change in future versions.
