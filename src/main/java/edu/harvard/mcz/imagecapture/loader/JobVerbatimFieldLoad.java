@@ -195,8 +195,8 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 									String verbatimUnclasifiedText = record.get("verbatimUnclassifiedText");
 									barcode = record.get("barcode");
 									String questions = record.get("questions");
-
-									fl.load(barcode, verbatimLocality, verbatimDate, verbatimCollector, verbatimCollection, verbatimNumbers, verbatimUnclassifiedText, questions)
+									
+									fl.load(barcode, verbatimLocality, verbatimDate, verbatimCollector, verbatimCollection, verbatimNumbers, verbatimUnclasifiedText, questions);
 									counter.incrementSpecimensUpdated();
 								} catch (IllegalArgumentException e) {
 									RunnableJobError error =  new RunnableJobError(file.getName(), 

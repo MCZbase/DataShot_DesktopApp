@@ -568,6 +568,7 @@ public class VerbatimClassifyDialog extends JDialog {
 			panelVerbatimValues.add(lblNewLabel_4, gbc_lblNewLabel_4);
 			
 			comboBoxWorkflowStatus = new JComboBox(WorkFlowStatus.getVerbatimClassifiedWorkFlowStatusValues());
+			comboBoxWorkflowStatus.setSelectedItem(WorkFlowStatus.STAGE_CLASSIFIED);
 			GridBagConstraints gbc_comboBoxWorkflowStatus = new GridBagConstraints();
 			gbc_comboBoxWorkflowStatus.gridwidth = 4;
 			gbc_comboBoxWorkflowStatus.fill = GridBagConstraints.HORIZONTAL;
