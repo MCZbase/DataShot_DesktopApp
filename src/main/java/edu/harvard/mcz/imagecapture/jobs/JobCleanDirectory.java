@@ -369,7 +369,7 @@ public class JobCleanDirectory implements RunnableJob, Runnable {
 	 */
 	@Override
 	public String getName() {
-		return "Redo OCR for specimens in state " + WorkFlowStatus.STAGE_0;
+		return "Cleanup deleted images from a directory.";
 	}
 
 	/* (non-Javadoc)
