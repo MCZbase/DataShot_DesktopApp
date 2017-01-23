@@ -27,6 +27,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import edu.harvard.mcz.imagecapture.jobs.RunnableJobErrorTableModel;
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
 import edu.harvard.mcz.imagecapture.RunnableJobReportDialog;
 import edu.harvard.mcz.imagecapture.Singleton;
+import edu.harvard.mcz.imagecapture.data.WorkFlowStatus;
 import edu.harvard.mcz.imagecapture.interfaces.RunStatus;
 import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
 import edu.harvard.mcz.imagecapture.interfaces.RunnerListener;
@@ -142,7 +144,8 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 
 						FieldLoader fl = new FieldLoader();
 
-						if (headerList.size()==3 && headerList.contains("verbatimUnclassifiedText") && headerList.contains("questions") && headerList.contains("barcode")) { 
+						if (headerList.size()==3 && headerList.contains("verbatimUnclassifiedText") 
+								&& headerList.contains("questions") && headerList.contains("barcode")) { 
 							// Allowed case 1: unclassified text only
 
 							String barcode = "";
@@ -156,7 +159,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 									barcode = record.get("barcode");
 									String questions = record.get("questions");
 
-									fl.load(barcode, verbatimUnclassifiedText, questions);
+									fl.load(barcode, verbatimUnclassifiedText, questions, true);
 									counter.incrementSpecimensUpdated();
 								} catch (IllegalArgumentException e) {
 									RunnableJobError error =  new RunnableJobError(file.getName(), 
@@ -215,10 +218,28 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 
 						} else { 
 							// allowed case three, transcription into arbitrary sets verbatim or other fields
+							while (iterator.hasNext()) {
+								Map<String,String> data = new HashMap<String,String>();
+								CSVRecord record = iterator.next();
+							    String barcode = record.get("barcode");
+							    Iterator<String> hi = headerList.iterator();
+							    while (hi.hasNext()) {
+							    	String header = hi.next();
+							    	if (!header.equals("barcode")) { 
+							            data.put(header, record.get(header));
+							    	}
+							    }
+							    if (data.size()>0) { 
+							    	try {
+										fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_VERBATIM);
+									} catch (LoadException e) {
+										errors.append("Error loading row ").append(e.getMessage()).append("\n");	
+										log.error(e.getMessage(), e);
+									}
+							    }
+							}
 							
 							// TODO: Support arbitrary column load, without overwritting for absent columns.
-							
-							errors.append("Error Loading data: Unsupported number of column headers found (").append(headerList.size()).append(").\n");	
 						}
 
 					} 
