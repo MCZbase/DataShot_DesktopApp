@@ -260,7 +260,19 @@ Action/Load Data from the main menu. Column names are case sensitive.  Exactly
 these three columns must be present (no more, no fewer), but column order does not matter. 
 
     "barcode","verbatimUnclassifiedText","questions"
+
+Allowed to change a record when: Record is in state Taxon Entered or Verbatim Entered.
+
+Barcode policy: Barcode must exist and must be unique.
+
+Overwrite policy: 
+
+Questions policy: Any value provided in questions will be appended to the existing value for questions.
+
+Status when complete policy:  Record is in state Verbatim Transcribed.
     
+This functionality is expected to change in future versions.
+
 ## Transcription of (pin) label data with minimal interpretation into verbatim fields.
 
 If you export the barcode number for a specimen and an image file with pin 
@@ -274,9 +286,19 @@ these columns must be present (no more, no fewer), but column order does not mat
 
     "barcode","verbatimLocality","verbatimDate","verbatimCollector","verbatimCollection","verbatimNumbers","verbatimUnclassifiedText","questions"
 
-## Transcription of (pin) label data with interpretation.
+Allowed to change a record when: Record is in state Taxon Entered or Verbatim Entered.
 
-Planned, not supported yet.
+Barcode policy: Barcode must exist and must be unique.
+
+Overwrite policy: 
+
+Questions policy: Any value provided in questions will be appended to the existing value for questions.
+
+Status when complete policy:  Record is in state Verbatim Transcribed.
+
+This functionality is expected to change in future versions.
+
+## Transcription of (pin) label data with interpretation.
 
 If you export the barcode number for a specimen and an image file with pin 
 label data for that specimen, values for any of the fields listed below can be
@@ -321,5 +343,15 @@ these columns must be present (no more, no fewer), but column order does not mat
 * Inferences
 * LocationInCollection
 * ValidDistributionFlag
+
+Allowed to change a record when: Record is in state Taxon Entered, Verbatim Entered, Verbatim Classified.
+
+Barcode policy: Barcode must exist and must be unique.
+
+Overwrite policy: 
+
+Questions policy: Any value provided in questions will be appended to the existing value for questions.
+
+Status when complete policy:  
 
 This functionality is expected to change in future versions.
