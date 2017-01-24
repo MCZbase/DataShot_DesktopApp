@@ -278,4 +278,48 @@ these columns must be present (no more, no fewer), but column order does not mat
 
 Planned, not supported yet.
 
+If you export the barcode number for a specimen and an image file with pin 
+label data for that specimen, values for any of the fields listed below can be
+loaded back into the database in a csv file that contains a column "barcode", 
+and optionally a column "questions".  To do this, construct a csv file
+containing the data to be ingested barcode and any the columns below, and select 
+Action/Load Data from the main menu.  Column names are case sensitive. Exactly 
+these columns must be present (no more, no fewer), but column order does not matter. 
+
+    "barcode","Higher_Geography","SpecificLocality","questions"
+
+* TypeStatus
+* TypeNumber
+* CitedInPublication
+* Features
+* Higher_Geography
+* SpecificLocality
+* VerbatimLocality
+* VerbatimCollector
+* VerbatimCollection
+* VerbatimNumbers
+* VerbatimUnclassifiedText
+* Minimum_Elevation
+* Maximum_Elevation
+* Elev_Units
+* CollectingMethod
+* ISODate 
+* DateNOS (use instead of vebatimDate when loading an arbitrary set of columns).
+* DateEmerged
+* DateEmergedIndicator
+* DateCollected
+* DateCollectedIndicator
+* Collection
+* SpecimenNotes
+* LifeStage
+* Sex
+* PreparationType
+* Habitat
+* Microhabitat
+* AssociatedTaxon
+* Questions
+* Inferences
+* LocationInCollection
+* ValidDistributionFlag
+
 This functionality is expected to change in future versions.
