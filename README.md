@@ -265,7 +265,7 @@ Allowed to change a record when: Record is in state Taxon Entered or Verbatim En
 
 Barcode policy: Barcode must exist and must be unique.
 
-Overwrite policy: 
+Overwrite policy: Will overwrite an existing value of verbatimUnclassifiedText.
 
 Questions policy: Any value provided in questions will be appended to the existing value for questions.
 
@@ -290,7 +290,7 @@ Allowed to change a record when: Record is in state Taxon Entered or Verbatim En
 
 Barcode policy: Barcode must exist and must be unique.
 
-Overwrite policy: 
+Overwrite policy: Does not overwrite any existing values.
 
 Questions policy: Any value provided in questions will be appended to the existing value for questions.
 
@@ -344,14 +344,14 @@ these columns must be present (no more, no fewer), but column order does not mat
 * LocationInCollection
 * ValidDistributionFlag
 
-Allowed to change a record when: Record is in state Taxon Entered, Verbatim Entered, Verbatim Classified.
+Allowed to change a record when: Record is in state Taxon Entered, Verbatim Entered, (Verbatim Classified??).
 
 Barcode policy: Barcode must exist and must be unique.
 
-Overwrite policy: 
+Overwrite policy: Will overwrite any existing value in the Verbatim fields, but will not overwrite any existing value in any non-Verbatim field.
 
 Questions policy: Any value provided in questions will be appended to the existing value for questions.
 
-Status when complete policy:  
+Status when complete policy:  If any non-verbatim field is present, Verbatim Classified, othewise, verbatimEntered.
 
 This functionality is expected to change in future versions.

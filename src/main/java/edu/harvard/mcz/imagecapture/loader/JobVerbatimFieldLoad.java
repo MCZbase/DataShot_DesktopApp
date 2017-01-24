@@ -47,6 +47,8 @@ import edu.harvard.mcz.imagecapture.jobs.RunnableJobErrorTableModel;
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
 import edu.harvard.mcz.imagecapture.RunnableJobReportDialog;
 import edu.harvard.mcz.imagecapture.Singleton;
+import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
+import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.WorkFlowStatus;
 import edu.harvard.mcz.imagecapture.interfaces.RunStatus;
 import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
@@ -133,8 +135,6 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 						log.debug(header);
 					}
 
-					// TODO: Change load type recognition from number of columns to columns present. 
-					
 					List<String> headerList = Arrays.asList(headers);
 					if (!headerList.contains("barcode")) { 
 						// no barcode field, we can't match the input to specimen records.
@@ -181,7 +181,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 							     && headerList.contains("verbatimLocality") && headerList.contains("verbatimDate") && headerList.contains("verbatimNumbers")
 							     && headerList.contains("verbatimCollector") && headerList.contains("verbatimCollection")
 								) {
-							// allowed case two, transcription into verbatim fields
+							// allowed case two, transcription into verbatim fields, must be exact list of all verbatim fields.
 
 							String barcode = "";
 							int lineNumber = 0;
@@ -224,15 +224,23 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 								CSVRecord record = iterator.next();
 							    String barcode = record.get("barcode");
 							    Iterator<String> hi = headerList.iterator();
+							    boolean containsNonVerbatim = false;
 							    while (hi.hasNext()) {
 							    	String header = hi.next();
 							    	if (!header.equals("barcode")) { 
 							            data.put(header, record.get(header));
+							            if (!header.equals("questions") && MetadataRetriever.isFieldExternallyUpdatable(Specimen.class, header) && MetadataRetriever.isFieldVerbatim(Specimen.class, header) ) { 
+							            	containsNonVerbatim = true;
+							            }
 							    	}
 							    }
 							    if (data.size()>0) { 
 							    	try {
-										fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_VERBATIM, false);
+							    		if (containsNonVerbatim) { 
+										    fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_CLASSIFIED, true);
+							    		} else { 
+										    fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_VERBATIM, true);
+							    		}
 									} catch (LoadException e) {
 										errors.append("Error loading row ").append(e.getMessage()).append("\n");	
 										log.error(e.getMessage(), e);
