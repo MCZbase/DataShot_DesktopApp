@@ -218,6 +218,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 
 						} else { 
 							// allowed case three, transcription into arbitrary sets verbatim or other fields
+							// TODO: Support arbitrary column load, without overwriting for absent columns.
 							while (iterator.hasNext()) {
 								Map<String,String> data = new HashMap<String,String>();
 								CSVRecord record = iterator.next();
@@ -231,17 +232,14 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 							    }
 							    if (data.size()>0) { 
 							    	try {
-										fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_VERBATIM);
+										fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_VERBATIM, false);
 									} catch (LoadException e) {
 										errors.append("Error loading row ").append(e.getMessage()).append("\n");	
 										log.error(e.getMessage(), e);
 									}
 							    }
 							}
-							
-							// TODO: Support arbitrary column load, without overwritting for absent columns.
 						}
-
 					} 
 
 				} catch (FileNotFoundException e) {

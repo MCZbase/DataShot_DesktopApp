@@ -29,6 +29,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
 import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
 import edu.harvard.mcz.imagecapture.data.WorkFlowStatus;
@@ -198,7 +199,7 @@ public class FieldLoader {
 	 * 
 	 * @throws LoadException on an error (particularly from inability to map keys in data to fields in Specimen.
 	 */
-	public boolean loadFromMap(String barcode, Map<String,String> data, String newWorkflowStatus) throws LoadException { 
+	public boolean loadFromMap(String barcode, Map<String,String> data, String newWorkflowStatus, boolean allowUpdateExistingVerbatim) throws LoadException { 
 		boolean result = false;
 		
 		ArrayList<String> knownFields = new ArrayList<String>();
@@ -235,7 +236,7 @@ public class FieldLoader {
 				Iterator<String> i = data.keySet().iterator();
 				while (i.hasNext()) { 
 					String key = i.next().toLowerCase();
-					if (knownFields.contains(key) && !key.equals("barcode")) { 
+					if (knownFields.contains(key) && !key.equals("barcode") && MetadataRetriever.isFieldExternallyUpdatable(Specimen.class, key)) { 
 						String datavalue = data.get(key);
 
 						Method setMethod;
@@ -254,10 +255,13 @@ public class FieldLoader {
 								setMethod.invoke(match, datavalue);
 								foundData = true;
 							} else { 
-							if (currentValue==null || currentValue.trim().length()==0) { 
-								setMethod.invoke(match, datavalue);
-								foundData = true;
-							}
+							    if (currentValue==null || currentValue.trim().length()==0) { 
+								   setMethod.invoke(match, datavalue);
+								   foundData = true;
+							    } else if (MetadataRetriever.isFieldVerbatim(Specimen.class,key) && allowUpdateExistingVerbatim) { 
+								   setMethod.invoke(match, datavalue);
+								   foundData = true;
+							    }
 							}
 
 						} catch (NoSuchMethodException e) {

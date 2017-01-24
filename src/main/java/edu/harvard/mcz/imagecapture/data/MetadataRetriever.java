@@ -351,4 +351,92 @@ public class MetadataRetriever {
 		return help;
 	}
 	
+	/**
+	 * Test to see whether a field allowed to be updated by an external process. 
+	 * 
+	 * @param aTableClass the class for the table in which the field occurs.
+	 * @param fieldname the name of the field (case insensitive).
+	 * 
+	 * @return true if the field is allowed to be updated by an external process, false otherwise.
+	 */
+	public static boolean isFieldExternallyUpdatable(Class aTableClass, String fieldname) {
+		boolean result = false;
+		if (aTableClass==Specimen.class) { 
+            if (fieldname.equalsIgnoreCase("TypeStatus")) { result=true; }
+            if (fieldname.equalsIgnoreCase("TypeNumber")) { result=true; }
+            if (fieldname.equalsIgnoreCase("CitedInPublication")) { result=true; }
+            if (fieldname.equalsIgnoreCase("Features")) { result=true; }
+			if (fieldname.equalsIgnoreCase("Higher_Geography")) { result = true; }
+            if (fieldname.equalsIgnoreCase("SpecificLocality")) { result=true; }
+            if (fieldname.equalsIgnoreCase("VerbatimLocality")) { result=true; }
+            if (fieldname.equalsIgnoreCase("VerbatimCollector")) { result=true; }
+            if (fieldname.equalsIgnoreCase("VerbatimCollection")) { result=true; }
+            if (fieldname.equalsIgnoreCase("VerbatimNumbers")) { result=true; }
+            if (fieldname.equalsIgnoreCase("VerbatimUnclassifiedText")) { result=true; }
+            if (fieldname.equalsIgnoreCase("Minimum_Elevation")) { result=true; }
+            if (fieldname.equalsIgnoreCase("Maximum_Elevation")) { result=true; }
+            if (fieldname.equalsIgnoreCase("Elev_Units")) { result=true; }
+            if (fieldname.equalsIgnoreCase("CollectingMethod")) { result=true; }
+            if (fieldname.equalsIgnoreCase("ISODate")) { result=true; }
+            if (fieldname.equalsIgnoreCase("DateNOS")) { result=true; }
+            if (fieldname.equalsIgnoreCase("DateEmerged")) { result=true; }
+            if (fieldname.equalsIgnoreCase("DateEmergedIndicator")) { result=true; }
+            if (fieldname.equalsIgnoreCase("DateCollected")) { result=true; }
+            if (fieldname.equalsIgnoreCase("DateCollectedIndicator")) { result=true; }
+            if (fieldname.equalsIgnoreCase("Collection")) { result=true ; }
+            if (fieldname.equalsIgnoreCase("SpecimenNotes")) { result=true; }
+            if (fieldname.equalsIgnoreCase("LifeStage")) { result=true; }
+            if (fieldname.equalsIgnoreCase("Sex")) { result=true; }
+            if (fieldname.equalsIgnoreCase("PreparationType")) { result=true; }
+            if (fieldname.equalsIgnoreCase("Habitat")) { result=true; }
+            if (fieldname.equalsIgnoreCase("Microhabitat")) { result=true; }
+            if (fieldname.equalsIgnoreCase("AssociatedTaxon")) { result=true; }
+            if (fieldname.equalsIgnoreCase("Questions")) { result=true; }
+            if (fieldname.equalsIgnoreCase("Inferences")) { result=true; }
+            if (fieldname.equalsIgnoreCase("LocationInCollection")) { result=true; }
+            if (fieldname.equalsIgnoreCase("ValidDistributionFlag")) {  result = true; }
+		}
+		if (aTableClass==Collector.class) { 
+			if (fieldname.equalsIgnoreCase("CollectorName")) { result=true; }	
+		}
+		if (aTableClass==Determination.class) { 
+            if (fieldname.equalsIgnoreCase("VerbatimText")) { result=true; }
+		}
+		if (aTableClass==Number.class) { 
+            if (fieldname.equalsIgnoreCase("Number")) { result=true; }
+            if (fieldname.equalsIgnoreCase("NumberType")) { result=true; }
+		}
+		
+		return result;
+	}	
+	
+	/**
+	 * Test to see whether a field in a table is intended to hold verbatim values.
+	 * 
+	 * @param aTableClass the class for the table.
+	 * @param fieldname the field to check (not case sensitive)
+	 * @return true if the field is intended to hold verbatim data, false otherwise.
+	 */
+	public static boolean isFieldVerbatim(Class aTableClass, String fieldname) {
+		boolean result = false;
+		if (aTableClass==Specimen.class) { 
+            if (fieldname.equalsIgnoreCase("VerbatimLocality")) { result=true; }
+            if (fieldname.equalsIgnoreCase("VerbatimCollector")) { result=true; }
+            if (fieldname.equalsIgnoreCase("VerbatimCollection")) { result=true; }
+            if (fieldname.equalsIgnoreCase("VerbatimNumbers")) { result=true; }
+            if (fieldname.equalsIgnoreCase("DateNOS")) { result=true; }
+            if (fieldname.equalsIgnoreCase("VerbatimUnclassifiedText")) { result=true; }
+		}
+		if (aTableClass==Collector.class) { 
+		}
+		if (aTableClass==Determination.class) { 
+            if (fieldname.equalsIgnoreCase("VerbatimText")) { result=true; }
+		}
+		if (aTableClass==Number.class) { 
+		}
+		
+		return result;
+	}		
+		
+	
 }
