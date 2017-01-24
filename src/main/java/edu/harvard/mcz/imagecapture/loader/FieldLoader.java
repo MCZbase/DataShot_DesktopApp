@@ -29,6 +29,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.harvard.mcz.imagecapture.data.Collector;
 import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
 import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
@@ -254,6 +255,26 @@ public class FieldLoader {
 								}
 								setMethod.invoke(match, datavalue);
 								foundData = true;
+							} else if (key.equals("collectors")) { 
+								String[] collectors = datavalue.split("\\|", 0);
+								for (int j=0; j<collectors.length; j++) { 
+									String collector = collectors[j];
+									if (collector.trim().length()>0) { 
+										Collector col = new Collector();
+										col.setSpecimen(match);
+										col.setCollectorName(collector);
+										// TODO: persist 
+									}
+								}
+							} else if (key.equals("numbers")) { 
+								String[] numbers = datavalue.split("\\|", 0);
+								for (int j=0; j<numbers.length; j++) { 
+									String numberKV = numbers[j];
+									if (numberKV.trim().length()>0) { 
+										// TODO: Split into number type and number, then add a number to specimen.
+									}
+								}
+								
 							} else { 
 							    if (currentValue==null || currentValue.trim().length()==0) { 
 								   setMethod.invoke(match, datavalue);
