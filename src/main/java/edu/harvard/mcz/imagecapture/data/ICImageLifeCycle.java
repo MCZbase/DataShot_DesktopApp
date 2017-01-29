@@ -216,6 +216,34 @@ public class ICImageLifeCycle {
 		}
 	}
 	
+	/**
+	 * Find images with a particular path.
+	 * 
+	 * @return list of all image files with a particular path.
+	 */
+	@SuppressWarnings("unchecked")
+	public List<ICImage> findAllInDir(String path) {
+		log.debug("finding all Images with path " + path);
+		try {
+			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			List<ICImage> results = null;
+			try { 
+			    results = (List<ICImage>) session.createQuery("From ICImage i where Path = '"+ path +"' order by i.filename").list();
+			    log.debug("find in directory successful, result size: " + results.size());
+			    session.getTransaction().commit();
+		    } catch (HibernateException e) {
+		    	session.getTransaction().rollback();
+		    	log.error("find in dir failed", e);	
+		    }
+		    try { session.close(); } catch (SessionException e) { }
+			return results;
+		} catch (RuntimeException re) {
+			log.error("find in dir failed", re);
+			throw re;
+		}
+	}	
+	
 	@SuppressWarnings("unchecked")
 	public static List<ICImage> findMismatchedImages() {
 		log.debug("finding Images with barcode missmatches ");
