@@ -63,7 +63,7 @@ public class ImageCaptureApp {
 	
 	private static final Log log = LogFactory.getLog(ImageCaptureApp.class);
 	
-	public static final String APP_VERSION = "1.2.2-SNAPSHOT";
+	public static final String APP_VERSION = "1.2.2";
 	public static final String APP_NAME = "RapidCapture";
 	public static final String APP_DESCRIPTION = "Rapid capture of data from images of pin Labels and pinned insect \nspecimens developed for the MCZ Lepidoptera collection";
 	public static final String APP_COPYRIGHT = "Copyright © 2009-2016 President and Fellows of Harvard College";
