@@ -148,6 +148,8 @@ The mapping of the base location of the directory path for images will vary amon
 
 The images are produced with a camera on a light stand above one or a small set of jigs, each of which conforms to a particular defined template.
 
+There is an expectation that images will be placed on the fileserver in batches corresponding to work done in a day, and that these batches will be placed with each batch of work in a identifiable directory (e.g. path name includes the date imaged) somewhere below the base point in the directory path.  
+
 ## Configuration
 
 To configure the application, see Configuration/Properties on the main menu
