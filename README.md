@@ -37,6 +37,10 @@ transcribe data from the labels and about the specimen in the image to
 database fields, and that a user with an editorial role will approve the
 specimen records for bulkload into the database of record.  
 
+# User Documentation
+
+See: https://github.com/MCZbase/DataShot_DesktopApp/wiki
+
 # Building
 
 Use maven to build (ant is invoked by maven to build executable jar files).  
@@ -124,6 +128,26 @@ setting up an imaging station, producing test images, and creating template
 records (using the template record editor in this application 
 (Configuration/Edit Templates on the main menu) from those test images.
 
+## Design assumptions
+
+Some of the key design assumptions of DataShot are: 
+
+Images conform to a small set of pre-defined templates.  
+
+Each image is of a single cataloged item.  
+
+Each image contains a barcode containing the catalog number of the specimen in the image.  
+
+Catalog numbers barcodes follow a known pattern (e.g. [MCZ-ENT00061419](http://mczbase.mcz.harvard.edu/MediaSet.cfm?media_id=38974).
+
+Each image contains a barcode containing the current identification as structured data in a known configuration produced by the PreCapture application.
+
+Images are stored on a file server, at an unchanging location below some base point in the directory path.  
+
+The mapping of the base location of the directory path for images will vary amongst workstations and any instance of the DataShot web application.
+
+The images are produced with a camera on a light stand above one or a small set of jigs, each of which conforms to a particular defined template.
+
 ## Configuration
 
 To configure the application, see Configuration/Properties on the main menu
@@ -178,6 +202,7 @@ The following configuration parameters control the behavior of the user interfac
     picklist.filterlength=3
     numbertypes.showall=false
     template.default=Default template
+    login.showadvanced=false
 
 The following configuration parameters are for setting up tesseract as an OCR failover and ImageMagick for
 creating thumbnails (and transforming images for OCR failover):
@@ -192,7 +217,6 @@ The following properties just store recent activity, they aren't involved in con
 
     fileload.lastpath=~/workspace/butterflies_sf/docs_manual/example_files/loadtest.csv
     scanonebarcode.lastpath=~/testImages/base/problem_2016Oct12/IMG_000057.JPG
-
 
 ## Templates
 
