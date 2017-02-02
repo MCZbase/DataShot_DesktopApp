@@ -155,6 +155,12 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 	 *  @see #KEY_DETAILS_SCROLL
 	 */
 	public static final String VALUE_DETAILS_SCROLL_FORCE_ON = "on";
+	/**
+	 * Show the login dialog with the advanced options open by default (desirable for 
+	 * developers working with development/test/production databases) if true.
+	 */
+	public static final String KEY_LOGIN_SHOW_ADVANCED = "login.showadvanced";	
+	
 	
 	private static final Log log = LogFactory.getLog(ImageCaptureProperties.class);
 
@@ -487,6 +493,10 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 			// default value is that images are expected to contain the barcode number
 			// in both the image and in its metadata.  
 			properties.setProperty(KEY_REDUNDANT_COMMENT_BARCODE, "true");
+		}			
+		if (!properties.containsKey(KEY_LOGIN_SHOW_ADVANCED)) { 
+			// default value is closed advanced options (server) on login dialog.
+			properties.setProperty(KEY_LOGIN_SHOW_ADVANCED, "false");
 		}			
 		
 		

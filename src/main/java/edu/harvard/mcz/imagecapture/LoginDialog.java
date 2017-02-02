@@ -19,9 +19,12 @@
 package edu.harvard.mcz.imagecapture;
 
 import javax.swing.JDialog;
+
 import java.awt.Dimension;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
@@ -30,6 +33,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import javax.swing.JButton;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.utility.HashUtility;
 
@@ -45,6 +51,8 @@ import java.net.URL;
 public class LoginDialog extends JDialog {
 
 	private static final long serialVersionUID = -2016769537635603794L;
+	
+	private static final Log log = LogFactory.getLog(LoginDialog.class);
 	
 	public static final int RESULT_CANCEL = 0;
 	public static final int RESULT_LOGIN = 1;
@@ -62,29 +70,22 @@ public class LoginDialog extends JDialog {
 	private JTextField jTextFieldConnection = null;
 	private JLabel jLabel4 = null;
 	private JTextField jTextFieldDialect = null;
-	private JButton jButton = null;
+	private JButton jButtonLogin = null;
 	private JLabel jLabel5 = null;
-	private JButton jButton1 = null;
+	private JButton jButtonCancel = null;
 	private JLabel jLabel7 = null;
-
+	
 	private JPanel jPanel1 = null;
-
 	private JTextField jTextFieldEmail = null;
-
 	private JLabel jLabel8 = null;
-
 	private JLabel jLabel9 = null;
-
 	private JPasswordField jPasswordFieldUser = null;
-
 	private JButton jButton2 = null;
-
 	private JPanel jPanelAdvanced = null;
-
 	private JLabel jLabel6 = null;
 
 	/**
-	 * This method initializes 
+	 * Default constructor.  Produces a login dialog.
 	 * 
 	 */
 	public LoginDialog() {
@@ -98,10 +99,22 @@ public class LoginDialog extends JDialog {
 	 * 
 	 */
 	private void initialize() {
-        this.setSize(new Dimension(698, 290));
         this.setContentPane(getJPanel());
         this.setTitle("ConnectionDialog");
-        this.getRootPane().setDefaultButton(jButton);
+        URL iconFile = this.getClass().getResource("/edu/harvard/mcz/imagecapture/resources/icon.png");          
+        try {  
+        	setIconImage(new ImageIcon(iconFile).getImage());
+        } catch (Exception e) { 
+        	log.error(e);
+        }        
+		if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_LOGIN_SHOW_ADVANCED).equalsIgnoreCase("false")) {
+			jPanelAdvanced.setVisible(false);
+            this.setSize(new Dimension(698, 190));
+		} else { 
+			jPanelAdvanced.setVisible(true);
+            this.setSize(new Dimension(698, 290));
+		}
+        this.getRootPane().setDefaultButton(jButtonLogin);
         Dimension screenSize =  Toolkit.getDefaultToolkit().getScreenSize();
 	    this.setLocation((screenSize.width -   this.getWidth()) / 2 , 
                 (screenSize.height - this.getHeight()) / 2 );	
@@ -273,15 +286,15 @@ public class LoginDialog extends JDialog {
 	}
 
 	/**
-	 * This method initializes jButton	
+	 * This method initializes jButtonLogin	
 	 * 	
 	 * @return javax.swing.JButton	
 	 */
 	private JButton getJButton() {
-		if (jButton == null) {
-			jButton = new JButton("Login");
-			jButton.setMnemonic(KeyEvent.VK_L);
-			jButton.addActionListener(new java.awt.event.ActionListener() {
+		if (jButtonLogin == null) {
+			jButtonLogin = new JButton("Login");
+			jButtonLogin.setMnemonic(KeyEvent.VK_L);
+			jButtonLogin.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					result = LoginDialog.RESULT_LOGIN;
 					getUserPasswordHash();
@@ -289,26 +302,26 @@ public class LoginDialog extends JDialog {
 				}
 			});
 		}
-		return jButton;
+		return jButtonLogin;
 	}
 
 	/**
-	 * This method initializes jButton1	
+	 * This method initializes jButtonCancel	
 	 * 	
 	 * @return javax.swing.JButton	
 	 */
 	private JButton getJButton1() {
-		if (jButton1 == null) {
-			jButton1 = new JButton("Cancel");
-			jButton1.setMnemonic(KeyEvent.VK_C);
-			jButton1.addActionListener(new java.awt.event.ActionListener() {
+		if (jButtonCancel == null) {
+			jButtonCancel = new JButton("Cancel");
+			jButtonCancel.setMnemonic(KeyEvent.VK_C);
+			jButtonCancel.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					result = LoginDialog.RESULT_CANCEL;
 					self.setVisible(false);
 				}
 			});
 		}
-		return jButton1;
+		return jButtonCancel;
 	}
 	
 	public static String hashPassword(JPasswordField ajPasswordField) { 
@@ -345,6 +358,10 @@ public class LoginDialog extends JDialog {
 	
 	public void setDBPassword(String aDBPassword) { 
 		jPasswordFieldDB.setText(aDBPassword);
+		// Force advanced panel to open if no database password is stored.
+		if (aDBPassword==null||aDBPassword.length()==0) { 
+			jPanelAdvanced.setVisible(true);
+		}
 	}
 	
 	public String getDriver() { 
@@ -458,8 +475,10 @@ public class LoginDialog extends JDialog {
 	
 	public void toggleAdvanced() { 
 		if (jPanelAdvanced.isVisible()) { 
+            this.setSize(new Dimension(698, 190));
 			jPanelAdvanced.setVisible(false);
 		} else { 
+            this.setSize(new Dimension(698, 290));
 			jPanelAdvanced.setVisible(true);
 		}
 	}
