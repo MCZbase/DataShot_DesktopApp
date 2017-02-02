@@ -358,7 +358,7 @@ public class JobCleanDirectory implements RunnableJob, Runnable {
 		report += "Didn't remove " + counter.getFilesExisting() + " image records where file exists.\n";
 		report += "Removed " + counter.getFilesFailed() + " image records where file does not exist.\n";
 		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Directory cleanup complete.");
-		RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
+		RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors(),"Remove Deleted Image Results");
 		errorReportDialog.setVisible(true);
 	}
 

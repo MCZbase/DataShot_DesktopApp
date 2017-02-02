@@ -346,7 +346,8 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 		RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(
 				Singleton.getSingletonInstance().getMainFrame(),
 				report, counter.getErrors(),
-				RunnableJobErrorTableModel.TYPE_LOAD
+				RunnableJobErrorTableModel.TYPE_LOAD,
+				"Load Data from file Report"
 				);
 		errorReportDialog.setVisible(true);
 	}

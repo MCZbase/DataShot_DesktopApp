@@ -205,7 +205,11 @@ public class JobFileReconciliation implements RunnableJob, Runnable {
         report += "Found  " + counter.getFilesDatabased() + " image file database records.\n";
         report += "Found " + counter.getFilesFailed() + " image files not in the database.\n";
 		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("File Reconciliation check complete");
-		RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
+		RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(Singleton.getSingletonInstance().getMainFrame(),
+				report, 
+				counter.getErrors(), 
+				RunnableJobErrorTableModel.TYPE_FILE_RECONCILIATION, 
+				"Image File/Image Record reconciliation Results");
 		errorReportDialog.setVisible(true);
 	}
 	

@@ -295,7 +295,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 					Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Preprocess scan complete");
 					setPercentComplete(100);
 					Singleton.getSingletonInstance().getMainFrame().notifyListener(runStatus, this);
-					RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
+					RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors(), "Preprocess Results");
 					errorReportDialog.setVisible(true);
 					//JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), report, "Preprocess complete", JOptionPane.ERROR_MESSAGE);
 				} // can read directory

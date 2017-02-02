@@ -65,6 +65,9 @@ public class RunnableJobErrorTableModel extends AbstractTableModel {
 		if (listType==TYPE_LOAD) { 
 		    type = TYPE_LOAD;
 		} 		
+		if (listType==TYPE_FILE_RECONCILIATION) {
+			type = TYPE_FILE_RECONCILIATION;
+		}
 	}	
 	
 	/* (non-Javadoc)

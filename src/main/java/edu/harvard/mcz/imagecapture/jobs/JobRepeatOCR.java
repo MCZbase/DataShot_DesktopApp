@@ -618,7 +618,7 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 		report += "Found  " + counter.getFilesSeen() + " specimen database records in state OCR.\n";
 		report += "Saved new OCR for " + counter.getSpecimensUpdated() + " specimens.\n";
 		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("OCR re-do complete.");
-		RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors());
+		RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(Singleton.getSingletonInstance().getMainFrame(),report, counter.getErrors(), "Repeat OCR Results");
 		errorReportDialog.setVisible(true);
 	}
 

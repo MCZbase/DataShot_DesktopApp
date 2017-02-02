@@ -70,6 +70,7 @@ public class RunnableJobReportDialog extends JDialog {
 
 	private static final Log log = LogFactory.getLog(RunnableJobReportDialog.class);
 	
+	private String title = "Job Results";
 	private JPanel jContentPane = null;
 	private JPanel jPanel = null;
 	private JPanel jPanel1 = null;
@@ -92,8 +93,9 @@ public class RunnableJobReportDialog extends JDialog {
 		initialize();
 	}
 	
-	public RunnableJobReportDialog(Frame owner, String resultsMessage, List<RunnableJobError> errors) {
+	public RunnableJobReportDialog(Frame owner, String resultsMessage, List<RunnableJobError> errors, String title) {
 		super(owner);
+		this.title = title;
 		thisDialog = this;
 	    model = new RunnableJobErrorTableModel(errors);
 	    
@@ -106,13 +108,16 @@ public class RunnableJobReportDialog extends JDialog {
 		
 	}
 	
-	public RunnableJobReportDialog(Frame owner, String resultsMessage, List<RunnableJobError> errors, int listType) {
+	public RunnableJobReportDialog(Frame owner, String resultsMessage, List<RunnableJobError> errors, int listType, String title) {
 		super(owner);
+		this.title = title;
 		thisDialog = this;
 	    model = new RunnableJobErrorTableModel(errors, listType);
 	    
 	    log.debug(model.getRowCount());
-		
+		log.debug(model.getColumnCount());
+		log.debug(model.getColumnName(4));
+	    
 		initialize();
 		
 		jTextArea.setText(resultsMessage);
@@ -135,7 +140,7 @@ public class RunnableJobReportDialog extends JDialog {
 	 */
 	private void initialize() {
 		this.setPreferredSize(new Dimension(1000, 400));
-		this.setTitle("Preprocessing Results");
+		this.setTitle(title);
 		this.setContentPane(getJContentPane());
 		this.pack();
 		Dimension screenSize =  Toolkit.getDefaultToolkit().getScreenSize();
@@ -174,7 +179,7 @@ public class RunnableJobReportDialog extends JDialog {
 			gridBagConstraints.gridheight = 3;
 			gridBagConstraints.gridx = 0;
 			jLabel = new JLabel();
-			jLabel.setText("Preprocess Results");
+			jLabel.setText(title);
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
 			jPanel.add(jLabel, new GridBagConstraints());

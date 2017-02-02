@@ -1158,7 +1158,8 @@ public class MainFrame extends JFrame implements RunnerListener {
 								Singleton.getSingletonInstance().getMainFrame(),
 								report, 
 								errorCount.getErrors(), 
-								RunnableJobErrorTableModel.TYPE_MISSING_BARCODES);
+								RunnableJobErrorTableModel.TYPE_MISSING_BARCODES,
+								"QC Barcodes Report");
 						errorReportDialog.setVisible(true);
 					} else { 
 						JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "No barcodes are missing from the sequence.\nAny missmatches are shown in table.", "Barcode QC Report", JOptionPane.OK_OPTION);	
