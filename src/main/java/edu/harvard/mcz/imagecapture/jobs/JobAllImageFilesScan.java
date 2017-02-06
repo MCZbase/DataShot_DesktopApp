@@ -465,6 +465,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 											makeFrom.add(file.getPath());
 											log.debug(file.getPath());
 											File target = new File(thumbsDir.getPath() + File.separatorChar + file.getName());
+											log.debug(target.getPath());
 											if (!target.exists()) { 
 												BufferedImage img = new BufferedImage(Integer.parseInt(thumbWidth), Integer.parseInt(thumbHeight), BufferedImage.TYPE_INT_RGB);
 												img.createGraphics().drawImage(ImageIO.read(file).getScaledInstance(80, 120, Image.SCALE_SMOOTH),0,0,null);
