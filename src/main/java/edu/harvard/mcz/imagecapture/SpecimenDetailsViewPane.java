@@ -357,9 +357,12 @@ public class SpecimenDetailsViewPane extends JPanel {
 				String ebc = "";
 				if (im.getRawExifBarcode()!=null) { ebc = im.getRawExifBarcode(); } 
 				if (!rbc.equals(ebc)) { 
-					jTextPaneWarnings.setText("Warning: An image has missmatch between Comment and Barcode.");
-					jTextPaneWarnings.setForeground(Color.RED);
-					log.debug("Setting: Warning: Image has missmatch between Comment and Barcode.");
+					// warn of mismatch, but only if configured to expect both to be present.
+					if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REDUNDANT_COMMENT_BARCODE).equals("true")) {
+						jTextPaneWarnings.setText("Warning: An image has mismatch between Comment and Barcode.");
+						jTextPaneWarnings.setForeground(Color.RED);
+						log.debug("Setting: Warning: Image has mismatch between Comment and Barcode.");
+					}
 				}
 			}
 		}
