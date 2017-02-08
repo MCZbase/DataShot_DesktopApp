@@ -182,10 +182,7 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 			Singleton.getSingletonInstance().getProperties().getProperties().setProperty(ImageCaptureProperties.KEY_LASTPATH, fileToCheck.getPath());
 			String filename = fileToCheck.getName();
 			log.debug("Selected file " + filename + " to scan for barcodes");
-			
-			
-
-						
+			CandidateImageFile.debugCheckHeightWidth(fileToCheck);
 			
 			// scan selected file
 			PositionTemplate defaultTemplate = null;
