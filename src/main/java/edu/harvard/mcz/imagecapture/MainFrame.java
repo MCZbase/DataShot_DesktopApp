@@ -786,7 +786,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 	@Override
 	public void notifyListener(int anEvent, RunnableJob notifyingJob) {
 		jProgressBar.setValue(notifyingJob.percentComplete());
-        System.out.println(notifyingJob.percentComplete());		
+        log.debug(notifyingJob.percentComplete());		
 		jProgressBar.validate();
 	}
 	
