@@ -613,6 +613,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 						String filename = fileToCheck.getName();
 						counter.incrementFilesSeen();
 						log.debug("Checking image file: " + filename); 
+						CandidateImageFile.debugCheckHeightWidth(fileToCheck);
 						// scan file for barcodes and ocr of unit tray label text
 						CandidateImageFile scannableFile = null;
 						try {

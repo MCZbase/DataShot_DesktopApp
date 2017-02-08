@@ -52,10 +52,12 @@ import com.drew.imaging.jpeg.JpegMetadataReader;
 import com.drew.imaging.jpeg.JpegProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
 import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifSubIFDDescriptor;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
+import com.drew.metadata.jpeg.JpegDirectory;
 import com.drew.metadata.xmp.XmpDirectory;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
@@ -113,6 +115,7 @@ public class CandidateImageFile {
 			}
 		}
 		PositionTemplate template = new PositionTemplate();
+		
 		
 		// detect template to use.
 		MCZBarcodePositionTemplateDetector detector = new MCZBarcodePositionTemplateDetector();
@@ -173,6 +176,73 @@ public class CandidateImageFile {
 		}
 	}
 	
+	/**
+	 * Checks image height, width and exif metadata height width and orientation, writes to debug log.
+	 * Does nothing if logging level does not include debug.
+	 * 
+	 * @param aFile to check
+	 */
+	public static void debugCheckHeightWidth(File aFile)  {
+
+		if (log.isDebugEnabled()) { 
+			// Only take action if log level includes debug.
+			try { 
+				int iHeight = 0;
+				int iWidth = 0;
+				try {
+					BufferedImage image = ImageIO.read(aFile);
+					iHeight = image.getHeight();
+					iWidth = image.getWidth();
+					log.debug("Image Height:" + iHeight);
+					log.debug("Image Width:" + iWidth);
+				} catch (IOException e) {
+					log.error(e.getMessage());
+				}
+
+				try {
+					Metadata metadata = ImageMetadataReader.readMetadata(aFile);
+					Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+					JpegDirectory jpegDirectory = metadata.getFirstDirectoryOfType(JpegDirectory.class);
+
+					try {
+						int orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+						int width = jpegDirectory.getImageWidth();
+						int height = jpegDirectory.getImageHeight();
+						log.debug("Orientation: " + orientation);
+						log.debug("Exif Height: " + height);
+						log.debug("Exif Width: " + width);
+						if (height!=iHeight || width!=iWidth) { 
+							log.error("Warning: Image orientation height/width does not match image height/width.  Image will not display as expected.");
+						}
+						if (orientation > 1) { 
+							if (orientation==6 || orientation ==8) { 
+								if (height>width) {  
+							       log.error("Warning: Image exif specifies a transformed orientation: " + orientation + ". Image will not display as expected. ");
+								} else { 
+							       log.debug("Image exif specifies a transformed orientation: " + orientation + ", which matches aspect ratio. Image may or may not display as expected. ");
+								}
+							} else { 
+							    log.error("Warning: Image exif specifies a transformed orientation: " + orientation + ". Image will not display as expected. ");
+							}
+						}
+					} catch (MetadataException e) {
+						log.debug("Error reading EXIF orientation metadata." +  e.getMessage() );
+					}
+				} catch (NullPointerException e1) {
+					log.debug("Error processing EXIF data." + e1.getMessage());
+				} catch (ImageProcessingException e1) {
+					log.debug("Error processing EXIF data." + e1.getMessage());
+				} catch (IOException e1) {
+					log.error("Error reading file. " + e1.getMessage());
+				}
+			} catch (Exception eCatchAll) {
+				// Eat any exception raised to make sure this debugging routine doesn't stop
+				// a working production process.
+				log.error("Error checking orientiation. " + eCatchAll.getMessage());
+			}
+		}
+	}
+	
 	protected static void showBulkMediaGUI() { 
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -186,6 +256,7 @@ public class CandidateImageFile {
 	protected static String parseOneFile(String filename) {
 		String result = null;  
 		File f = new File(filename);
+		debugCheckHeightWidth(f);
 		try {
 			CandidateImageFile file = new CandidateImageFile(f,new PositionTemplate(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS));
 			String exif = file.getExifUserCommentText();
