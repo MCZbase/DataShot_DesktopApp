@@ -735,11 +735,20 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 										    if (rawOCR==null) { rawOCR = ""; } 
 										    state = WorkFlowStatus.STAGE_0;
 										    parser = new UnitTrayLabelParser(rawOCR);
-											RunnableJobError error =  new RunnableJobError(filename, "Failover to OCR.",
+										    // Provide error message to distinguish between entirely OCR or 
+										    if (((UnitTrayLabelParser)parser).isParsedFromJSON()) { 
+												RunnableJobError error =  new RunnableJobError(filename, "OCR Failover found barcode.",
+														barcode, exifComment, "Couldn't read Taxon barcode, failed over to OCR, but OCR found taxon barcode.",
+														(TaxonNameReturner)parser, null,
+														null, RunnableJobError.TYPE_FAILOVER_TO_OCR);
+												counter.appendError(error);
+										    } else { 
+										    	RunnableJobError error =  new RunnableJobError(filename, "Failover to OCR.",
 													barcode, exifComment, "Couldn't read Taxon barcode, failed over to OCR only.",
 													(TaxonNameReturner)parser, null,
-											null, RunnableJobError.TYPE_FAILOVER_TO_OCR);
-											counter.appendError(error);
+													null, RunnableJobError.TYPE_FAILOVER_TO_OCR);
+										    	counter.appendError(error);
+										    }
 										}  else { 
 											state = WorkFlowStatus.STAGE_1;
 											parser = labelRead;
