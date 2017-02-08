@@ -347,7 +347,7 @@ public class RunnableJobReportDialog extends JDialog {
 	
 	private JButton getJButtonSave() {
 		if (btnSave == null) {
-			btnSave = new JButton("Save");
+			btnSave = new JButton("Save Report");
 			btnSave.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					serializeTableModel();
