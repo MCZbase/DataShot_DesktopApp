@@ -1876,6 +1876,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 					save();
 					
 					((CollectorTableModel)jTableCollectors.getModel()).fireTableDataChanged();
+					((NumberTableModel)jTableNumbers.getModel()).fireTableDataChanged();
 					
 					
 					try { 

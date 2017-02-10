@@ -122,6 +122,17 @@ public class SpecimenLifeCycle {
 				cls.delete(col);
 			}
 		}
+		Iterator<Number> in = instance.getNumbers().iterator();
+		while (in.hasNext()) { 
+			Number num = in.next();
+			if ( (num.getNumber()==null || num.getNumber().trim().length()==0 ) && 
+				 (num.getNumberType()==null || num.getNumberType().length()==0)
+				) { 
+				instance.getNumbers().remove(num);
+				NumberLifeCycle nls = new NumberLifeCycle();
+				nls.delete(num);
+			}
+		}		
 		try {
 			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
