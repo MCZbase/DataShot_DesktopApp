@@ -1875,6 +1875,8 @@ public class SpecimenDetailsViewPane extends JPanel {
 					
 					save();
 					
+					((CollectorTableModel)jTableCollectors.getModel()).fireTableDataChanged();
+					
 					
 					try { 
 					    thisPane.getParent().getParent().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

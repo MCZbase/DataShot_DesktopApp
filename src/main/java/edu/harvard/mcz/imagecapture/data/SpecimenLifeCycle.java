@@ -113,6 +113,15 @@ public class SpecimenLifeCycle {
 	 */
 	public void attachDirty(Specimen instance)  throws SaveFailedException {
 		log.debug("attaching dirty Specimen instance");
+		Iterator<Collector> i = instance.getCollectors().iterator();
+		while (i.hasNext()) { 
+			Collector col = i.next();
+			if (col.getCollectorName()==null || col.getCollectorName().trim().length()==0 || col.getCollectorName().equals("[remove]")) { 
+				instance.getCollectors().remove(col);
+				CollectorLifeCycle cls = new CollectorLifeCycle();
+				cls.delete(col);
+			}
+		}
 		try {
 			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 			session.beginTransaction();
