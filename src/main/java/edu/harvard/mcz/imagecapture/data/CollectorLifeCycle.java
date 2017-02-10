@@ -5,6 +5,7 @@ package edu.harvard.mcz.imagecapture.data;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -14,7 +15,6 @@ import org.hibernate.SessionException;
 import org.hibernate.classic.Session;
 
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
-
 import static org.hibernate.criterion.Example.create;
 
 /**
@@ -215,6 +215,7 @@ public class CollectorLifeCycle {
 			log.error(re);
 			return new String[]{};
 		}
-	}	
+	}
+
 	
 }

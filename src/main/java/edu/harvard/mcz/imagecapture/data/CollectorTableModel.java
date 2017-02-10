@@ -24,6 +24,8 @@ import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
+import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
+
 /**
  * Table Model for Collector objects showing just the name of the Collector.
  * 
@@ -119,6 +121,22 @@ public class CollectorTableModel extends AbstractTableModel {
 		collectors.add(collector);
 		this.fireTableDataChanged();
 		
+	}
+
+	/**
+	 * @param rowIndex row to be deleted
+	 */
+	public void deleteRow(int rowIndex) {
+		Collector toRemove = ((Collector)collectors.toArray()[rowIndex]);
+		CollectorLifeCycle spals = new CollectorLifeCycle();
+		try {
+			spals.delete(toRemove);
+		    collectors.remove(toRemove);
+		    fireTableDataChanged();
+		} catch (SaveFailedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

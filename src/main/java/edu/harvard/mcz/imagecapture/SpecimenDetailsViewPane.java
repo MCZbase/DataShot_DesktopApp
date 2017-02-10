@@ -49,6 +49,7 @@ import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
 import edu.harvard.mcz.imagecapture.data.SpecimenPart;
 import edu.harvard.mcz.imagecapture.data.SpecimenPartLifeCycle;
+import edu.harvard.mcz.imagecapture.data.SpecimenPartsAttrTableModel;
 import edu.harvard.mcz.imagecapture.data.SpecimenPartsTableModel;
 import edu.harvard.mcz.imagecapture.data.Tracking;
 import edu.harvard.mcz.imagecapture.data.TrackingLifeCycle;
@@ -74,6 +75,8 @@ import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -84,6 +87,9 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
@@ -150,6 +156,16 @@ public class SpecimenDetailsViewPane extends JPanel {
 	private JTable jTableCollectors = null;
 	private JScrollPane jScrollPaneSpecimenParts = null;
 	private JTable jTableSpecimenParts = null;
+	private JScrollPane jScrollPaneNumbers = null;
+	private JTable jTableNumbers = null;
+	
+	private int clickedOnPartsRow;
+	private JPopupMenu jPopupSpecimenParts;
+	private int clickedOnCollsRow;
+	private JPopupMenu jPopupCollectors;
+	private int clickedOnNumsRow;
+	private JPopupMenu jPopupNumbers;	
+	
 	private JLabel jLabel7 = null;
 	private JLabel jLabel8 = null;
 	private JTextField jTextFieldDateLastUpdated = null;
@@ -158,8 +174,6 @@ public class SpecimenDetailsViewPane extends JPanel {
 	private JTextField jTextFieldDateCreated = null;
 	private JLabel jLabel10 = null;
 	private JLabel jLabel11 = null;
-	private JScrollPane jScrollPaneNumbers = null;
-	private JTable jTableNumbers = null;
 	private JButton jButtonNumbersAdd = null;
 	private JButton jButtonCollsAdd = null;
 	private JScrollPane jScrollPane = null;
@@ -1970,6 +1984,49 @@ public class SpecimenDetailsViewPane extends JPanel {
 					thisPane.setStateToDirty();
 				}
 			});
+		    
+		    jTableCollectors.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					if (e.isPopupTrigger()) { 
+						 clickedOnCollsRow = ((JTable)e.getComponent()).getSelectedRow();
+						 jPopupCollectors.show(e.getComponent(),e.getX(),e.getY());
+					}
+				}
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					if (e.isPopupTrigger()) { 
+						 clickedOnCollsRow = ((JTable)e.getComponent()).getSelectedRow();
+						 jPopupCollectors.show(e.getComponent(),e.getX(),e.getY());
+					}
+				}
+			});
+		    
+		    jPopupCollectors = new JPopupMenu();
+			JMenuItem mntmDeleteRow = new JMenuItem("Delete Row");
+			mntmDeleteRow.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) { 
+					try { 
+						log.debug(clickedOnCollsRow);
+						if (clickedOnCollsRow>=0) { 
+							int ok = JOptionPane.showConfirmDialog(thisPane, "Delete the selected collector?", "Delete Collector", JOptionPane.OK_CANCEL_OPTION);
+							if (ok==JOptionPane.OK_OPTION) { 
+								log.debug("deleting collectors row " + clickedOnCollsRow);
+					            ((CollectorTableModel)jTableCollectors.getModel()).deleteRow(clickedOnCollsRow);
+					            setStateToDirty();
+							} else { 
+								log.debug("collector row delete canceled by user.");
+							}
+						} else { 
+						    JOptionPane.showMessageDialog(thisPane, "Unable to select row to delete.  Try empting the value and pressing Save.");
+						}
+					} catch (Exception ex) { 
+						log.error(ex.getMessage());
+						JOptionPane.showMessageDialog(thisPane, "Failed to delete a collector row. " + ex.getMessage());
+					}
+				}
+			});	
+			jPopupCollectors.add(mntmDeleteRow);	
 		}
 		return jTableCollectors;
 	}
@@ -1999,7 +2056,50 @@ public class SpecimenDetailsViewPane extends JPanel {
 		        jTableSpecimenParts.getColumnModel().getColumn(0).setPreferredWidth(90);
 			}
 			setSpecimenPartsTableCellEditors();
+			
 		    log.debug(specimen.getSpecimenParts().size());
+		    
+		    jTableSpecimenParts.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					if (e.isPopupTrigger()) { 
+						 clickedOnPartsRow = ((JTable)e.getComponent()).getSelectedRow();
+						 jPopupSpecimenParts.show(e.getComponent(),e.getX(),e.getY());
+					}
+				}
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					if (e.isPopupTrigger()) { 
+						 clickedOnPartsRow = ((JTable)e.getComponent()).getSelectedRow();
+						 jPopupSpecimenParts.show(e.getComponent(),e.getX(),e.getY());
+					}
+				}
+			});
+		    
+		    jPopupSpecimenParts = new JPopupMenu();
+			JMenuItem mntmDeleteRow = new JMenuItem("Delete Row");
+			mntmDeleteRow.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) { 
+					try { 
+						if (clickedOnPartsRow>=0) { 
+							int ok = JOptionPane.showConfirmDialog(thisPane, "Delete the selected preparation?", "Delete Preparation", JOptionPane.OK_CANCEL_OPTION);
+							if (ok==JOptionPane.OK_OPTION) { 
+								log.debug("deleting parts row " + clickedOnPartsRow);
+					            ((SpecimenPartsTableModel)jTableSpecimenParts.getModel()).deleteRow(clickedOnPartsRow);
+					            setStateToDirty();
+							} else { 
+								log.debug("parts row delete canceled by user.");
+							}
+						} else { 
+						    JOptionPane.showMessageDialog(thisPane, "Unable to select row to delete.");
+						}
+					} catch (Exception ex) { 
+						log.error(ex.getMessage());
+						JOptionPane.showMessageDialog(thisPane, "Failed to delete a part attribute row. " + ex.getMessage());
+					}
+				}
+			});	
+			jPopupSpecimenParts.add(mntmDeleteRow);	
 		}
 		return jTableSpecimenParts;
 	}
@@ -2112,6 +2212,49 @@ public class SpecimenDetailsViewPane extends JPanel {
 					thisPane.setStateToDirty();
 				}
 			});
+            
+            
+            jTableNumbers.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					if (e.isPopupTrigger()) { 
+						 clickedOnNumsRow = ((JTable)e.getComponent()).getSelectedRow();
+						 jPopupNumbers.show(e.getComponent(),e.getX(),e.getY());
+					}
+				}
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					if (e.isPopupTrigger()) { 
+						 clickedOnNumsRow = ((JTable)e.getComponent()).getSelectedRow();
+						 jPopupNumbers.show(e.getComponent(),e.getX(),e.getY());
+					}
+				}
+			});
+		    
+		    jPopupNumbers = new JPopupMenu();
+			JMenuItem mntmDeleteRow = new JMenuItem("Delete Row");
+			mntmDeleteRow.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) { 
+					try { 
+						if (clickedOnNumsRow>=0) { 
+							int ok = JOptionPane.showConfirmDialog(thisPane, "Delete the selected number?", "Delete Number", JOptionPane.OK_CANCEL_OPTION);
+							if (ok==JOptionPane.OK_OPTION) { 
+								log.debug("deleting numbers row " + clickedOnNumsRow);
+					            ((NumberTableModel)jTableNumbers.getModel()).deleteRow(clickedOnNumsRow);
+					            setStateToDirty();
+							} else { 
+								log.debug("number row delete canceled by user.");
+							}
+						} else { 
+						    JOptionPane.showMessageDialog(thisPane, "Unable to select row to delete.  Try empting number and type and pressing Save.");
+						}
+					} catch (Exception ex) { 
+						log.error(ex.getMessage());
+						JOptionPane.showMessageDialog(thisPane, "Failed to delete a number row. " + ex.getMessage());
+					}
+				}
+			});	
+			jPopupNumbers.add(mntmDeleteRow);
 		}
 		return jTableNumbers;
 	}

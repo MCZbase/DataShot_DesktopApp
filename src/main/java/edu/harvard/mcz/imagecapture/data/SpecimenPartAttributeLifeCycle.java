@@ -140,7 +140,7 @@ public class SpecimenPartAttributeLifeCycle {
 	}	
 	
 	
-	/**Save or update an existing specimen part attribute record.
+	/**Delete existing specimen part attribute record.
 	 * 
 	 * @param instance of a SpecimenPartAttribute that that is to be removed.
 	 * @throws SaveFailedException
@@ -153,15 +153,15 @@ public class SpecimenPartAttributeLifeCycle {
 			try {
 			   session.delete(instance); 
 			   session.getTransaction().commit();
-			   log.debug("attach successful");
+			   log.debug("delete successful");
 			} catch (HibernateException e) { 
 			   session.getTransaction().rollback();
-			   log.error("attach failed", e);
-			   throw new SaveFailedException("Unable to save.");
+			   log.error("delete failed", e);
+			   throw new SaveFailedException("Unable to delete.");
 			}
 			try { session.close(); } catch (SessionException e) { }
 		} catch (RuntimeException re) {
-			log.error("attach failed", re);
+			log.error("delete failed", re);
 			throw re;
 		}
 	}	

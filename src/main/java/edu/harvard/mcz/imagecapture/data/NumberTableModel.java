@@ -5,6 +5,8 @@ import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
+import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
+
 /**
  * NumberTableModel Table model for displaying and editing Number records in a JTable.
  * 
@@ -113,5 +115,21 @@ public class NumberTableModel extends AbstractTableModel {
 			break;
 		}
 		
+	}
+
+	/**
+	 * @param rowIndex row to be deleted
+	 */
+	public void deleteRow(int rowIndex) {
+		Number toRemove = ((Number)numbers.toArray()[rowIndex]);
+		NumberLifeCycle spals = new NumberLifeCycle();
+		try {
+			spals.delete(toRemove);
+		    numbers.remove(toRemove);
+		    fireTableDataChanged();
+		} catch (SaveFailedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

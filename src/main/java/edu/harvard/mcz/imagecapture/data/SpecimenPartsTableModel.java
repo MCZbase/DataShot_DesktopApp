@@ -24,6 +24,8 @@ import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
+import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
+
 
 /**
  * @author mole
@@ -150,5 +152,21 @@ public class SpecimenPartsTableModel extends AbstractTableModel {
 		if (columnIndex==3) { result = false; } 
 		return result;
 	}	
+	
+	/**
+	 * @param rowIndex row to be deleted
+	 */
+	public void deleteRow(int rowIndex) {
+		SpecimenPart toRemove = ((SpecimenPart)specimenParts.toArray()[rowIndex]);
+		SpecimenPartLifeCycle spals = new SpecimenPartLifeCycle();
+		try {
+			spals.remove(toRemove);
+		    specimenParts.remove(toRemove);
+		    fireTableDataChanged();
+		} catch (SaveFailedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 }

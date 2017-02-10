@@ -143,6 +143,32 @@ public class SpecimenPartLifeCycle {
 			log.error("merge failed", re);
 			throw re;
 		}
+	}
+
+	/**Save or update an existing specimen part record.
+	 * 
+	 * @param instance of a SpecimenPart that that is to be removed.
+	 * @throws SaveFailedException
+	 */
+	public void remove(SpecimenPart instance)  throws SaveFailedException {
+		log.debug("attaching dirty SpecimenPart instance");
+		try {
+			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			try {
+			   session.delete(instance); 
+			   session.getTransaction().commit();
+			   log.debug("delete successful");
+			} catch (HibernateException e) { 
+			   session.getTransaction().rollback();
+			   log.error("delete failed", e);
+			   throw new SaveFailedException("Unable to delete.");
+			}
+			try { session.close(); } catch (SessionException e) { }
+		} catch (RuntimeException re) {
+			log.error("delete failed", re);
+			throw re;
+		}
 	}	
 	
 }
