@@ -23,14 +23,18 @@ import java.awt.BorderLayout;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
 import java.text.ParseException;
 
+import edu.harvard.mcz.imagecapture.data.CollectorTableModel;
 import edu.harvard.mcz.imagecapture.data.Determination;
 import edu.harvard.mcz.imagecapture.data.DeterminationTableModel;
 import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
@@ -47,7 +51,11 @@ import java.awt.Toolkit;
 import javax.swing.JButton;
 
 import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JLabel;
 import javax.swing.text.MaskFormatter;
@@ -70,6 +78,9 @@ public class DeterminationFrame extends JFrame {
 	private JScrollPane jScrollPane = null;
 	private JTable jTableDeterminations = null;
 	
+    private int clickedOnDetsRow;
+    private JPopupMenu jPopupDets;
+
     private DeterminationTableModel determinations = null;
     private Specimen specimen = null;
 	private JPanel jPanel = null;
@@ -77,12 +88,15 @@ public class DeterminationFrame extends JFrame {
 	private JButton jButtonDone = null;
 	private JPanel panel;
 	private JLabel lblFillInVerbatim;
+	
+	private DeterminationFrame thisFrame;
 
 	/**
 	 * This is the default constructor
 	 */
 	public DeterminationFrame() {
 		super();
+		thisFrame = this;
 		this.determinations = new DeterminationTableModel();
 		initialize();
 		jButtonAdd.setEnabled(false);
@@ -190,6 +204,48 @@ public class DeterminationFrame extends JFrame {
 			
 			jTableDeterminations.setRowHeight(jTableDeterminations.getRowHeight()+4);			
 			
+			
+			jTableDeterminations.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					if (e.isPopupTrigger()) { 
+						 clickedOnDetsRow = ((JTable)e.getComponent()).getSelectedRow();
+						 jPopupDets.show(e.getComponent(),e.getX(),e.getY());
+					}
+				}
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					if (e.isPopupTrigger()) { 
+						 clickedOnDetsRow = ((JTable)e.getComponent()).getSelectedRow();
+						 jPopupDets.show(e.getComponent(),e.getX(),e.getY());
+					}
+				}
+			});
+		    
+		    jPopupDets = new JPopupMenu();
+			JMenuItem mntmDeleteRow = new JMenuItem("Delete Row");
+			mntmDeleteRow.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) { 
+					try { 
+						log.debug(clickedOnDetsRow);
+						if (clickedOnDetsRow>=0) { 
+							int ok = JOptionPane.showConfirmDialog(thisFrame, "Delete the selected determination?", "Delete Determination", JOptionPane.OK_CANCEL_OPTION);
+							if (ok==JOptionPane.OK_OPTION) { 
+								log.debug("deleting determination row " + clickedOnDetsRow);
+					            ((DeterminationTableModel)jTableDeterminations.getModel()).deleteRow(clickedOnDetsRow);
+							} else { 
+								log.debug("determination row delete canceled by user.");
+							}
+						} else { 
+						    JOptionPane.showMessageDialog(thisFrame, "Unable to select row to delete.");
+						}
+					} catch (Exception ex) { 
+						log.error(ex.getMessage());
+						JOptionPane.showMessageDialog(thisFrame, "Failed to delete a determination row. " + ex.getMessage());
+					}
+				}
+			});	
+			jPopupDets.add(mntmDeleteRow);	
 			
 		}
 		return jTableDeterminations;

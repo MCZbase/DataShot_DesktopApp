@@ -5,6 +5,9 @@ import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
 
 /**
@@ -16,6 +19,8 @@ import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
 public class NumberTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 2244991738218368487L;
+	
+	private static final Log log = LogFactory.getLog(NumberTableModel.class);
 	
 	public static final int COLUMN_TYPE = 1;
 	
@@ -128,8 +133,7 @@ public class NumberTableModel extends AbstractTableModel {
 		    numbers.remove(toRemove);
 		    fireTableDataChanged();
 		} catch (SaveFailedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 	}
 }

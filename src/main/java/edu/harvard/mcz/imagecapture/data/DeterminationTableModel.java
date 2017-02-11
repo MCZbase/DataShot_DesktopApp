@@ -24,6 +24,11 @@ import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
+
 
 /** DeterminationTableModel, a table model for Determinations, able to list the
  * additional determinations for a specimen.
@@ -34,6 +39,8 @@ import javax.swing.table.AbstractTableModel;
 public class DeterminationTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = -671159987795807222L;
+	
+	private static final Log log = LogFactory.getLog(DeterminationTableModel.class);
 	
 	private Set <Determination> determinations = null;
 	
@@ -292,6 +299,21 @@ public class DeterminationTableModel extends AbstractTableModel {
 		}
 		
 		return returnvalue;
-	}	
+	}
+
+	/**
+	 * @param rowIndex row to be deleted
+	 */
+	public void deleteRow(int rowIndex) {
+		Determination toRemove = ((Determination)determinations.toArray()[rowIndex]);
+		DeterminationLifeCycle spals = new DeterminationLifeCycle();
+		try {
+			spals.delete(toRemove);
+		    determinations.remove(toRemove);
+		    fireTableDataChanged();
+		} catch (SaveFailedException e) {
+			log.error(e.getMessage());
+		}
+	}
 
 }
