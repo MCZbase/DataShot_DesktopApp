@@ -26,6 +26,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
+import java.awt.image.RescaleOp;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -504,7 +505,9 @@ public class CandidateImageFile {
 						}
 					}
 				}
-
+                Date d = new Date();
+                //String t = Long.toString(d.getTime());
+				//ImageIO.write(temp, "png", new File("TempBarcodeCrop"+t+".png"));
 				ImageIO.write(temp, "png", new File("TempBarcodeCrop.png"));
 			} catch (NotFoundException e1) {
 				// TODO Auto-generated catch block
@@ -528,9 +531,11 @@ public class CandidateImageFile {
 			returnValue.setText(result.getText());
 			returnValue.setStatus(RESULT_BARCODE_SCANNED);
 		} catch (ReaderException e) {
+			log.debug(e.getMessage());
 			returnValue.setText(e.toString() + " " + e.getMessage());
 			returnValue.setStatus(RESULT_ERROR);
 		} catch (ArrayIndexOutOfBoundsException e) { 
+			log.error(e.getMessage());
 			returnValue.setText(e.toString() + " " + e.getMessage());
 			returnValue.setStatus(RESULT_ERROR);
 		}
@@ -958,9 +963,11 @@ public class CandidateImageFile {
 	 * @return the text of the barcode found in the barcode portion of the position template, or an empty string.
 	 */
 	public static String getBarcodeTextFromImage(BufferedImage image, PositionTemplate positionTemplate) { 
+		log.debug(positionTemplate.getName());
 		String returnValue = "";
 		if (positionTemplate.getTemplateId().equals(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS)) {
 			// Check the entire image for a barcode and return.
+			log.debug(image.getType());
 			LuminanceSource source = new BufferedImageLuminanceSource(image);
 			CandidateImageFile temp = new CandidateImageFile();
 			TextStatus checkResult = temp.checkSourceForBarcode(source, true);
@@ -978,6 +985,7 @@ public class CandidateImageFile {
 					int bottom =  top + positionTemplate.getBarcodeSize().height; //* @param bottom likewise, one more than the y coordinate of the bottommost pixels to decode
 					int height = positionTemplate.getBarcodeSize().height;
 					LuminanceSource source = null;
+					LuminanceSource cropSource = null;
 					boolean inBounds = false;
 					try { 
 						source = new BufferedImageLuminanceSource(image, left,  top, width, height);
@@ -991,6 +999,52 @@ public class CandidateImageFile {
 							CandidateImageFile temp = new CandidateImageFile();
 							TextStatus checkResult = temp.checkSourceForBarcode(source, true);
 							returnValue = checkResult.getText();
+							if (checkResult.getStatus()==CandidateImageFile.RESULT_ERROR) { 
+								log.debug("Trying one stop brighter");
+								BufferedImage crop = image.getSubimage(left, top, width, height);
+								BufferedImage cropAdjust = crop;
+								RescaleOp rescaleOp = new RescaleOp(1.2f, 15, null);
+								rescaleOp.filter(crop, cropAdjust);
+								cropSource = new BufferedImageLuminanceSource(cropAdjust);
+								checkResult = temp.checkSourceForBarcode(cropSource, true);
+								returnValue = checkResult.getText();
+								if (checkResult.getStatus()==CandidateImageFile.RESULT_ERROR) { 
+									log.debug("Trying one stop dimmer");
+									crop = image.getSubimage(left, top, width, height);
+									rescaleOp = new RescaleOp(0.80f, -15, null);
+									rescaleOp.filter(crop, cropAdjust);
+									cropSource = new BufferedImageLuminanceSource(cropAdjust);
+									checkResult = temp.checkSourceForBarcode(cropSource, true);
+									returnValue = checkResult.getText();
+									if (checkResult.getStatus()==CandidateImageFile.RESULT_ERROR) {
+										log.debug("Trying two stops dimmer");
+										crop = image.getSubimage(left, top, width, height);
+										rescaleOp = new RescaleOp(0.60f, -30, null);
+										rescaleOp.filter(crop, cropAdjust);
+										cropSource = new BufferedImageLuminanceSource(cropAdjust);
+										checkResult = temp.checkSourceForBarcode(cropSource, true);
+										returnValue = checkResult.getText();	
+										if (checkResult.getStatus()==CandidateImageFile.RESULT_ERROR) {
+											log.debug("Trying two stops brighter");
+											crop = image.getSubimage(left, top, width, height);
+											rescaleOp = new RescaleOp(1.4f, 30, null);
+											rescaleOp.filter(crop, cropAdjust);
+											cropSource = new BufferedImageLuminanceSource(cropAdjust);
+											checkResult = temp.checkSourceForBarcode(cropSource, true);
+											returnValue = checkResult.getText();	
+											if (checkResult.getStatus()==CandidateImageFile.RESULT_ERROR) {
+												log.debug("Trying three stops brighter");
+												crop = image.getSubimage(left, top, width, height);
+												rescaleOp = new RescaleOp(1.6f, 45, null);
+												rescaleOp.filter(crop, cropAdjust);
+												cropSource = new BufferedImageLuminanceSource(cropAdjust);
+												checkResult = temp.checkSourceForBarcode(cropSource, true);
+												returnValue = checkResult.getText();	
+											}
+										}
+									}
+								}
+							}
 						}
 					} 
 				}
