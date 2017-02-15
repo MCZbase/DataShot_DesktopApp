@@ -60,8 +60,8 @@
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/slf4j/slf4j-api/1.5.6/slf4j-api-1.5.6.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/slf4j/jcl-over-slf4j/1.5.6/jcl-over-slf4j-1.5.6.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/codehaus/plexus/plexus-utils/1.5.6/plexus-utils-1.5.6.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/com/google/zxing/core/2.3.0/core-2.3.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/com/google/zxing/javase/2.3.0/javase-2.3.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/com/google/zxing/core/3.3.0/core-3.3.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/com/google/zxing/javase/3.3.0/javase-3.3.0.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/com/oracle/ojdbc14/10.2.0.5.0/ojdbc14-10.2.0.5.0.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/com/jgoodies/jgoodies-forms/1.6.0/jgoodies-forms-1.6.0.jar"/>
