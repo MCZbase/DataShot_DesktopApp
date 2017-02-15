@@ -63,8 +63,8 @@ public class ImageCaptureApp {
 	
 	private static final Log log = LogFactory.getLog(ImageCaptureApp.class);
 	
-	public static final String APP_VERSION = "1.2.3-SNAPSHOT";
-	public static final String APP_NAME = "RapidCapture";
+	public static final String APP_VERSION = "1.2.3";
+	public static final String APP_NAME = "DataShot";
 	public static final String APP_DESCRIPTION = "Rapid capture of data from images of pin Labels and pinned insect \nspecimens developed for the MCZ Lepidoptera collection";
 	public static final String APP_COPYRIGHT = "Copyright © 2009-2017 President and Fellows of Harvard College";
 	public static final String APP_LICENSE = "This program is free software; you can redistribute it and/or modify \n " + 
@@ -80,7 +80,7 @@ public class ImageCaptureApp {
     "with this program; if not, write to the Free Software Foundation, Inc.,\n " + 
     "51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.\n ";
     public static final String APP_CONTRIBUTORS = "Design: Brendan Haley, Linda Ford, Rodney Eastwood, Paul J. Morris.  Code: Paul J. Morris";
-    public static final String APP_LIBRARIES = "Hibernate, Tesseract, ZXing, Log4J, drew.metadata.exif, iText";
+    public static final String APP_LIBRARIES = "Hibernate, Tesseract, ZXing, Log4J, drew.metadata.exif, iText, event_date_qc";
     public static final String APP_REV = "$Rev$";  // ImageCapture.jar file built before commit will be one revision behind latest commit with changes to this file. 
     
     /** 
