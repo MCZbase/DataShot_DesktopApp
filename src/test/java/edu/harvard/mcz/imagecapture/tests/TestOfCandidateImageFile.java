@@ -21,6 +21,8 @@ package edu.harvard.mcz.imagecapture.tests;
 
 import java.io.File;
 
+import org.junit.experimental.categories.Category;
+
 import edu.harvard.mcz.imagecapture.CandidateImageFile;
 import edu.harvard.mcz.imagecapture.PositionTemplate;
 import edu.harvard.mcz.imagecapture.exceptions.UnreadableFileException;
@@ -32,6 +34,7 @@ import junit.framework.TestCase;
  * @author Paul J. Morris
  *
  */
+@Category(IntegrationTest.class)
 public class TestOfCandidateImageFile extends TestCase {
 
 	/**

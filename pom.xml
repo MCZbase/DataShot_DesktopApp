@@ -168,6 +168,24 @@
           <!-- executable>/usr/local/java/java1.7/bin/javac</executable -->
         </configuration>
       </plugin>
+     <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+       <artifactId>maven-surefire-plugin</artifactId>
+       <version>2.11</version>
+       <dependencies>
+         <dependency>
+           <groupId>org.apache.maven.surefire</groupId>
+           <artifactId>surefire-junit47</artifactId>
+           <version>2.12</version>
+         </dependency>
+        </dependencies>
+        <configuration>
+          <includes>
+            <include>**/*.class</include>
+          </includes>
+          <excludedGroups>edu.harvard.mcz.imagecapture.tests.IntegrationTest</excludedGroups>
+        </configuration>
+      </plugin>      
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
@@ -227,4 +245,20 @@
       </plugin>      
   </plugins>
   </build>
+  <profiles>
+    <profile>
+        <id>integrationTests</id>
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <excludedGroups>edu.harvard.mcz.imagecapture.tests.IgnoreInIntegration</excludedGroups>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </build>
+    </profile>
+  </profiles>  
 </project>

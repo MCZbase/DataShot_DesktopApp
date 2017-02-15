@@ -43,7 +43,7 @@ public class AllTests {
 	public static final String FILE_EMPTY = FILE_VALID_BARCODE_PATH + "emptyfile.jpg";
 
 	/**
-	 * Run the JUnit tests.
+	 * Run the JUnit tests (but not integration tests).
 	 * @return Test
 	 */
 	public static Test suite() {
@@ -51,14 +51,15 @@ public class AllTests {
 		//$JUnit-BEGIN$
 		suite.addTestSuite(TestBarcodeScanning.class);
 		suite.addTestSuite(TestOfSingleton.class);
-		suite.addTestSuite(TestOfPositionTemplate.class);
-		suite.addTestSuite(TestOfCandidateImageFile.class);
-		suite.addTestSuite(TestOfTemplateDetection.class);
+		// suite.addTestSuite(TestOfPositionTemplate.class);
+		// suite.addTestSuite(TestOfCandidateImageFile.class);
+		// suite.addTestSuite(TestOfTemplateDetection.class);
 		suite.addTestSuite(TestOfUnitTrayLabel.class);
 		suite.addTestSuite(TestOfUnitTrayLabelParser.class);
 		suite.addTestSuite(TestOfSpecimen.class);
 		suite.addTestSuite(TestOfImageCaptureProperties.class);
 		suite.addTestSuite(TestMCZENTBarcodeMatching.class);
+		suite.addTestSuite(TestETHZBarcodeMatching.class);
 		suite.addTestSuite(TestofHashUtility.class);
 		suite.addTestSuite(TestOfUserRoles.class);
 		suite.addTestSuite(TestOfPasswordComplexity.class);

@@ -84,7 +84,13 @@ through the user interface in the application (Configuration/Users on the main m
 src/main/java/hibernate.cfg.xml into that directory and edit it to supply 
 connection parameters for your production database, then build with:
 
-    mvn package -DskipTests 
+    mvn package 
+
+You can also run integration tests once you have your local database and a user set up using the integrationTests profile:
+
+    mvn package -P integrationTests
+
+This will present you with a login dialog to run the tests, populated from the values in your src/main/java/hibernate.cfg.xml file.
 
 Note: If using maven 2, and you get a build error in the form of dependency problem about jai-image-io-core: 
 
