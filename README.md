@@ -84,13 +84,28 @@ through the user interface in the application (Configuration/Users on the main m
 src/main/java/hibernate.cfg.xml into that directory and edit it to supply 
 connection parameters for your production database, then build with:
 
-    mvn package 
+    mvn package -P production 
+
+An executable jar file will be found in the build/ directory (and in the target/ directory).
+
+If you are working with an IDE (such as eclipse), you will probably want to use this somewhat
+bizare incantation to create the executable jar file including the not_vcs configuration files, 
+and then to clean out the target/ directory so that your IDE will use the configuration files 
+from src/main/java rather than not_vcs (in target/classes).
+
+    mvn clean install clean compile -P production
 
 You can also run integration tests once you have your local database and a user set up using the integrationTests profile:
 
     mvn package -P integrationTests
 
+
 This will present you with a login dialog to run the tests, populated from the values in your src/main/java/hibernate.cfg.xml file.
+
+Builds were done with a mix of maven and ant to build the executable jar.  These are still available with
+the profile ant (which will leave executable jars in the build/ directory: 
+
+    mvn package -P ant
 
 Note: If using maven 2, and you get a build error in the form of dependency problem about jai-image-io-core: 
 
