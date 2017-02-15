@@ -462,11 +462,14 @@ public class CandidateImageFile {
 		public void setStatus(int status) {
 			this.status = status;
 		}
-
-
-
 	}
 
+	/** 
+	 *  If true, include the timestamp in each temporary image file (for debugging 
+	 *  image processing and scaling).
+	 */
+	private boolean TIMESTAMP_TEMP = false;
+	
 
 	/**
 	 * Check a LuminanceSource for a barcode, handle exceptions, and return
@@ -506,15 +509,16 @@ public class CandidateImageFile {
 					}
 				}
                 Date d = new Date();
-                //String t = Long.toString(d.getTime());
-				//ImageIO.write(temp, "png", new File("TempBarcodeCrop"+t+".png"));
-				ImageIO.write(temp, "png", new File("TempBarcodeCrop.png"));
+                if (TIMESTAMP_TEMP) { 
+                    String t = Long.toString(d.getTime());
+				    ImageIO.write(temp, "png", new File("TempBarcodeCrop"+t+".png"));
+                } else { 
+				    ImageIO.write(temp, "png", new File("TempBarcodeCrop.png"));
+                }
 			} catch (NotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				log.error(e1.getMessage(),e1);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage(),e);
 			}		
 		}
 
@@ -550,6 +554,11 @@ public class CandidateImageFile {
 	 * @return null or a UnitTrayLabel containing the parsed text of the taxon label read from the barcode.
 	 */
 	public UnitTrayLabel getLabelQRText(PositionTemplate positionTemplate) { 
+		
+		//TODO: Refactor to common rotation/scaling/contrast shifting in all barcode reading code.  	
+		// getBarcodeTextFromImage, getLabelQRText, getBarcodeText all have different ways of trying harder
+		// getBarcodeTextFromImage and getBarcodeText differences can cause non-obvious failures.
+		
 		UnitTrayLabel resultLabel = null;
 		String returnValue = "";
 		if (positionTemplate.getTemplateId().equals(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS)) {
@@ -649,8 +658,7 @@ public class CandidateImageFile {
 								try {
 									ImageIO.write(sharpened, "jpg", temp1);
 								} catch (IOException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
+									log.error(e1.getMessage());
 								}
 								source = new BufferedImageLuminanceSource(sharpened, left,  top, width, height);										
 								inBounds = true;
@@ -900,11 +908,9 @@ public class CandidateImageFile {
 					}				
 					}
 				} catch (JpegProcessingException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					log.debug(e1.getMessage(),e1);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					log.error(e1.getMessage(),e1);
 				}
 
 			}
@@ -955,6 +961,7 @@ public class CandidateImageFile {
 	 * Convenience method to check an image for a barcode.  Does not set any instance variables of CandidateImageFile, 
 	 * and does not behave precisely as the getBarcodeText() methods.  Result state is not available from getBarcodeStatus()
 	 * and both errors and the absence of a barcode in the image result in an empty string being returned.
+	 * If a template is specified and no barcode is detected, tries again with some image scaling and contrast variations.
 	 * 
 	 * @param image The BufferedImage to check for a barcode.
 	 * @param positionTemplate The position template specifying where in the image to check for the barcode, if 
@@ -963,6 +970,11 @@ public class CandidateImageFile {
 	 * @return the text of the barcode found in the barcode portion of the position template, or an empty string.
 	 */
 	public static String getBarcodeTextFromImage(BufferedImage image, PositionTemplate positionTemplate) { 
+		
+		//TODO: Refactor to common rotation/scaling/contrast shifting in all barcode reading code.  
+		// getBarcodeTextFromImage, getLabelQRText, getBarcodeText all have different ways of trying harder
+		// getBarcodeTextFromImage and getBarcodeText differences can cause non-obvious failures.
+		
 		log.debug(positionTemplate.getName());
 		String returnValue = "";
 		if (positionTemplate.getTemplateId().equals(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS)) {
@@ -1000,6 +1012,25 @@ public class CandidateImageFile {
 							TextStatus checkResult = temp.checkSourceForBarcode(source, true);
 							returnValue = checkResult.getText();
 							if (checkResult.getStatus()==CandidateImageFile.RESULT_ERROR) { 
+								// Try rescaling (to a 800 pixel width
+								double scalingWidth = 800;
+						        log.debug("Trying again with scaled image crop: " +  Double.toString(scalingWidth) + "px.");
+								Double scale = scalingWidth / width;
+								int scaledHeight = (int) (height * scale); 
+								int scaledWidth = (int) (width * scale); 
+								BufferedImage cropped = image.getSubimage(left, top, width, height);
+								int initialH = cropped.getHeight();
+								int initialW = cropped.getWidth();
+								BufferedImage scaled = new BufferedImage(scaledWidth, scaledHeight, cropped.getType());
+								AffineTransform rescaleTransform = new AffineTransform();
+								rescaleTransform.scale(scale, scale);
+								AffineTransformOp scaleOp = new AffineTransformOp(rescaleTransform, AffineTransformOp.TYPE_BILINEAR);
+								scaled = scaleOp.filter(cropped, scaled);								
+								cropSource = new BufferedImageLuminanceSource(scaled);
+								checkResult = temp.checkSourceForBarcode(cropSource,true);
+								returnValue = checkResult.getText();
+							}							
+							if (checkResult.getStatus()==CandidateImageFile.RESULT_ERROR) { 
 								log.debug("Trying one stop brighter");
 								BufferedImage crop = image.getSubimage(left, top, width, height);
 								BufferedImage cropAdjust = crop;
@@ -1010,7 +1041,6 @@ public class CandidateImageFile {
 								returnValue = checkResult.getText();
 								if (checkResult.getStatus()==CandidateImageFile.RESULT_ERROR) { 
 									log.debug("Trying one stop dimmer");
-									crop = image.getSubimage(left, top, width, height);
 									rescaleOp = new RescaleOp(0.80f, -15, null);
 									rescaleOp.filter(crop, cropAdjust);
 									cropSource = new BufferedImageLuminanceSource(cropAdjust);
@@ -1018,7 +1048,6 @@ public class CandidateImageFile {
 									returnValue = checkResult.getText();
 									if (checkResult.getStatus()==CandidateImageFile.RESULT_ERROR) {
 										log.debug("Trying two stops dimmer");
-										crop = image.getSubimage(left, top, width, height);
 										rescaleOp = new RescaleOp(0.60f, -30, null);
 										rescaleOp.filter(crop, cropAdjust);
 										cropSource = new BufferedImageLuminanceSource(cropAdjust);
@@ -1026,7 +1055,6 @@ public class CandidateImageFile {
 										returnValue = checkResult.getText();	
 										if (checkResult.getStatus()==CandidateImageFile.RESULT_ERROR) {
 											log.debug("Trying two stops brighter");
-											crop = image.getSubimage(left, top, width, height);
 											rescaleOp = new RescaleOp(1.4f, 30, null);
 											rescaleOp.filter(crop, cropAdjust);
 											cropSource = new BufferedImageLuminanceSource(cropAdjust);
@@ -1034,7 +1062,6 @@ public class CandidateImageFile {
 											returnValue = checkResult.getText();	
 											if (checkResult.getStatus()==CandidateImageFile.RESULT_ERROR) {
 												log.debug("Trying three stops brighter");
-												crop = image.getSubimage(left, top, width, height);
 												rescaleOp = new RescaleOp(1.6f, 45, null);
 												rescaleOp.filter(crop, cropAdjust);
 												cropSource = new BufferedImageLuminanceSource(cropAdjust);
@@ -1135,11 +1162,9 @@ public class CandidateImageFile {
 
 							ImageIO.write(temp, "png", new File("TempBarcodeCrop.png"));
 						} catch (NotFoundException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+							log.error(e1.getMessage(),e1);
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							log.error(e.getMessage(),e);
 						}
 
 
@@ -1231,6 +1256,12 @@ public class CandidateImageFile {
 	 * @return a text string representing the content of the barcode, if any.   
 	 */
 	public String getBarcodeText(PositionTemplate positionTemplate) { 
+		
+		
+		//TODO: Refactor to common rotation/scaling/contrast shifting in all barcode reading code.  
+		// getBarcodeTextFromImage, getLabelQRText, getBarcodeText all have different ways of trying harder
+		// getBarcodeTextFromImage and getBarcodeText differences can cause non-obvious failures.
+		
 		String returnValue = "";
 		if (positionTemplate.getTemplateId().equals(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS)) {
 			// Check the entire image for a barcode and return.
@@ -1289,7 +1320,42 @@ public class CandidateImageFile {
 							barcodeStatus = RESULT_ERROR;
 						}
 					} 
-					// TODO: Try again, slightly displaced.
+					if (barcodeStatus==RESULT_ERROR || returnValue.equals("")) { 
+						// Try rescaling (to a 800 pixel width
+						double scalingWidth = 800;
+				        log.debug("Trying again with scaled image crop: " +  Double.toString(scalingWidth) + "px.");
+						Double scale = scalingWidth / width;
+						int scaledHeight = (int) (height * scale); 
+						int scaledWidth = (int) (width * scale); 
+						BufferedImage cropped = image.getSubimage(left, top, width, height);
+						BufferedImage scaled = new BufferedImage(scaledWidth, scaledHeight, cropped.getType());
+						AffineTransform rescaleTransform = new AffineTransform();
+						rescaleTransform.scale(scale, scale);
+						AffineTransformOp scaleOp = new AffineTransformOp(rescaleTransform, AffineTransformOp.TYPE_BILINEAR);
+						scaled = scaleOp.filter(cropped, scaled);								
+						LuminanceSource cropSource = new BufferedImageLuminanceSource(scaled);
+						bitmap = new BinaryBitmap(new HybridBinarizer(cropSource));
+						if (inBounds) { 
+							Result result;
+							try {
+								QRCodeReader reader = new QRCodeReader();
+								Hashtable<DecodeHintType, Object> hints = null;
+								hints = new Hashtable<DecodeHintType, Object>(3);
+								hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE); 
+								result = reader.decode(bitmap,hints);
+								returnValue= result.getText();
+								barcodeStatus = RESULT_BARCODE_SCANNED;
+							}catch (IllegalArgumentException e) { 
+								returnValue = e.toString() + " " + e.getMessage();
+								barcodeStatus = RESULT_ERROR;
+							} catch (ReaderException e) {
+								returnValue = e.toString() + " " + e.getMessage();
+								barcodeStatus = RESULT_ERROR;
+							}
+						}
+					}					
+
+					// Try again, slightly displaced.
 					if (barcodeStatus==RESULT_ERROR || returnValue.equals("")) { 
 						left = left - 1;
 						top =  top + 1;
@@ -1325,7 +1391,7 @@ public class CandidateImageFile {
 								barcodeStatus = RESULT_ERROR;
 							}
 						} 
-						// TODO: Try again, slightly displaced.
+						// Try again, slightly displaced.
 						if (barcodeStatus==RESULT_ERROR || returnValue.equals("")) { 
 							left = left - 1;
 							top =  top + 1;
@@ -1362,7 +1428,7 @@ public class CandidateImageFile {
 								}
 							} 						
 
-							// TODO: Try again, slightly displaced.
+							// Try again, slightly displaced.
 							if (barcodeStatus==RESULT_ERROR || returnValue.equals("")) { 
 								left = left - 1;
 								top =  top + 1;

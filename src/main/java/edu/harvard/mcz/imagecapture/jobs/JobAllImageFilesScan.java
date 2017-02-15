@@ -672,6 +672,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 										log.error("Error scanning for barcode: " + barcode);
 										barcode = "";
 									}
+									log.debug(barcode);
 									System.out.println("Barcode=" + barcode);
 									String exifComment = scannableFile.getExifUserCommentText();
 									TaxonNameReturner parser = null;
