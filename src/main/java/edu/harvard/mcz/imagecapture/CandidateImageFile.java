@@ -44,6 +44,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import com.adobe.xmp.XMPException;
 import com.adobe.xmp.XMPMeta;
@@ -463,12 +464,6 @@ public class CandidateImageFile {
 			this.status = status;
 		}
 	}
-
-	/** 
-	 *  If true, include the timestamp in each temporary image file (for debugging 
-	 *  image processing and scaling).
-	 */
-	private boolean TIMESTAMP_TEMP = false;
 	
 
 	/**
@@ -509,7 +504,7 @@ public class CandidateImageFile {
 					}
 				}
                 Date d = new Date();
-                if (TIMESTAMP_TEMP) { 
+                if (Logger.getLogger(CandidateImageFile.class).isTraceEnabled()) { 
                     String t = Long.toString(d.getTime());
 				    ImageIO.write(temp, "png", new File("TempBarcodeCrop"+t+".png"));
                 } else { 
