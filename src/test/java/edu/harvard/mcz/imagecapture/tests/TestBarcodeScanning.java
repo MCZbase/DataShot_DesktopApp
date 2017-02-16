@@ -113,6 +113,18 @@ public class TestBarcodeScanning extends TestCase {
 			fail(e.getMessage());
 		}		
 		assertEquals("ETHZ-ENT0003497",CandidateImageFile.readBarcodeFromLocation(image, left, top, width, height));
+		
+	    // test some problem inputs	
+		assertEquals("",CandidateImageFile.readBarcodeFromLocation(image, left, top, 99999, 99999));
+		assertEquals("",CandidateImageFile.readBarcodeFromLocation(null, left, top, width, height));
+		
+		testFile = new File(this.getClass().getResource(AllTests.FILE_EMPTY).getFile());
+		try {
+			image = ImageIO.read(testFile);
+		} catch (IOException e) {
+			fail(e.getMessage());
+		}		
+		assertEquals("",CandidateImageFile.readBarcodeFromLocation(image, left, top, width, height));
 	}
 
 }
