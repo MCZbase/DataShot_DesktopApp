@@ -19,12 +19,17 @@
  */
 package edu.harvard.mcz.imagecapture.tests;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
+import org.junit.Test;
 
 import edu.harvard.mcz.imagecapture.CandidateImageFile;
 import edu.harvard.mcz.imagecapture.PositionTemplate;
 import edu.harvard.mcz.imagecapture.exceptions.UnreadableFileException;
-
 import junit.framework.TestCase;
 
 /**  Test cases for reading barcodes from image files.
@@ -44,6 +49,7 @@ public class TestBarcodeScanning extends TestCase {
 	/**
 	 * Test method for {@link edu.harvard.mcz.imagecapture.CandidateImageFile#getBarcodeText()}.
 	 */
+	@Test
 	public void testGetBarcodeText() {
 		CandidateImageFile file;
 		try {
@@ -60,6 +66,7 @@ public class TestBarcodeScanning extends TestCase {
 	/**
 	 * Test method for {@link edu.harvard.mcz.imagecapture.CandidateImageFile#getBarcodeStatus()}.
 	 */
+	@Test
 	public void testGetBarcodeStatus() {
 		CandidateImageFile file;
 		try {
@@ -68,6 +75,44 @@ public class TestBarcodeScanning extends TestCase {
 		} catch (UnreadableFileException e) {
 			fail("Threw unexpected UnreadableFileException. " + e.getMessage());
 		}
+	}
+	
+	@Test
+	public void testreadBarcodeFromLocation() {
+		BufferedImage image = null;
+		
+		File testFile = new File(this.getClass().getResource("/IMG_007027.JPG").getFile());
+		//  BarcodePositionX: 3035
+		//  BarcodePositionY: 135
+		//      BarcodeSizeX: 303
+		//      BarcodeSizeY: 303
+		int left = 3035;
+		int top = 135;
+		int width = 303;
+		int height = 303;
+		try {
+			image = ImageIO.read(testFile);
+		} catch (IOException e) {
+			fail(e.getMessage());
+		}
+		assertEquals("MCZ-ENT00634766",CandidateImageFile.readBarcodeFromLocation(image, left, top, width, height));
+		
+		testFile = new File(this.getClass().getResource("/IMG_000069.JPG").getFile());
+		//  BarcodePositionX: 3380
+		//  BarcodePositionY: 90
+		//      BarcodeSizeX: 480
+		//      BarcodeSizeY: 480
+		left = 3380;
+		top = 90;
+		width = 480;
+		height = 480;		
+		image = null;
+		try {
+			image = ImageIO.read(testFile);
+		} catch (IOException e) {
+			fail(e.getMessage());
+		}		
+		assertEquals("ETHZ-ENT0003497",CandidateImageFile.readBarcodeFromLocation(image, left, top, width, height));
 	}
 
 }

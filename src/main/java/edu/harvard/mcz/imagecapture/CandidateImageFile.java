@@ -53,7 +53,6 @@ import com.drew.imaging.jpeg.JpegProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
-import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifSubIFDDescriptor;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
@@ -481,6 +480,8 @@ public class CandidateImageFile {
 		TextStatus returnValue = new TextStatus("",RESULT_NOT_CHECKED);
 		BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
 
+		log.trace(generateDebugImage);
+		
 		if (generateDebugImage) { 
 			try {
 				int h = bitmap.getBlackMatrix().getHeight();
@@ -508,7 +509,9 @@ public class CandidateImageFile {
                 Date d = new Date();
                 if (log.isTraceEnabled()) { 
                     String t = Long.toString(d.getTime());
-				    ImageIO.write(temp, "png", new File("TempBarcodeCrop"+t+".png"));
+                    File out = new File("TempBarcodeCrop"+t+".png");
+				    ImageIO.write(temp, "png", out);
+				    log.trace("Wrote: " + out.getPath());
                 } else { 
 				    ImageIO.write(temp, "png", new File("TempBarcodeCrop.png"));
                 }
@@ -1553,6 +1556,7 @@ public class CandidateImageFile {
 				} catch (IllegalArgumentException e) { 
 					inBounds = false;
 					returnValue = "";
+					log.debug(e.getMessage());
 				} 		        		        
 				if (inBounds) { 
 					if (inBounds) { 
@@ -1691,8 +1695,12 @@ public class CandidateImageFile {
 						}
 					}
 				} 
+			} else { 
+				log.debug("Provided coordinates fall outside bounds of image.");
 			}
-		} 
+		} else { 
+			log.error("Image is null");
+		}
 		return returnValue;
 	}		
 	

@@ -3,6 +3,7 @@
 /build
 .settings
 TempBarcodeCrop.png
+TempBarcodeCrop*.png
 tempOCRtextOutput.txt
 tempsharp.jpg
 temptiff.jpg
