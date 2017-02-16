@@ -88,10 +88,12 @@ connection parameters for your production database, then build with:
 
 An executable jar file will be found in the build/ directory (and in the target/ directory).
 
-If you are working with an IDE (such as eclipse), you will probably want to use this somewhat
-bizare incantation to create the executable jar file including the not_vcs configuration files, 
+If you are working with an IDE (such as eclipse), you will probably want to use the following somewhat
+bizare incantation to create the executable jar file including the not_vcs/ configuration files, 
 and then to clean out the target/ directory so that your IDE will use the configuration files 
-from src/main/java rather than not_vcs (in target/classes).
+from src/main/java rather than not_vcs (in target/classes) (letting your build with the IDE use 
+the default hibernate and log4j configurations, rather than the production ones, which get placed 
+where the IDE will used them by _mvn clean install -P production_).  
 
     mvn clean install clean compile -P production
 
@@ -102,7 +104,7 @@ You can also run integration tests once you have your local database and a user 
 
 This will present you with a login dialog to run the tests, populated from the values in your src/main/java/hibernate.cfg.xml file.
 
-Builds were done with a mix of maven and ant to build the executable jar.  These are still available with
+Builds were previously done with a mix of maven and ant to build the executable jar.  These are still available with
 the profile ant (which will leave executable jars in the build/ directory: 
 
     mvn package -P ant
