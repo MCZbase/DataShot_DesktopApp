@@ -19,6 +19,9 @@
  */
 package edu.harvard.mcz.imagecapture.tests;
 
+import edu.harvard.mcz.imagecapture.ImageCaptureApp;
+import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
+import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.UnitTrayLabelParser;
 import junit.framework.TestCase;
 
@@ -29,12 +32,42 @@ import junit.framework.TestCase;
  */
 public class TestOfUnitTrayLabelParser extends TestCase {
 
+	private String originalRegexDrawerNumber;
+	
 	/**
 	 * @param name
 	 */
 	public TestOfUnitTrayLabelParser(String name) {
 		super(name);
 	}
+	
+	
+
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		// Store the currently locally configured regex for the drawer number, 
+		originalRegexDrawerNumber = Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_REGEX_DRAWERNUMBER);
+		// then set to the default value (which the tests expect) while running the tests.
+		Singleton.getSingletonInstance().getProperties().getProperties().setProperty(ImageCaptureProperties.KEY_REGEX_DRAWERNUMBER, ImageCaptureApp.REGEX_DRAWERNUMBER);
+	}
+
+
+
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
+	 */
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		// Reset the regex for the drawer number to not lose local properties settings from testing.
+		Singleton.getSingletonInstance().getProperties().getProperties().setProperty(ImageCaptureProperties.KEY_REGEX_DRAWERNUMBER, originalRegexDrawerNumber);
+	}
+
+
 
 	/**
 	 * Test method for {@link edu.harvard.mcz.imagecapture.UnitTrayLabelParser#UnitTrayLabelParser(java.lang.String)}.
