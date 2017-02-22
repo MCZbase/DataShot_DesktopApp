@@ -82,7 +82,13 @@ through the user interface in the application (Configuration/Users on the main m
 
 (3) Create a not_vcs directory in the project root, copy the file
 src/main/java/hibernate.cfg.xml into that directory and edit it to supply 
-connection parameters for your production database, then build with:
+connection parameters for your production database (likewise the log4j configuration file if you want to change the logging from the production jar), 
+
+     $ mkdir not_vcs
+     $ cp src/main/java/hibernate.cfg.xml not_vcs/
+     $ cp src/main/java/log4j.properties not_vcs/
+
+then build with:
 
     mvn package -P production 
 
