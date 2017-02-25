@@ -193,7 +193,14 @@ There is an expectation that images will be placed on the fileserver in batches 
 ## Configuration
 
 To configure the application, see Configuration/Properties on the main menu
-or edit the imagecapture.properties file created when the application first runs.
+or edit the imagecapture.properties file created when the application first runs.  
+On the first run for a deployment, default values will be used, these almost certainly 
+are not the values you want for that deployment, so carefuly examine and edit the 
+configuration parameters when first running each deployed instance.  The recommended 
+method for editing the configuration parameters is through Configuration/Properties 
+on the main menu (as some characters need to be escaped in the properties file, 
+the configuration editor handles this automatically, manual edits are more prone
+to errors).  
 
 The following configuration parameters are critical for setup:
 
@@ -259,6 +266,9 @@ The following properties just store recent activity, they aren't involved in con
 
     fileload.lastpath=~/workspace/butterflies_sf/docs_manual/example_files/loadtest.csv
     scanonebarcode.lastpath=~/testImages/base/problem_2016Oct12/IMG_000057.JPG
+
+**Note well: If you do not configure each deployed instance, it will not behave as you expect since 
+default values for these configuration parameters will be used.**  
 
 ## Templates
 
