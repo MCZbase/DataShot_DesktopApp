@@ -1,6 +1,5 @@
-/**
- * MCZBarcodePositionTemplateDetector.java
- * edu.harvard.mcz.imagecapture
+/** ConfiguredBarcodePositionTemplateDetector.java
+ * 
  * Copyright © 2009 President and Fellows of Harvard College
  *
  * This program is free software: you can redistribute it and/or modify
@@ -35,21 +34,21 @@ import edu.harvard.mcz.imagecapture.exceptions.OCRReadException;
 import edu.harvard.mcz.imagecapture.exceptions.UnreadableFileException;
 import edu.harvard.mcz.imagecapture.interfaces.PositionTemplateDetector;
 
-/** MCZBarcodePositionTemplateDetector find a template by the position of a barcode in an image file
- * without recourse to construction of a a CandidateImageFile instance, and checks for an MCZ catalog
- * number barcode in the templated position, not just any readable barcode.
+/** ConfiguredBarcodePositionTemplateDetector find a template by the position of a barcode in an image file
+ * without recourse to construction of a a CandidateImageFile instance, and checks for a catalog
+ * number barcode that follows the configured pattern in the templated position, not just any readable barcode.
  *   
- * This class makes the assumption that a template can be uniqely idenfified by the location of the
- * barcode in the image.  Each template must have the bardcode in a uniquely different place.
+ * This class makes the assumption that a template can be uniquely identified by the location of the
+ * barcode in the image.  Each template must have the barcode in a uniquely different place.
  * 
  * @author Paul J. Morris
  *
- * @see edu.harvard.mcz.imagecapture.PositionTemplate
+ * @see #edu.harvard.mcz.imagecapture.PositionTemplate
  *
  */
-public class MCZBarcodePositionTemplateDetector implements	PositionTemplateDetector {
+public class ConfiguredBarcodePositionTemplateDetector implements	PositionTemplateDetector {
 
-	private static final Log log = LogFactory.getLog(MCZBarcodePositionTemplateDetector.class);
+	private static final Log log = LogFactory.getLog(ConfiguredBarcodePositionTemplateDetector.class);
 	
 	/* (non-Javadoc)
 	 * @see edu.harvard.mcz.imagecapture.interfaces.PositionTemplateDetector#detectTemplateForImage(java.io.File)
@@ -91,8 +90,8 @@ public class MCZBarcodePositionTemplateDetector implements	PositionTemplateDetec
 						if (text.length()>0) {
 							// a barcode was scanned 
 							// Check to see if it matches the expected pattern.
+							// Use the configured barcode matcher.
 							if (Singleton.getSingletonInstance().getBarcodeMatcher().matchesPattern(text)) { 
-							// if (text.matches(MCZENTBarcode.PATTERN)) { 
 								found = true;
 								log.debug("Match to:" + template.getTemplateId());
 								result = template.getTemplateId();

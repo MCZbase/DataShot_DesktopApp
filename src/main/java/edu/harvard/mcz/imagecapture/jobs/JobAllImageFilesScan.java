@@ -47,7 +47,7 @@ import edu.harvard.mcz.imagecapture.CandidateImageFile;
 import edu.harvard.mcz.imagecapture.ImageCaptureApp;
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
 import edu.harvard.mcz.imagecapture.RunnableJobReportDialog;
-import edu.harvard.mcz.imagecapture.MCZBarcodePositionTemplateDetector;
+import edu.harvard.mcz.imagecapture.ConfiguredBarcodePositionTemplateDetector;
 import edu.harvard.mcz.imagecapture.PositionTemplate;
 import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.UnitTrayLabelParser;
@@ -617,7 +617,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 						// scan file for barcodes and ocr of unit tray label text
 						CandidateImageFile scannableFile = null;
 						try {
-							PositionTemplateDetector detector = new MCZBarcodePositionTemplateDetector();
+							PositionTemplateDetector detector = new ConfiguredBarcodePositionTemplateDetector();
 							boolean isSpecimenImage = false;
 							boolean isDrawerImage = false;
 							boolean reattach = false;  // image is detached instance and should be reattached instead of persisted denovo.

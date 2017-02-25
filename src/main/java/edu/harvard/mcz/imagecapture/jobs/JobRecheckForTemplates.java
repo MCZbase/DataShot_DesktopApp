@@ -35,7 +35,7 @@ import org.hibernate.HibernateException;
 
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
 import edu.harvard.mcz.imagecapture.RunnableJobReportDialog;
-import edu.harvard.mcz.imagecapture.MCZBarcodePositionTemplateDetector;
+import edu.harvard.mcz.imagecapture.ConfiguredBarcodePositionTemplateDetector;
 import edu.harvard.mcz.imagecapture.PositionTemplate;
 import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.data.HigherTaxonLifeCycle;
@@ -266,7 +266,7 @@ public class JobRecheckForTemplates implements RunnableJob, Runnable {
 				File imageFile = new File(ImageCaptureProperties.assemblePathWithBase(image.getPath(), image.getFilename()));
 				counter.incrementFilesSeen();
 
-				MCZBarcodePositionTemplateDetector detector = new MCZBarcodePositionTemplateDetector();
+				ConfiguredBarcodePositionTemplateDetector detector = new ConfiguredBarcodePositionTemplateDetector();
 				try {
 					ICImageLifeCycle ils = new ICImageLifeCycle();
 					String templateName = detector.detectTemplateForImage(imageFile);

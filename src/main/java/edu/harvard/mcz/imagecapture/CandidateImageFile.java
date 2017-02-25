@@ -120,7 +120,7 @@ public class CandidateImageFile {
 		
 		
 		// detect template to use.
-		MCZBarcodePositionTemplateDetector detector = new MCZBarcodePositionTemplateDetector();
+		ConfiguredBarcodePositionTemplateDetector detector = new ConfiguredBarcodePositionTemplateDetector();
 		
 		String templateName = detector.detectTemplateForImage(aFile);
 		
@@ -282,7 +282,11 @@ public class CandidateImageFile {
 	}
 	
 	
-	
+	/** Produce a BulkMedia record suitable for loading into the MCZbase bulk media bulkloader 
+     * from an image file.  
+     * @param filename the filename to load as bulk media.
+     * @return BulkMedia objeect for that file.
+     */
 	protected static BulkMedia parseOneFileToBulkMedia(String filename) {
 		BulkMedia result = new BulkMedia();  
 		File f = new File(filename);
