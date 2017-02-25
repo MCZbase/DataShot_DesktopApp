@@ -310,9 +310,12 @@ public class CandidateImageFile {
 					barcode = exif;
 				}
 			}
-			if (barcode.startsWith("MCZ-ENT")) { 
-				result.setCatalogNumber("MCZ:Ent:" + barcode.substring(7).replaceFirst("^0*", ""));
+		    if (Singleton.getSingletonInstance().getBarcodeMatcher().matchesPattern(barcode)) {
+		    	result.setCatalogNumber(Singleton.getSingletonInstance().getBarcodeBuilder().makeGuidFromBarcode(barcode));
 			}
+			//if (barcode.startsWith("MCZ-ENT")) { 
+			//  	result.setCatalogNumber("MCZ:Ent:" + barcode.substring(7).replaceFirst("^0*", ""));
+			//}
 			if (filename.startsWith("http://")) { 
 				result.setMedia_URI(filename);
 			} else { 

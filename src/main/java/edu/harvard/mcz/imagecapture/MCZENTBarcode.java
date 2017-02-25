@@ -43,7 +43,7 @@ public class MCZENTBarcode implements BarcodeMatcher, BarcodeBuilder {
 	private static final Log log = LogFactory.getLog(MCZENTBarcode.class); 
 	
 	public MCZENTBarcode() { 
-		log.debug("Instatntiating " + this.getClass().toString());
+		log.debug("Instantiating " + this.getClass().toString());
 	}
 	
 	/* (non-Javadoc)
@@ -94,6 +94,15 @@ public class MCZENTBarcode implements BarcodeMatcher, BarcodeBuilder {
 					result = PREFIX + String.format("%0"+ digits + "d", aNumber);
 				}
 			}
+		}
+		return result;
+	}
+
+	@Override
+	public String makeGuidFromBarcode(String barcode) {
+		String result = barcode;
+		if (barcode.startsWith(PREFIX)) { 
+			result = "MCZ:Ent:" + barcode.substring(7).replaceFirst("^0*", "");
 		}
 		return result;
 	}

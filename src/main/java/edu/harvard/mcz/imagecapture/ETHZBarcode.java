@@ -88,4 +88,9 @@ public class ETHZBarcode implements BarcodeMatcher, BarcodeBuilder {
 		}
 		return result;
 	}
+	
+	@Override
+	public String makeGuidFromBarcode(String barcode) {
+        return barcode;
+	}	
 }

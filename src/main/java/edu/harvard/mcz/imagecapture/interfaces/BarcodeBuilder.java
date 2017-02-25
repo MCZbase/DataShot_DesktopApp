@@ -38,5 +38,7 @@ public interface BarcodeBuilder {
 	 * @return
 	 */
 	public String makeFromNumber(Integer aNumber);
+	
+	public String makeGuidFromBarcode(String barcode);
 
 }
