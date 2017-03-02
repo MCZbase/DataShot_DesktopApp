@@ -100,7 +100,9 @@ public class LoginDialog extends JDialog {
 	 */
 	private void initialize() {
         this.setContentPane(getJPanel());
-        this.setTitle("ConnectionDialog");
+        this.setTitle("DataShot Login Dialog: Configured For: " + 
+		     Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_COLLECTION)
+        );
         URL iconFile = this.getClass().getResource("/edu/harvard/mcz/imagecapture/resources/icon.png");          
         try {  
         	setIconImage(new ImageIcon(iconFile).getImage());

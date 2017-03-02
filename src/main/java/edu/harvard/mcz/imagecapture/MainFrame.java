@@ -308,7 +308,9 @@ public class MainFrame extends JFrame implements RunnerListener {
         	log.error("Can't open icon file: " + iconFile);
         	log.error(e);
         }
-        this.setTitle("MCZ Lepidoptera Rapid Data Capture");
+        this.setTitle("DataShot: MCZ Rapid Data Capture Application.  Configured For: " + 
+		     Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_COLLECTION)
+        );
         this.setJMenuBar(getJJMenuBar());
 		this.setContentPane(getJPanel());
 			
