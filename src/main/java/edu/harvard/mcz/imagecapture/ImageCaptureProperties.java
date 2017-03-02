@@ -75,8 +75,10 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 	 */
 	public static final String KEY_IMAGEREGEX = "images.filenameregex";
 	/**
-	 * Size to which to rescale width of unit tray label barcode to on retry of 
-	 * barcode read.
+	 * Sizes to which to rescale width of unit tray label barcode to on retry of 
+	 * barcode read.  Value can be a comma delimited list of integers, or a comma
+	 * delimited list of integers and the words sharpen, brighter, dimmer, for 
+	 * example '400' or '400,500' or '400,400brighter,400sharpenbrighter,500dimmer'.
 	 */
 	public static final String KEY_IMAGERESCALE = "images.barcoderescalesize";
 	/**
@@ -435,8 +437,8 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 			properties.setProperty(KEY_IMAGEREGEX,ImageCaptureApp.REGEX_IMAGEFILE);	
 		}			
 		if (!properties.containsKey(KEY_IMAGERESCALE))  {
-			// Size to which to rescale width of unit tray label barcode to on retry.
-			properties.setProperty(KEY_IMAGERESCALE,"400");	
+			// Sizes to which to rescale width of unit tray label barcode to on retry.
+			properties.setProperty(KEY_IMAGERESCALE,"400,600sharpen,600brighter,600dimmer,400sharpenbrighter");	
 		}
 		if (!properties.containsKey(KEY_TEMPLATEDEFAULT)) {
 			// PostitionTemplate to use by default

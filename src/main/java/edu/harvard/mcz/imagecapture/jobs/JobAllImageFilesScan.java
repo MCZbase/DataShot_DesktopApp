@@ -621,7 +621,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 							boolean isSpecimenImage = false;
 							boolean isDrawerImage = false;
 							boolean reattach = false;  // image is detached instance and should be reattached instead of persisted denovo.
-							try {
+							// try {
 								// Check for an existing image record.
 								ICImageLifeCycle imageCont = new ICImageLifeCycle();
 								ICImage tryMe = new ICImage();
@@ -661,12 +661,19 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 									// No database record for this file.
 									
 									// ** Identify the template.
-									String templateId = detector.detectTemplateForImage(fileToCheck);
+									// String templateId = detector.detectTemplateForImage(fileToCheck);
+									// log.debug("Detected Template: " + templateId);
+									// PositionTemplate template = new PositionTemplate(templateId);
+									// // Found a barcode in a templated position in the image.
+									// // ** Scan the file based on this template.
+									// scannableFile = new CandidateImageFile(fileToCheck, template);
+									
+									// Construct a CandidateImageFile with constructor that self detects template
+									scannableFile = new CandidateImageFile(fileToCheck);
+									PositionTemplate template = scannableFile.getTemplateUsed();
+									String templateId = template.getName();
 									log.debug("Detected Template: " + templateId);
-									PositionTemplate template = new PositionTemplate(templateId);
-									// Found a barcode in a templated position in the image.
-									// ** Scan the file based on this template.
-									scannableFile = new CandidateImageFile(fileToCheck, template);
+									log.debug(scannableFile.getBarcodeStatus());
 									String barcode = scannableFile.getBarcodeText(template);
 									if (scannableFile.getBarcodeStatus()!=CandidateImageFile.RESULT_BARCODE_SCANNED) {
 										log.error("Error scanning for barcode: " + barcode);
@@ -675,21 +682,24 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 									log.debug(barcode);
 									System.out.println("Barcode=" + barcode);
 									String exifComment = scannableFile.getExifUserCommentText();
+									log.debug(exifComment);
 									TaxonNameReturner parser = null;
 									String rawOCR = "";
 									UnitTrayLabel labelRead = null;
 									String state = WorkFlowStatus.STAGE_0;
-									labelRead = scannableFile.getLabelQRText(template);
+									labelRead = scannableFile.getTaxonLabelQRText(template);
 									if (labelRead==null) { 
 										try { 
-											labelRead = scannableFile.getLabelQRText(new PositionTemplate("Test template 2"));
+											labelRead = scannableFile.getTaxonLabelQRText(new PositionTemplate("Test template 2"));
 										} catch (NoSuchTemplateException e) {
 											try { 
-												labelRead = scannableFile.getLabelQRText(new PositionTemplate("Small template 2"));
+												labelRead = scannableFile.getTaxonLabelQRText(new PositionTemplate("Small template 2"));
 											} catch (NoSuchTemplateException e1) {
 												log.error("Neither Test template 2 nor Small template 2 found");
 											}
 										}
+									} else { 
+									   log.debug(labelRead.toJSONString());
 									}
 									if (labelRead!=null) { 
 										rawOCR = labelRead.toJSONString();
@@ -713,7 +723,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 									    	while (x < xmax) { 
 										        utpos.setSize(new Dimension(utpos.width +x, utpos.height));
 										        shifted.setUtBarcodePosition(utpos);
-										        labelRead = scannableFile.getLabelQRText(shifted);
+										        labelRead = scannableFile.getTaxonLabelQRText(shifted);
 										        x++;
 										        if (labelRead !=null ) { 
 										        	x = xmax;
@@ -1082,9 +1092,9 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 										counter.incrementFilesExisting();
 									}
 								}
-							} catch (NoSuchTemplateException e) {
-								log.error("Detected Template for image doesn't exist. " + e.getMessage());
-							} 
+							// } catch (NoSuchTemplateException e) {
+							//	log.error("Detected Template for image doesn't exist. " + e.getMessage());
+							//} 
 
 
 

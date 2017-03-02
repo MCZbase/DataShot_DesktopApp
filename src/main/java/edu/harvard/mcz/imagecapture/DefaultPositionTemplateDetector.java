@@ -44,16 +44,23 @@ public class DefaultPositionTemplateDetector implements	PositionTemplateDetector
 
 	private static final Log log = LogFactory.getLog(DefaultPositionTemplateDetector.class);
 	
-	/* (non-Javadoc)
-	 * @see edu.harvard.mcz.imagecapture.interfaces.PositionTemplateDetector#detectTemplateForImage(java.io.File)
-	 */
 	@Override
 	public String detectTemplateForImage(File anImageFile) throws UnreadableFileException {
+		return detectTemplateForImage(anImageFile, null);
+	}
+	@Override
+	public String detectTemplateForImage(CandidateImageFile scannableFile) throws UnreadableFileException {
+		return detectTemplateForImage(scannableFile.getFile(), scannableFile);
+	}
+	
+	protected String detectTemplateForImage(File anImageFile, CandidateImageFile scannableFile) throws UnreadableFileException {
 		String result = PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS;
 		// We will be calling getBarcodeText(PositionTemplate aTemplate) below, so it doesn't matter
 		// that we are instatiating the scannable file here with a default template.
-		CandidateImageFile scannableFile = null;
-		scannableFile = new CandidateImageFile(anImageFile, new PositionTemplate());
+		//CandidateImageFile scannableFile = null;
+		if (scannableFile==null) { 
+		   scannableFile = new CandidateImageFile(anImageFile, new PositionTemplate());
+		}
 
 		List<String> templates = PositionTemplate.getTemplateIds();
 		// iterate through templates and check until the first template where a barcode is found

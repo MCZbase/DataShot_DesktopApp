@@ -120,24 +120,28 @@ public class RunnableJobTableModel extends AbstractTableModel implements RunnerL
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		Object returnvalue = null;
-		switch (columnIndex) { 
-		case  0: 
-		    returnvalue = (Integer)rowIndex;
-		    break;
-		case 1:  
-		    returnvalue = ((RunnableJob)jobs.toArray()[rowIndex]).getName();
-		    break;
-		case 2: 
-			if (((RunnableJob)jobs.toArray()[rowIndex]).getStartTime()==null) { 
-				returnvalue = "----";
-			} else { 
-			    returnvalue = DateFormat.getTimeInstance().format(((RunnableJob)jobs.toArray()[rowIndex]).getStartTime());
+		try { 
+			switch (columnIndex) { 
+			case  0: 
+				returnvalue = (Integer)rowIndex;
+				break;
+			case 1:  
+				returnvalue = ((RunnableJob)jobs.toArray()[rowIndex]).getName();
+				break;
+			case 2: 
+				if (((RunnableJob)jobs.toArray()[rowIndex]).getStartTime()==null) { 
+					returnvalue = "----";
+				} else { 
+					returnvalue = DateFormat.getTimeInstance().format(((RunnableJob)jobs.toArray()[rowIndex]).getStartTime());
+				}
+				break;
+			case 3:  
+				returnvalue = ((RunnableJob)jobs.toArray()[rowIndex]).percentComplete();
+				log.debug(returnvalue);
+				break;			
 			}
-			break;
-		case 3:  
-		    returnvalue = ((RunnableJob)jobs.toArray()[rowIndex]).percentComplete();
-		    log.debug(returnvalue);
-		    break;			
+		} catch (NullPointerException e) { 
+			log.debug(e.getMessage());
 		}
 		return returnvalue;
 	}

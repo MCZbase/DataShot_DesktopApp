@@ -21,6 +21,7 @@ package edu.harvard.mcz.imagecapture.interfaces;
 
 import java.io.File;
 
+import edu.harvard.mcz.imagecapture.CandidateImageFile;
 import edu.harvard.mcz.imagecapture.exceptions.UnreadableFileException;
 
 /** PositionTemplateDetector interface for detecting PositionTemplates for image files.
@@ -39,5 +40,7 @@ public interface PositionTemplateDetector {
 	 * @throws UnreadableFileException if the file cannot be read.
 	 */
 	public String detectTemplateForImage(File anImageFile) throws UnreadableFileException;
+	
+	public String detectTemplateForImage(CandidateImageFile scannableFile) throws UnreadableFileException;
 	
 }

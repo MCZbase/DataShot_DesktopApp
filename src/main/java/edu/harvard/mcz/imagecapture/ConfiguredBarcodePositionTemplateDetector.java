@@ -50,11 +50,16 @@ public class ConfiguredBarcodePositionTemplateDetector implements	PositionTempla
 
 	private static final Log log = LogFactory.getLog(ConfiguredBarcodePositionTemplateDetector.class);
 	
-	/* (non-Javadoc)
-	 * @see edu.harvard.mcz.imagecapture.interfaces.PositionTemplateDetector#detectTemplateForImage(java.io.File)
-	 */
 	@Override
 	public String detectTemplateForImage(File anImageFile) throws UnreadableFileException {
+	   return detectTemplateForImage(anImageFile, null);
+	}
+	@Override
+	public String detectTemplateForImage(CandidateImageFile scannableFile) throws UnreadableFileException {
+	   return detectTemplateForImage(scannableFile.getFile(), scannableFile);
+	}
+	
+	protected String detectTemplateForImage(File anImageFile, CandidateImageFile scannableFile) throws UnreadableFileException {
 		// Set default response if no template is found.
 		String result = PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS;
 		
@@ -85,7 +90,12 @@ public class ConfiguredBarcodePositionTemplateDetector implements	PositionTempla
 					if (image.getWidth()==template.getImageSize().getWidth()) { 
 						// Check to see if the barcode is in the part of the template
 						// defined by getBarcodeULPosition and getBarcodeSize.
-						String text = CandidateImageFile.getBarcodeTextFromImage(image, template);
+						String text;
+						if (scannableFile==null) { 
+						    text = CandidateImageFile.getBarcodeTextFromImage(image, template);
+						} else { 
+						    text = scannableFile.getBarcodeText(template);
+						}
 						log.debug("Found:[" + text + "] ");
 						if (text.length()>0) {
 							// a barcode was scanned 
