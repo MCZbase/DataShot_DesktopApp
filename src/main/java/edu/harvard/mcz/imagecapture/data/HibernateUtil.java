@@ -52,6 +52,13 @@ public class HibernateUtil {
 	 */
 	private static void createSessionFactory() {
 		try {
+			if (sessionFactory!=null) { 
+			   terminateSessionFactory();
+			}
+		} catch (Exception e) { 
+			log.error(e.getMessage());
+		}
+		try {
 			// Create the Configuration from hibernate.cfg.xml
 			Configuration config = new Configuration().configure();
 			// Add authentication properties obtained from the user
@@ -86,6 +93,7 @@ public class HibernateUtil {
 					config.setProperty("hibernate.connection.username", username);
 					config.setProperty("hibernate.connection.url", loginDialog.getConnection());
 					// Now create the SessionFactory from this configuration
+					log.debug(config.getProperty("hibernate.connection.url"));
 					try { 
 						sessionFactory = config.buildSessionFactory();
 					} catch (Throwable ex) {

@@ -3,7 +3,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 23, 2009 8:12:35 AM by Hibernate Tools 3.2.2.GA -->
 <hibernate-mapping default-lazy="false" >
-    <class name="edu.harvard.mcz.imagecapture.data.ICImage" table="Image" catalog="lepidoptera">
+    <class name="edu.harvard.mcz.imagecapture.data.ICImage" table="Image" >
         <id name="imageId" type="java.lang.Long">
             <column name="ImageId" />
             <generator class="native" >

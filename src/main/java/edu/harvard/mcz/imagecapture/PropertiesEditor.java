@@ -8,15 +8,22 @@ import java.awt.Dimension;
 
 import javax.swing.JPanel;
 import javax.swing.JFrame;
+
 import java.awt.GridBagLayout;
+
 import javax.swing.JButton;
+
 import java.awt.GridBagConstraints;
 import java.awt.event.KeyEvent;
+
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.WindowConstants;
 import javax.swing.table.TableModel;
+
+import edu.harvard.mcz.imagecapture.interfaces.BarcodeBuilder;
+import edu.harvard.mcz.imagecapture.interfaces.BarcodeMatcher;
 
 /**
  * Frame to display list of property key/value pairs where the values for each 
@@ -33,7 +40,7 @@ public class PropertiesEditor extends JFrame {
 	private JPanel jPanel = null;
 	private JPanel jPanel1 = null;
 	private JButton jButton = null;
-	private JButton jButton1 = null;
+	private JButton jButtonSave = null;
 	private JTextField jTextField = null;
 	private ImageCaptureProperties properties = null;
 	private PropertiesEditor thisEditor = null;
@@ -115,7 +122,7 @@ public class PropertiesEditor extends JFrame {
 			jPanel1 = new JPanel();
 			jPanel1.setLayout(new GridBagLayout());
 			jPanel1.add(getJButton(), new GridBagConstraints());
-			jPanel1.add(getJButton1(), new GridBagConstraints());
+			jPanel1.add(getJButtonSave(), new GridBagConstraints());
 		}
 		return jPanel1;
 	}
@@ -144,12 +151,12 @@ public class PropertiesEditor extends JFrame {
 	 * 	
 	 * @return javax.swing.JButton	
 	 */
-	private JButton getJButton1() {
-		if (jButton1 == null) {
-			jButton1 = new JButton();
-			jButton1.setText("Save");
-			jButton1.setMnemonic(KeyEvent.VK_S);
-			jButton1.addActionListener(new java.awt.event.ActionListener() {
+	private JButton getJButtonSave() {
+		if (jButtonSave == null) {
+			jButtonSave = new JButton();
+			jButtonSave.setText("Save");
+			jButtonSave.setMnemonic(KeyEvent.VK_S);
+			jButtonSave.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {
 						if (jTable.isEditing()) { 
@@ -157,6 +164,23 @@ public class PropertiesEditor extends JFrame {
 						}
 						Singleton.getSingletonInstance().setProperties(((ImageCaptureProperties)jTable.getModel()));
 						Singleton.getSingletonInstance().getProperties().saveProperties();
+						
+						// Set up a barcode (text read from barcode label for pin) matcher/builder
+						if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_COLLECTION).equals(ImageCaptureProperties.COLLECTION_MCZENT)) { 
+							// ** Configured for the MCZ Entomology Collection, use MCZ assumptions.
+						    MCZENTBarcode barcodeTextBuilderMatcher = new MCZENTBarcode();
+						    Singleton.getSingletonInstance().setBarcodeBuilder((BarcodeBuilder)barcodeTextBuilderMatcher);
+						    Singleton.getSingletonInstance().setBarcodeMatcher((BarcodeMatcher)barcodeTextBuilderMatcher);
+						} else if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_COLLECTION).equals(ImageCaptureProperties.COLLECTION_ETHZENT)) { 
+							// ** Configured for the ETHZ Entomology Collection, use MCZ assumptions.
+						    ETHZBarcode barcodeTextBuilderMatcher = new ETHZBarcode();
+						    Singleton.getSingletonInstance().setBarcodeBuilder((BarcodeBuilder)barcodeTextBuilderMatcher);
+						    Singleton.getSingletonInstance().setBarcodeMatcher((BarcodeMatcher)barcodeTextBuilderMatcher);
+						} else { 
+							throw new Exception("Configured collection not recognized.");
+						}						
+						Singleton.getSingletonInstance().getMainFrame().updateTitle();
+						
 						thisEditor.dispose();
 					} catch (Exception e1) {
 						System.out.println("Save Failed");
@@ -164,7 +188,7 @@ public class PropertiesEditor extends JFrame {
 				}
 			});
 		}
-		return jButton1;
+		return jButtonSave;
 	}
 
 	/**

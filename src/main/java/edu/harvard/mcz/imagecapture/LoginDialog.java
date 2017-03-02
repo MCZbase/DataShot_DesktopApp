@@ -292,13 +292,14 @@ public class LoginDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JButton	
 	 */
-	private JButton getJButton() {
+	private JButton getJButtonLogin() {
 		if (jButtonLogin == null) {
 			jButtonLogin = new JButton("Login");
 			jButtonLogin.setMnemonic(KeyEvent.VK_L);
 			jButtonLogin.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					result = LoginDialog.RESULT_LOGIN;
+					jButtonLogin.grabFocus();
 					getUserPasswordHash();
 					self.setVisible(false);
 				}
@@ -312,7 +313,7 @@ public class LoginDialog extends JDialog {
 	 * 	
 	 * @return javax.swing.JButton	
 	 */
-	private JButton getJButton1() {
+	private JButton getJButtonCancel() {
 		if (jButtonCancel == null) {
 			jButtonCancel = new JButton("Cancel");
 			jButtonCancel.setMnemonic(KeyEvent.VK_C);
@@ -426,8 +427,8 @@ public class LoginDialog extends JDialog {
 			gridBagConstraints11.fill = GridBagConstraints.NONE;
 			jPanel1 = new JPanel();
 			jPanel1.setLayout(new GridBagLayout());
-			jPanel1.add(getJButton1(), gridBagConstraints13);
-			jPanel1.add(getJButton(), gridBagConstraints11);
+			jPanel1.add(getJButtonCancel(), gridBagConstraints13);
+			jPanel1.add(getJButtonLogin(), gridBagConstraints11);
 		}
 		return jPanel1;
 	}

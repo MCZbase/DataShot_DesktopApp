@@ -3,7 +3,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Feb 5, 2009 5:23:55 PM by Hibernate Tools 3.2.2.GA -->
 <hibernate-mapping>
-    <class name="edu.harvard.mcz.imagecapture.data.Users" table="Users" catalog="lepidoptera">
+    <class name="edu.harvard.mcz.imagecapture.data.Users" table="Users">
         <id name="userid" type="java.lang.Integer">
             <column name="USERID" />
             <generator class="native" >

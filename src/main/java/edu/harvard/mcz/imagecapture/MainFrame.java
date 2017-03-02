@@ -308,7 +308,7 @@ public class MainFrame extends JFrame implements RunnerListener {
         	log.error("Can't open icon file: " + iconFile);
         	log.error(e);
         }
-        this.setTitle("DataShot: MCZ Rapid Data Capture Application.  Configured For: " + 
+        this.setTitle(ImageCaptureApp.APP_NAME + ": MCZ Rapid Data Capture Application.  Configured For: " + 
 		     Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_COLLECTION)
         );
         this.setJMenuBar(getJJMenuBar());
@@ -316,6 +316,12 @@ public class MainFrame extends JFrame implements RunnerListener {
 			
 	}
 
+	public void updateTitle() { 
+        this.setTitle(ImageCaptureApp.APP_NAME + ": MCZ Rapid Data Capture Application.  Configured For: " + 
+		     Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_COLLECTION)
+        );
+	}
+	
 	/**
 	 * This method initializes jJMenuBar	
 	 * 	

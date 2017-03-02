@@ -3,7 +3,7 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Jan 23, 2009 8:12:35 AM by Hibernate Tools 3.2.2.GA -->
 <hibernate-mapping>
-    <class name="edu.harvard.mcz.imagecapture.data.Tracking" table="Tracking" catalog="lepidoptera">
+    <class name="edu.harvard.mcz.imagecapture.data.Tracking" table="Tracking" >
         <id name="trackingId" type="java.lang.Long">
             <column name="TrackingId" />
             <generator class="native" >
