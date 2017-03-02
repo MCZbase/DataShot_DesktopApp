@@ -624,10 +624,6 @@ public class CandidateImageFile {
 			return unitTrayLabel;
 		}		
 		
-		//TODO: Refactor to common rotation/scaling/contrast shifting in all barcode reading code.  	
-		// getBarcodeTextFromImage, getLabelQRText, getBarcodeText all have different ways of trying harder
-		// getBarcodeTextFromImage and getBarcodeText differences can cause non-obvious failures.
-		
 		UnitTrayLabel resultLabel = null;
 		String returnValue = "";
 		if (positionTemplate.getTemplateId().equals(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS)) {
@@ -670,176 +666,7 @@ public class CandidateImageFile {
 					log.debug(returnValue);
 					log.debug("barcodeStatus=" + barcodeStatus);
 					
-//					LuminanceSource source = null;
-//					boolean inBounds = false;
-//
-//					// **** First try, straight check of template area.
-//					try { 
-//						log.debug("Trying " + positionTemplate.getName() + ": " + left + " " + right + " " + top + " " + bottom);
-//						source = new BufferedImageLuminanceSource(image, left,  top,  width, height);
-//						inBounds = true;
-//					} catch (IllegalArgumentException e) { 
-//						inBounds = false;
-//						returnValue = e.toString() + " " + e.getMessage();
-//						barcodeStatus = RESULT_ERROR;
-//						log.debug(returnValue);
-//					} 
-//					if (inBounds) { 
-//						log.debug("Looking for barcode in raw image crop.");
-//						TextStatus checkResult = checkSourceForBarcode(source,true);
-//						returnValue = checkResult.getText();
-//						barcodeStatus = checkResult.getStatus();
-//						log.debug(returnValue);
-//						log.debug("barcodeStatus=" + barcodeStatus);
-//
-//						// If failed, try again in with a sequence of other checks
-//
-//						if (barcodeStatus == RESULT_ERROR || returnValue.equals(""))  {
-//							// *** Second try:  Try again with a rescaled image
-//							double scalingWidth = 400;
-//							try { 
-//								scalingWidth = Double.parseDouble(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGERESCALE));
-//								if (scalingWidth < 1) { scalingWidth = 400; } 
-//							} catch (NumberFormatException e) { 
-//								log.error(e.getMessage());
-//							}
-//							if (width>scalingWidth) { 
-//						        log.debug("Looking for barcode with scaled image crop: " +  Double.toString(scalingWidth) + "px.");
-//								Double scale = scalingWidth / width;
-//								int scaledHeight = (int) (height * scale); 
-//								BufferedImage cropped = image.getSubimage(left, top, width, height);
-//								int initialH = cropped.getHeight();
-//								int initialW = cropped.getWidth();
-//								BufferedImage scaled = new BufferedImage(initialW, initialH, cropped.getType());
-//								AffineTransform rescaleTransform = new AffineTransform();
-//								rescaleTransform.scale(scale, scale);
-//								AffineTransformOp scaleOp = new AffineTransformOp(rescaleTransform, AffineTransformOp.TYPE_BILINEAR);
-//								scaled = scaleOp.filter(cropped, scaled);								
-//								source = new BufferedImageLuminanceSource(scaled);
-//								checkResult = checkSourceForBarcode(source,true);
-//								returnValue = checkResult.getText();
-//								barcodeStatus = checkResult.getStatus();
-//								log.debug(returnValue);
-//								log.debug("barcodeStatus=" + barcodeStatus);
-//							}
-//						}
-//						if (barcodeStatus == RESULT_ERROR || returnValue.equals(""))  {
-//							// ***** Third Try: Try again with a sharpened image
-//							//
-//							// Note: contrast enhancement doesn't appear to help, likely 
-//							// because zxing is converting to binary bitmap at some threshold.
-//							try { 
-//								log.debug("Trying again sharpened: " + left + " " + right + " " + top + " " + bottom);
-//								Kernel kernel = new Kernel(3,3,matrix);
-//								ConvolveOp convolver = new ConvolveOp(kernel,ConvolveOp.EDGE_NO_OP,null);
-//								BufferedImage sharpened = new BufferedImage(image.getWidth(),image.getHeight(),image.getType());
-//								sharpened = convolver.filter(image, sharpened);	
-//								File temp1 = new File("tempsharp.jpg");
-//								try {
-//									ImageIO.write(sharpened, "jpg", temp1);
-//								} catch (IOException e1) {
-//									log.error(e1.getMessage());
-//								}
-//								source = new BufferedImageLuminanceSource(sharpened, left,  top, width, height);										
-//								inBounds = true;
-//							} catch (IllegalArgumentException e) { 
-//								inBounds = false;
-//								returnValue = e.toString() + " " + e.getMessage();
-//								barcodeStatus = RESULT_ERROR;
-//							}
-//							if (inBounds) { 
-//								checkResult = checkSourceForBarcode(source,false);
-//								returnValue = checkResult.getText();
-//								barcodeStatus = checkResult.getStatus();
-//							}
-//							log.debug(returnValue);
-//							log.debug("barcodeStatus=" + barcodeStatus);
-//						} 
-//						if (barcodeStatus == RESULT_ERROR || returnValue.equals(""))  {
-//							// **** Fourth Try: Try again with a different box
-//							left = left - 10;
-//							right = right + 5;
-//							top = top + 5;
-//							bottom = bottom + 5;
-//							try { 
-//								log.debug("Trying again: " + left + " " + right + " " + top + " " + bottom);
-//								source = new BufferedImageLuminanceSource(image, left,  top,  width, height);
-//								inBounds = true;
-//							} catch (IllegalArgumentException e) { 
-//								inBounds = false;
-//								returnValue = e.toString() + " " + e.getMessage();
-//								barcodeStatus = RESULT_ERROR;
-//							} 
-//							if (inBounds) { 
-//								checkResult = checkSourceForBarcode(source,false);
-//								returnValue = checkResult.getText();
-//								barcodeStatus = checkResult.getStatus();
-//							}
-//						}
-//						if (barcodeStatus == RESULT_ERROR || returnValue.equals(""))  {
-//							// **** Fifth try: Try again with a different box
-//							left = left +1;
-//							right = right - 1;
-//							top = top - 1;
-//							bottom = bottom +1;
-//							try { 
-//								log.debug("Trying again: " + left + " " + right + " " + top + " " + bottom);
-//								source = new BufferedImageLuminanceSource(image, left,  top, width, height);
-//								inBounds = true;
-//							} catch (IllegalArgumentException e) { 
-//								inBounds = false;
-//								returnValue = e.toString() + " " + e.getMessage();
-//								barcodeStatus = RESULT_ERROR;
-//							} 
-//							if (inBounds) { 
-//								checkResult = checkSourceForBarcode(source,false);
-//								returnValue = checkResult.getText();
-//								barcodeStatus = checkResult.getStatus();
-//							}
-//						}
-//						if (barcodeStatus == RESULT_ERROR || returnValue.equals(""))  {
-//							// ***** Sixth Try: Try again with a different box
-//							left = left +1;
-//							right = right - 1;
-//							top = top - 1;
-//							bottom = bottom +1;
-//							try { 
-//								log.debug("Trying agaub: " + left + " " + right + " " + top + " " + bottom);
-//								source = new BufferedImageLuminanceSource(image, left,  top, width, height);
-//								inBounds = true;
-//							} catch (IllegalArgumentException e) { 
-//								inBounds = false;
-//								returnValue = e.toString() + " " + e.getMessage();
-//								barcodeStatus = RESULT_ERROR;
-//							} 
-//							if (inBounds) { 
-//								checkResult = checkSourceForBarcode(source,false);
-//								returnValue = checkResult.getText();
-//								barcodeStatus = checkResult.getStatus();
-//							}
-//						}
-//						if (barcodeStatus == RESULT_ERROR || returnValue.equals(""))  {
-//							// **** Seventh Try:  Try again with a different box
-//							left = left - 10;
-//							right = right + 20;
-//							top = top - 10;
-//							bottom = bottom +25;
-//							try { 
-//								log.debug("Trying again: " + left + " " + right + " " + top + " " + bottom);
-//								source = new BufferedImageLuminanceSource(image, left,  top, width, height);
-//								inBounds = true;
-//							} catch (IllegalArgumentException e) { 
-//								inBounds = false;
-//								returnValue = e.toString() + " " + e.getMessage();
-//								barcodeStatus = RESULT_ERROR;
-//							} 
-//							if (inBounds) { 
-//								checkResult = checkSourceForBarcode(source,false);
-//								returnValue = checkResult.getText();
-//								barcodeStatus = checkResult.getStatus();
-//							}
-//						}
-//					} // In bounds
+
 				} else {
 					// image is narrower than templated area.
 					log.debug("Skipping Template.  ImageWidth="+image.getWidth()+"; TemplateWidth="+Math.round(positionTemplate.getImageSize().getWidth()));
@@ -1058,10 +885,6 @@ public class CandidateImageFile {
 	 */
 	public static String getBarcodeTextFromImage(BufferedImage image, PositionTemplate positionTemplate) { 
 		
-		//TODO: Refactor to common rotation/scaling/contrast shifting in all barcode reading code.  
-		// getBarcodeTextFromImage, getLabelQRText, getBarcodeText all have different ways of trying harder
-		// getBarcodeTextFromImage and getBarcodeText differences can cause non-obvious failures.
-		
 		log.debug(positionTemplate.getName());
 		String returnValue = "";
 		if (positionTemplate.getTemplateId().equals(PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS)) {
@@ -1154,11 +977,6 @@ public class CandidateImageFile {
 	 *      Check for error states with a call to getBarcodeStatus();
 	 */
 	public String getBarcodeText(PositionTemplate positionTemplate) { 
-		
-		
-		//TODO: Refactor to common rotation/scaling/contrast shifting in all barcode reading code.  
-		// getBarcodeTextFromImage, getLabelQRText, getBarcodeText all have different ways of trying harder
-		// getBarcodeTextFromImage and getBarcodeText differences can cause non-obvious failures.
 		
 		log.debug(catalogNumberBarcodeText);
 		log.debug(catalogNumberBarcodeStatus);
