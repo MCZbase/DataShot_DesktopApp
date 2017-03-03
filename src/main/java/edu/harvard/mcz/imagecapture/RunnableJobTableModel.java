@@ -140,8 +140,12 @@ public class RunnableJobTableModel extends AbstractTableModel implements RunnerL
 				log.debug(returnvalue);
 				break;			
 			}
+		} catch (ArrayIndexOutOfBoundsException e) { 
+			log.debug(e.getMessage());
+			fireTableDataChanged();
 		} catch (NullPointerException e) { 
 			log.debug(e.getMessage());
+			fireTableDataChanged();
 		}
 		return returnvalue;
 	}

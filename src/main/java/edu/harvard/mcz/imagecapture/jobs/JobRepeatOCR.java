@@ -342,7 +342,7 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 				// Test this image to see if is a specimen image
 				String barcode = scannableFile.getBarcodeText(templateToUse);
 				Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Checking " + barcode + ".");
-				if (scannableFile.getBarcodeStatus()!=CandidateImageFile.RESULT_BARCODE_SCANNED) {
+				if (scannableFile.getCatalogNumberBarcodeStatus()!=CandidateImageFile.RESULT_BARCODE_SCANNED) {
 					log.error("Error scanning for barcode: " + barcode);
 					barcode = "";
 				}

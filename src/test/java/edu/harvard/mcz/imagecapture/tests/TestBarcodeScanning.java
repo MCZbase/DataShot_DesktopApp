@@ -58,6 +58,10 @@ public class TestBarcodeScanning extends TestCase {
 			file = new CandidateImageFile(testFile, new PositionTemplate());
 			assertEquals(AllTests.BARCODE_IN_FILE_VALID_BARCODE,file.getBarcodeText());
 			assertEquals(CandidateImageFile.RESULT_BARCODE_SCANNED, file.getBarcodeStatus());
+			assertEquals(CandidateImageFile.RESULT_ERROR, file.getUnitTrayTaxonLabelTextStatus());
+			assertEquals(CandidateImageFile.RESULT_NOT_CHECKED, file.getCatalogNumberBarcodeStatus());
+			file.getBarcodeText();
+			assertEquals(CandidateImageFile.RESULT_NOT_CHECKED, file.getCatalogNumberBarcodeStatus());
 		} catch (UnreadableFileException e) {
 			fail("Threw unexpected UnreadableFileException. " + e.getMessage());
 		}
@@ -72,6 +76,8 @@ public class TestBarcodeScanning extends TestCase {
 		try {
 			file = new CandidateImageFile(new File(this.getClass().getResource(AllTests.FILE_EMPTY).getFile()), new PositionTemplate());
 			assertEquals(CandidateImageFile.RESULT_ERROR,file.getBarcodeStatus());
+			assertEquals(CandidateImageFile.RESULT_NOT_CHECKED,file.getCatalogNumberBarcodeStatus());
+			assertEquals(CandidateImageFile.RESULT_NOT_CHECKED,file.getCatalogNumberBarcodeStatus());
 		} catch (UnreadableFileException e) {
 			fail("Threw unexpected UnreadableFileException. " + e.getMessage());
 		}
@@ -95,7 +101,7 @@ public class TestBarcodeScanning extends TestCase {
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}
-		assertEquals("MCZ-ENT00634766",CandidateImageFile.readBarcodeFromLocation(image, left, top, width, height));
+		assertEquals("MCZ-ENT00634766",CandidateImageFile.readBarcodeFromLocation(image, left, top, width, height,false));
 		
 		testFile = new File(this.getClass().getResource("/IMG_000069.JPG").getFile());
 		//  BarcodePositionX: 3380
@@ -112,11 +118,11 @@ public class TestBarcodeScanning extends TestCase {
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}		
-		assertEquals("ETHZ-ENT0003497",CandidateImageFile.readBarcodeFromLocation(image, left, top, width, height));
+		assertEquals("ETHZ-ENT0003497",CandidateImageFile.readBarcodeFromLocation(image, left, top, width, height, false));
 		
 	    // test some problem inputs	
-		assertEquals("",CandidateImageFile.readBarcodeFromLocation(image, left, top, 99999, 99999));
-		assertEquals("",CandidateImageFile.readBarcodeFromLocation(null, left, top, width, height));
+		assertEquals("",CandidateImageFile.readBarcodeFromLocation(image, left, top, 99999, 99999, false));
+		assertEquals("",CandidateImageFile.readBarcodeFromLocation(null, left, top, width, height, false));
 		
 		testFile = new File(this.getClass().getResource(AllTests.FILE_EMPTY).getFile());
 		try {
@@ -124,7 +130,7 @@ public class TestBarcodeScanning extends TestCase {
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}		
-		assertEquals("",CandidateImageFile.readBarcodeFromLocation(image, left, top, width, height));
+		assertEquals("",CandidateImageFile.readBarcodeFromLocation(image, left, top, width, height, false));
 	}
 
 }

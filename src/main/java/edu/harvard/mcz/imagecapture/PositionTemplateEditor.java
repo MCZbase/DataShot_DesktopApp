@@ -1050,7 +1050,7 @@ public class PositionTemplateEditor extends JFrame {
 			jButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					if (template!=null && imagePanelForDrawing.getImage()!= null) { 
-					    jTextFieldBarcodeScan.setText(CandidateImageFile.getBarcodeTextFromImage((BufferedImage) imagePanelForDrawing.getImage(),template));
+					    jTextFieldBarcodeScan.setText(CandidateImageFile.getBarcodeTextFromImage((BufferedImage) imagePanelForDrawing.getImage(),template,false));
 					}
 				}
 			});

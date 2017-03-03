@@ -99,6 +99,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 	
 	private int scan = SCAN_ALL;     // default scan all
 	private File startPointSpecific = null;  // place to start for scan_specific
+	private File startPoint = null;  // start point used.
 	private String firstFile = null;  // for scan_specific, the first file seen
 	private String lastFile = null;   // for scan_specific, the last file seen
 	private int runStatus = RunStatus.STATUS_NEW;
@@ -195,7 +196,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 		Singleton.getSingletonInstance().getJobList().addJob((RunnableJob)this);
 		runStatus = RunStatus.STATUS_RUNNING;
 		File imagebase = null;   // place to start the scan from, imagebase directory for SCAN_ALL
-		File startPoint = null;
+		startPoint = null;
 		// If it isn't null, retrieve the image base directory from properties, and test for read access.
 		if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEBASE)==null) {
 			JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "Can't start scan.  Don't know where images are stored.  Set imagbase property.", "Can't Scan.", JOptionPane.ERROR_MESSAGE);	
@@ -673,9 +674,9 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 									PositionTemplate template = scannableFile.getTemplateUsed();
 									String templateId = template.getName();
 									log.debug("Detected Template: " + templateId);
-									log.debug(scannableFile.getBarcodeStatus());
-									String barcode = scannableFile.getBarcodeText(template);
-									if (scannableFile.getBarcodeStatus()!=CandidateImageFile.RESULT_BARCODE_SCANNED) {
+									log.debug(scannableFile.getCatalogNumberBarcodeStatus());
+									String barcode = scannableFile.getBarcodeTextAtFoundTemplate();
+									if (scannableFile.getCatalogNumberBarcodeStatus()!=CandidateImageFile.RESULT_BARCODE_SCANNED) {
 										log.error("Error scanning for barcode: " + barcode);
 										barcode = "";
 									}
@@ -1151,10 +1152,13 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 	 */
 	@Override
 	public String getName() {
-		if (scan==SCAN_ALL) 
+		if (scan==SCAN_ALL) { 
 		   return "Preprocess all image files";
-		else 
-		   return "Preprocess images in " + startPointSpecific;
+	    } else { 
+		   String sp = startPoint.getPath();
+		   if (sp ==null || sp.length()==0) { sp = startPointSpecific.getPath(); } 
+		   return "Preprocess images in " + sp;
+		}
 	}
 
 	/* (non-Javadoc)

@@ -77,8 +77,8 @@ public class DefaultPositionTemplateDetector implements	PositionTemplateDetector
 					// Check to see if the barcode is in the part of the template
 					// defined by getBarcodeULPosition and getBarcodeSize.
 					String text = scannableFile.getBarcodeText(template);
-					log.debug("Found:[" + text + "] status="+ scannableFile.getBarcodeStatus());
-					if (scannableFile.getBarcodeStatus()==CandidateImageFile.RESULT_BARCODE_SCANNED) { 
+					log.debug("Found:[" + text + "] status="+ scannableFile.getCatalogNumberBarcodeStatus());
+					if (scannableFile.getCatalogNumberBarcodeStatus()==CandidateImageFile.RESULT_BARCODE_SCANNED) { 
 						// RESULT_BARCODE_SCANNED is only returned if the reader read a QR code barcode inside
 						// the area defined by the template for containing the barcode.  
 						// If we got here, we found a barcode in the expected place and know which template

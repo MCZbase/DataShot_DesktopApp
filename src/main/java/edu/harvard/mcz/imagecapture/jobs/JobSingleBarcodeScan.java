@@ -217,8 +217,8 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 			try {
 				scannableFile = new CandidateImageFile(fileToCheck, defaultTemplate);
 
-				String barcode = scannableFile.getBarcodeText(defaultTemplate);
-				if (scannableFile.getBarcodeStatus()!=CandidateImageFile.RESULT_BARCODE_SCANNED) {
+				String barcode = scannableFile.getBarcodeTextAtFoundTemplate();
+				if (scannableFile.getCatalogNumberBarcodeStatus()!=CandidateImageFile.RESULT_BARCODE_SCANNED) {
 					log.error("Error scanning for barcode: " + barcode);
 					barcode = "";
 				}

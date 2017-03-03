@@ -52,14 +52,14 @@ public class ConfiguredBarcodePositionTemplateDetector implements	PositionTempla
 	
 	@Override
 	public String detectTemplateForImage(File anImageFile) throws UnreadableFileException {
-	   return detectTemplateForImage(anImageFile, null);
+	   return detectTemplateForImage(anImageFile, null, false);
 	}
 	@Override
 	public String detectTemplateForImage(CandidateImageFile scannableFile) throws UnreadableFileException {
-	   return detectTemplateForImage(scannableFile.getFile(), scannableFile);
+	   return detectTemplateForImage(scannableFile.getFile(), scannableFile, false);
 	}
 	
-	protected String detectTemplateForImage(File anImageFile, CandidateImageFile scannableFile) throws UnreadableFileException {
+	protected String detectTemplateForImage(File anImageFile, CandidateImageFile scannableFile, boolean quickCheck) throws UnreadableFileException {
 		// Set default response if no template is found.
 		String result = PositionTemplate.TEMPLATE_NO_COMPONENT_PARTS;
 		
@@ -92,7 +92,7 @@ public class ConfiguredBarcodePositionTemplateDetector implements	PositionTempla
 						// defined by getBarcodeULPosition and getBarcodeSize.
 						String text;
 						if (scannableFile==null) { 
-						    text = CandidateImageFile.getBarcodeTextFromImage(image, template);
+						    text = CandidateImageFile.getBarcodeTextFromImage(image, template, quickCheck);
 						} else { 
 						    text = scannableFile.getBarcodeText(template);
 						}
