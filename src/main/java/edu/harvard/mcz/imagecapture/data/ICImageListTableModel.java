@@ -158,12 +158,11 @@ public class ICImageListTableModel extends AbstractTableModel {
 	 * Must be implemented for ButtonEditor to work.  Needs to return Long for 
 	 * ID column that is to contain button to work with ButtonEditor.
 	 */
-	@SuppressWarnings("unchecked")
-	public Class getColumnClass(int c) {
+	public Class<?> getColumnClass(int c) {
 		 // Given current implementation of button in SpecimenBrowser,  
 		 // needs to return Long for ID column that is to contain button 
 		 // and ** Must Not ** return Long for any other column).
-		Class result = String.class;  // Default value to return when table is empty.
+		Class<?> result = String.class;  // Default value to return when table is empty.
 		try { 
 		    result = getValueAt(0, c).getClass();
 		} catch (NullPointerException e) { 
