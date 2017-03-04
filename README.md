@@ -61,7 +61,9 @@ Add it to your local .m2
 (2) Create a test database.  A dump of the schema of a working 
 test database (as of version 1.0.4) is in docs_manual/sql/mysql_ver1.0.4.sql
 the expected name, user and location of this database are in 
-src/main/java/hibernate.cfg.xml (you will need to create a database lepidoptera).
+src/main/java/hibernate.cfg.xml (you will need to create a database lepidoptera).  
+(The default name of the database is lepidoptera, but this can be changed, and one database 
+can be configured for testing and another for production use).
 
     mysql lepidoptera -p < docs_manual/sql/mysql_ver1.0.4.sql
     mysql lepidoptera -p < docs_manual/sql/mysql_post_ver1.1.0.changes.sql
@@ -243,6 +245,18 @@ For this user, images.basedirectory=/mount/insectimages/
 images.metadatacontainsbarcode, if true, the application expects that the exif comment will contain the same information as the catalog number barcode.
 
 default.preparation this is the value that will be used by default for the specimen preparation value.
+
+
+The following configuration parameters control how trying harder to detect barcodes works when simply checking the first time doesn't find a barcode:
+
+    images.barcoderescalesize=400,600sharpen,600brighter,600dimmer,400sharpenbrighter
+    images.zxingalsotryharder=true
+
+images.barcodescscalesize is a comma separated list of pixel widths to resize cropped templated image areas that could contain a barcode to before rechecking for the barcode with zxing, with optional image processing transformations sharpen, brighter, and dimmer.  This describes a sequence of operations that will be performed to prepare a cropped area that might contain a barcode if an initial detection of a barcode in that area fails, and a subsequent rescaling of the cropped area to 800 pixels in width fails.  Each operation is carried out until one succeeds.  Adding more operations can increase the time taken in preprocessing images, but can reduce the number of cases where preprocessing fails.  The numbers are the pixel widths to which the cropped area (templated area for catalog number barcode or taxon name unit tray label barcode) are rescaled.  The optional transformations sharpen (sharpens the cropped area before trying to detect a barcode), brighter (brightens the image by an approximation of 1 f stop, suitable if lighting of the barcode is dimmer than the rest of the image and it appears grey), and dimmer (dims the image by an approximation of 1 f stop, sutiable if lighting of the barcode is brighter than the rest of the image and the barcode appears washed out in the image) can also be applied.  If both brighter and dimmer are specified, only dimmer will be applied, but brighter and dimmer can be combined with sharpen.  If all the configured operations fail, a number of additional hard coded operations are also tried (including further brightening and dimming and shifting the crop frame by a few pixels in each direction).  Setting the debug level to trac (see the comments in log4j.properties) will leave behind copies of cropped images from each barcode reading attempt, examining these and the log file can help in adjusting this configuration.
+
+images.zxingalsotryharder takes the values true or false.  If false, each barcode reading attempt is performed only once, with the zxing barcode reading code configured normally.  If true, each barcode reading attempt that fails is repeated with zxing configured to try harder (thus xzing also try harder).
+
+If the catalog number barcode is present in the image exif metadata (scanned into the exif comment), then the default values will probably be fine and should result in around a 1% rate where a template is not detected  and a specimen record is created in state OCR, and a smaller rate where preprocessing failed to create a specimen record.  If the catalog number is only present in the barcode in the image, then testing and tuning further will be of significant benefit, as failure cases where a specimen record mean more handling steps for the problem images (a recommendation for these is to first review them manually for proper placement of barcode labels and proper lighting adjustment (feeding back quality information to the personnel doing the specimen handling and imaging), if those are satisfactory, then entering the catalog number barcode into the image exif comment field, otherwise locating the specimen and taking the image again.  If you are seeing many failure conditions, then the template(s) may not match label placement well, the barcodes may not be well lit, or the barcodes may be printed with too low a resolution printer.  
 
 The following configuration parameters control the behavior of the user interface:
 
