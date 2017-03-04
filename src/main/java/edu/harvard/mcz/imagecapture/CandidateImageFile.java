@@ -600,24 +600,30 @@ public class CandidateImageFile {
 			returnValue.setText(result.getText());
 			returnValue.setStatus(RESULT_BARCODE_SCANNED);
 		} catch (ReaderException e) {
-			try {
-				Hashtable<DecodeHintType, Object> hints = null;
-				hints = new Hashtable<DecodeHintType, Object>(3);
-				hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE); 	
-				//Probable bug in xzing, reader.decode can throw ArrayIndexOutOfBoundsException
-				//as well as the expected ReaderException.  It looks like there's an assumption 
-				//hidden in the bitmapMatrix that the height and width are the same.
-				result = reader.decode(bitmap,hints);
-				returnValue.setText(result.getText());
-				returnValue.setStatus(RESULT_BARCODE_SCANNED);
-			} catch (ReaderException e1) {
-				log.debug(e1.toString() + " " + e1.getMessage());
-				returnValue.setText(e.toString() + " " + e1.getMessage());
+			log.error(e.getMessage());
+			if (!Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEZXINGALSOTRYHARDER).equalsIgnoreCase("true")) { 
+				returnValue.setText(e.toString() + " " + e.getMessage());
 				returnValue.setStatus(RESULT_ERROR);
-			} catch (ArrayIndexOutOfBoundsException e1) { 
-				log.error(e.getMessage());
-				returnValue.setText(e1.toString() + " " + e1.getMessage());
-				returnValue.setStatus(RESULT_ERROR);
+			} else { 
+				try {
+					Hashtable<DecodeHintType, Object> hints = null;
+					hints = new Hashtable<DecodeHintType, Object>(3);
+					hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE); 	
+					//Probable bug in xzing, reader.decode can throw ArrayIndexOutOfBoundsException
+					//as well as the expected ReaderException.  It looks like there's an assumption 
+					//hidden in the bitmapMatrix that the height and width are the same.
+					result = reader.decode(bitmap,hints);
+					returnValue.setText(result.getText());
+					returnValue.setStatus(RESULT_BARCODE_SCANNED);
+				} catch (ReaderException e1) {
+					log.debug(e1.toString() + " " + e1.getMessage());
+					returnValue.setText(e.toString() + " " + e1.getMessage());
+					returnValue.setStatus(RESULT_ERROR);
+				} catch (ArrayIndexOutOfBoundsException e1) { 
+					log.error(e.getMessage());
+					returnValue.setText(e1.toString() + " " + e1.getMessage());
+					returnValue.setStatus(RESULT_ERROR);
+				} 
 			}
 		} catch (ArrayIndexOutOfBoundsException e) { 
 			log.error(e.getMessage());
