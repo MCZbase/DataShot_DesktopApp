@@ -43,7 +43,7 @@ See: https://github.com/MCZbase/DataShot_DesktopApp/wiki
 
 # Building
 
-Use maven to build (ant is invoked by maven to build executable jar files).  
+Use maven to build (ant is optionally invoked by maven to build executable jar files).  
 
 You will need to do some preparation work in order to build.
 
@@ -59,17 +59,17 @@ Add it to your local .m2
       -Dversion=10.2.0.5.0 -Dpackaging=jar -Dfile=ojdbc14.jar -DgeneratePom=true
 
 (2) Create a test database.  A dump of the schema of a working 
-test database (as of version 1.0.4) is in docs_manual/sql/mysql_ver1.0.4.sql
+test database (as of version 1.2.2) is in docs_manual/sql/mysql_ver1.2.2.sql
 the expected name, user and location of this database are in 
 src/main/java/hibernate.cfg.xml (you will need to create a database lepidoptera).  
 (The default name of the database is lepidoptera, but this can be changed, and one database 
 can be configured for testing and another for production use).
 
-    mysql lepidoptera -p < docs_manual/sql/mysql_ver1.0.4.sql
-    mysql lepidoptera -p < docs_manual/sql/mysql_post_ver1.1.0.changes.sql
+
+    mysql lepidoptera -p < docs_manual/sql/mysql_ver1.2.2.sql
 
 Once this database has been created, you'll need to create a user that the
-application will use to connect to the database, that is a user LEPIDOPTERA 
+application will use to connect to the database, that is (in the default configuration) a user LEPIDOPTERA 
 with select/insert/update/delete privileges on the lepidoptera schema on localhost.
 
     grant select, insert, update, delete on lepidoptera.* to 'LEPIDOPTERA'@'localhost';     
