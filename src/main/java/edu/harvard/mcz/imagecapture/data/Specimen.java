@@ -55,6 +55,8 @@ public class Specimen implements java.io.Serializable {
 	private String verbatimNumbers;
 	private String verbatimUnclassifiedText;
 	private String verbatimClusterIdentifier;
+	private String externalWorkflowProcess;
+	private Date externalWorkflowDate;
 	// private String verbatimElevation;
 	private Long minimum_elevation;
 	private Long maximum_elevation;
@@ -589,6 +591,34 @@ public class Specimen implements java.io.Serializable {
 	 */
 	public void setVerbatimClusterIdentifier(String verbatimClusterIdentifier) {
 		this.verbatimClusterIdentifier = verbatimClusterIdentifier;
+	}
+
+	/**
+	 * @return the externalWorkflowProcess
+	 */
+	public String getExternalWorkflowProcess() {
+		return externalWorkflowProcess;
+	}
+
+	/**
+	 * @param externalWorkflowProcess the externalWorkflowProcess to set
+	 */
+	public void setExternalWorkflowProcess(String externalWorkflowProcess) {
+		this.externalWorkflowProcess = externalWorkflowProcess;
+	}
+
+	/**
+	 * @return the externalWorkflowDate
+	 */
+	public Date getExternalWorkflowDate() {
+		return externalWorkflowDate;
+	}
+
+	/**
+	 * @param externalWorkflowDate the externalWorkflowDate to set
+	 */
+	public void setExternalWorkflowDate(Date externalWorkflowDate) {
+		this.externalWorkflowDate = externalWorkflowDate;
 	}
 
 	/**

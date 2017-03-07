@@ -200,6 +200,12 @@
         <property name="verbatimClusterIdentifier" type="string">
             <column name="verbatimClusterIdentifier" length="255" />
         </property>        
+        <property name="externalWorkflowProcess" type="string">
+            <column name="externalWorkflowProcess" length="900" />
+        </property>        
+        <property name="externalWorkflowDate" type="java.util.Date">
+            <column name="externalWorkflowDate" />
+        </property>        
         <set name="collectors" inverse="true" cascade="save-update" fetch="subselect">
             <key>
                 <column name="SpecimenId" not-null="true" />
