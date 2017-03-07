@@ -48,7 +48,8 @@ Use maven to build (ant is optionally invoked by maven to build executable jar f
 You will need to do some preparation work in order to build.
 
 (1) The Oracle JDBC driver isn't available in a public Maven repository.  
-You will need to download the jar from Oracle and add it locally: 
+You will need to download the jar from Oracle and add it locally (to support the build
+even if you aren't using Oracle): 
 
 Download the Oracle 10g release 2 (10.2.0.5) JDBC driver ojdbc14.jar 
 from oracle.  
@@ -85,6 +86,7 @@ through the user interface in the application (Configuration/Users on the main m
 (3) Create a not_vcs directory in the project root, copy the file
 src/main/java/hibernate.cfg.xml into that directory and edit it to supply 
 connection parameters for your production database (likewise the log4j configuration file if you want to change the logging from the production jar), 
+You should not put a password inside src/main/java/hibernate.cfg.xml.
 
      $ mkdir not_vcs
      $ cp src/main/java/hibernate.cfg.xml not_vcs/
@@ -109,8 +111,13 @@ You can also run integration tests once you have your local database and a user 
 
     mvn package -P integrationTests
 
-
 This will present you with a login dialog to run the tests, populated from the values in your src/main/java/hibernate.cfg.xml file.
+
+The resulting executable jar file will be in build/Datashot{version}-jar-with-dependencies.jar,
+you can run it, for example, with:
+
+    java -jar DataShot-1.2.4-jar-with-dependencies.jar 
+
 
 Builds were previously done with a mix of maven and ant to build the executable jar.  These are still available with
 the profile ant (which will leave executable jars in the build/ directory: 
@@ -128,11 +135,6 @@ Note: If using maven 2, and you get a build error in the form of dependency prob
 See http://stackoverflow.com/questions/42155692/why-isnt-zxing-playing-nicely-with-ant-java8-and-the-pom-xml for notes on how 
 to fix a syntax error in the pom in your local repository. You will need to edit ~/.m2/repository/com/github/jai-imageio/jai-imageio-core/1.3.1/jai-imageio-core-1.3.1.pom to change <jdk>[1.8,</jdk> to <jdk>[1.8,)</jdk>.  
  
-(If you have a test database set up that fits the parameters in the 
-hibernate.cfg.xml file, then you can omit the -DskipTests to run the tests, 
-which will include authenticating in to the test database.  You should not 
-put a password inside src/main/java/hibernate.cfg.xml)
-
 The resulting executable jar file will be in build/ImageCapture.jar,
 you can run it with:
 
