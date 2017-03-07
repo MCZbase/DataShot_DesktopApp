@@ -197,6 +197,9 @@
         <property name="verbatimUnclassifiedText" type="string">
             <column name="verbatimUnclassifiedText" length="65535"  />
         </property> 
+        <property name="verbatimClusterIdentifier" type="string">
+            <column name="verbatimClusterIdentifier" length="255" />
+        </property>        
         <set name="collectors" inverse="true" cascade="save-update" fetch="subselect">
             <key>
                 <column name="SpecimenId" not-null="true" />

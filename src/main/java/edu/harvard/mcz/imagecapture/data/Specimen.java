@@ -54,6 +54,7 @@ public class Specimen implements java.io.Serializable {
 	private String verbatimCollection;
 	private String verbatimNumbers;
 	private String verbatimUnclassifiedText;
+	private String verbatimClusterIdentifier;
 	// private String verbatimElevation;
 	private Long minimum_elevation;
 	private Long maximum_elevation;
@@ -574,6 +575,20 @@ public class Specimen implements java.io.Serializable {
 	 */
 	public void setVerbatimUnclassifiedText(String verbatimUnclassifiedText) {
 		this.verbatimUnclassifiedText = verbatimUnclassifiedText;
+	}
+
+	/**
+	 * @return the verbatimClusterIdentifier
+	 */
+	public String getVerbatimClusterIdentifier() {
+		return verbatimClusterIdentifier;
+	}
+
+	/**
+	 * @param verbatimClusterIdentifier the verbatimClusterIdentifier to set
+	 */
+	public void setVerbatimClusterIdentifier(String verbatimClusterIdentifier) {
+		this.verbatimClusterIdentifier = verbatimClusterIdentifier;
 	}
 
 	/**
