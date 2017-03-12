@@ -263,15 +263,29 @@ public class FieldLoader {
 										Collector col = new Collector();
 										col.setSpecimen(match);
 										col.setCollectorName(collector);
-										// TODO: persist 
+										match.getCollectors().add(col);
 									}
 								}
 							} else if (key.equals("numbers")) { 
 								String[] numbers = datavalue.split("\\|", 0);
 								for (int j=0; j<numbers.length; j++) { 
 									String numberKV = numbers[j];
-									if (numberKV.trim().length()>0) { 
-										// TODO: Split into number type and number, then add a number to specimen.
+									if (numberKV.trim().length()>0) {
+										String number = numberKV;
+										String numType = "unknown";
+										if (numberKV.contains(":")) { 
+											String[] numbits =  numberKV.split(":",0);
+											number = numbits[0];
+											numType= numbits[1];
+											if (numType==null || numType.trim().length()==0) { 
+												numType = "unknown";
+											}
+										}
+										edu.harvard.mcz.imagecapture.data.Number num = new edu.harvard.mcz.imagecapture.data.Number();
+										num.setNumber(number);
+										num.setNumberType(numType);
+										num.setSpecimen(match);
+										match.getNumbers().add(num);
 									}
 								}
 								
