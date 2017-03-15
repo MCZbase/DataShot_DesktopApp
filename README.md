@@ -397,10 +397,15 @@ label data for that specimen, values for any of the fields listed below can be
 loaded back into the database in a csv file that contains a column "barcode", 
 and optionally a column "questions".  To do this, construct a csv file
 containing the data to be ingested barcode and any the columns below, and select 
-Action/Load Data from the main menu.  Column names are case sensitive. Exactly 
-these columns must be present (no more, no fewer), but column order does not matter. 
+Action/Load Data from the main menu.  Column names are case sensitive. Barcode
+column must be present, along with any of the following fields.  Column order 
+does not matter. 
+
+Example of a header: 
 
     "barcode","HigherGeography","SpecificLocality","questions"
+
+Fields that can be included: 
 
 * TypeStatus
 * TypeNumber
@@ -436,7 +441,10 @@ these columns must be present (no more, no fewer), but column order does not mat
 * LocationInCollection
 * ValidDistributionFlag
 
-Allowed to change a record when: Record is in state Taxon Entered, Verbatim Entered, (Verbatim Classified??).
+* collectors Pipe '|' delimited list of collector names.  e.g. "R.A.Eastwood|N. Mattoni"
+* numbers Pipe '|' delimited list of numbers and types, separated by a colon ':', e.g. "1:unknown|52:species number"
+
+Allowed to change a record when: Record is in state Taxon Entered, Verbatim Entered, or Verbatim Classified.
 
 Barcode policy: Barcode must exist and must be unique.
 
