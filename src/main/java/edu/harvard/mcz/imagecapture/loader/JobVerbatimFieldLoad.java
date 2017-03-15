@@ -83,6 +83,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 	 */
 	@Override
 	public void run() {
+		log.debug(this.toString());
 		start();
 	}
 
@@ -137,6 +138,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 
 					List<String> headerList = Arrays.asList(headers);
 					if (!headerList.contains("barcode")) { 
+						log.error("Input file header does not contain required field 'barcode'.");
 						// no barcode field, we can't match the input to specimen records.
 						errors.append("Field \"barcode\" not found in csv file headers.  Unable to load data.").append("\n");
 					} else { 
@@ -146,6 +148,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 
 						if (headerList.size()==3 && headerList.contains("verbatimUnclassifiedText") 
 								&& headerList.contains("questions") && headerList.contains("barcode")) { 
+							log.debug("Input file matches case 1: Unclassified text only.");
 							// Allowed case 1: unclassified text only
 
 							String barcode = "";
@@ -182,6 +185,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 							     && headerList.contains("verbatimCollector") && headerList.contains("verbatimCollection")
 								) {
 							// allowed case two, transcription into verbatim fields, must be exact list of all verbatim fields.
+							log.debug("Input file matches case 2: Full list of verbatim fields.");
 
 							String barcode = "";
 							int lineNumber = 0;
@@ -218,6 +222,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 
 						} else { 
 							// allowed case three, transcription into arbitrary sets verbatim or other fields
+							log.debug("Input file case 3: Arbitrary set of fields.");
 							// TODO: Support arbitrary column load, without overwriting for absent columns.
 							while (iterator.hasNext()) {
 								Map<String,String> data = new HashMap<String,String>();
@@ -229,13 +234,21 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 							    	String header = hi.next();
 							    	if (!header.equals("barcode")) { 
 							            data.put(header, record.get(header));
-							            if (!header.equals("questions") && MetadataRetriever.isFieldExternallyUpdatable(Specimen.class, header) && MetadataRetriever.isFieldVerbatim(Specimen.class, header) ) { 
+							            log.debug(header);
+							            log.debug(MetadataRetriever.isFieldExternallyUpdatable(Specimen.class, header));
+							            log.debug(MetadataRetriever.isFieldVerbatim(Specimen.class, header));
+							            if (!header.equals("questions") && 
+							            		MetadataRetriever.isFieldExternallyUpdatable(Specimen.class, header) &&
+							            		!MetadataRetriever.isFieldVerbatim(Specimen.class, header) 
+							               ) 
+							            { 
 							            	containsNonVerbatim = true;
 							            }
 							    	}
 							    }
 							    if (data.size()>0) { 
 							    	try {
+							    		log.debug(containsNonVerbatim);
 							    		if (containsNonVerbatim) { 
 										    fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_CLASSIFIED, true);
 							    		} else { 

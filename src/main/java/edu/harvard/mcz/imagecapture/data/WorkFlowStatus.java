@@ -128,4 +128,22 @@ public class WorkFlowStatus {
 		
 		return result;
 	}
+	
+	/**
+	 * Test to see whether or not a state can be changed to verbatim classified. 
+	 * 
+	 * @param workflowStatus a current workflow state to check 
+	 * @return true if the record can be placed into state verbatim classified from 
+	 *   its current (other) state, false otherwise.  
+	 */
+	public static boolean allowsClassifiedUpdate(String workflowStatus) { 
+		boolean result = false;
+		
+		if (workflowStatus.equals(STAGE_0)) { result = true; } 
+		if (workflowStatus.equals(STAGE_1)) { result = true; } 
+		if (workflowStatus.equals(STAGE_VERBATIM)) { result = true; } 
+		if (workflowStatus.equals(STAGE_CLASSIFIED)) { result = true; } 
+		
+		return result;
+	}	
 }

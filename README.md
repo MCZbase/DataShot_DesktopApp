@@ -400,13 +400,13 @@ containing the data to be ingested barcode and any the columns below, and select
 Action/Load Data from the main menu.  Column names are case sensitive. Exactly 
 these columns must be present (no more, no fewer), but column order does not matter. 
 
-    "barcode","Higher_Geography","SpecificLocality","questions"
+    "barcode","HigherGeography","SpecificLocality","questions"
 
 * TypeStatus
 * TypeNumber
 * CitedInPublication
 * Features
-* Higher_Geography
+* HigherGeography
 * SpecificLocality
 * VerbatimLocality
 * VerbatimCollector

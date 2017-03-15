@@ -366,7 +366,7 @@ public class MetadataRetriever {
             if (fieldname.equalsIgnoreCase("TypeNumber")) { result=true; }
             if (fieldname.equalsIgnoreCase("CitedInPublication")) { result=true; }
             if (fieldname.equalsIgnoreCase("Features")) { result=true; }
-			if (fieldname.equalsIgnoreCase("Higher_Geography")) { result = true; }
+			if (fieldname.equalsIgnoreCase("HigherGeography")) { result = true; }
             if (fieldname.equalsIgnoreCase("SpecificLocality")) { result=true; }
             if (fieldname.equalsIgnoreCase("VerbatimLocality")) { result=true; }
             if (fieldname.equalsIgnoreCase("VerbatimCollector")) { result=true; }

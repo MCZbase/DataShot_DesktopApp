@@ -252,6 +252,35 @@ public class SpecimenLifeCycle {
 			throw re;
 		}
 	}
+	
+	public List<Specimen> findByBarcode(String barcode) {
+		List<Specimen> results = new ArrayList<Specimen>();
+		log.debug("getting Specimen instance with barcode: " + barcode);
+		try {
+			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			try { 
+				Query query = session.createQuery("From Specimen s where s.barcode = '" + barcode + "' order by s.barcode");
+				results = (List<Specimen>) query.list();
+				session.getTransaction().commit();
+				if (results.size()==0) {
+					log.debug("get successful, no instance found");
+				} else if (results.size()==1) {
+					log.debug("get successful, one instance found");
+				} else {
+					log.debug("get successful, but more than one instance found");
+				}
+			} catch (HibernateException e) { 
+				session.getTransaction().rollback();
+				log.error("get failed", e);
+			}
+			try { session.close(); } catch (SessionException e) { }
+			return results;
+		} catch (RuntimeException re) {
+			log.error("get failed", re);
+			throw re;
+		}
+	}
 
 	public Specimen findById(java.lang.Long id) {
 		log.debug("getting Specimen instance with id: " + id);
