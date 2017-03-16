@@ -23,6 +23,8 @@ import java.awt.GridBagConstraints;
 import javax.swing.JTextField;
 
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.JTable;
@@ -121,6 +123,13 @@ public class FieldLoaderWizard extends JDialog {
 			contentPanel.add(okButton, gbc_okButton);
 			okButton.setActionCommand("OK");
 			getRootPane().setDefaultButton(okButton);
+			okButton.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+				    JobVerbatimFieldLoad scan = new JobVerbatimFieldLoad(selectedFile);
+				    (new Thread(scan)).start();							
+				}
+			});
 		}
 		{
 			JPanel buttonPane = new JPanel();

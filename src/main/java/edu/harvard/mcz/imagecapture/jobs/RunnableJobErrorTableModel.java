@@ -303,10 +303,10 @@ public class RunnableJobErrorTableModel extends AbstractTableModel {
 				result = "Barcode"; 
 				break;			
 			case (4):
-				result = "Error";
+				result = "Exception";
 				break;
 			case (5):
-				result = "Exception";
+				result = "Error Message";
 				break;
 			}
 		   break;			

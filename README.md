@@ -441,8 +441,16 @@ Fields that can be included:
 * LocationInCollection
 * ValidDistributionFlag
 
+Also two fields containing lists of values can be included:
+
 * collectors Pipe '|' delimited list of collector names.  e.g. "R.A.Eastwood|N. Mattoni"
-* numbers Pipe '|' delimited list of numbers and types, separated by a colon ':', e.g. "1:unknown|52:species number"
+* numbers Pipe '|' delimited list of numbers and types, separated by a colon ':', e.g. "1:unknown|52:Species Number"
+
+Also three fields containing metadata about external processing and classification of the data can be included:
+
+* verbatimClusterIdentifier
+* externalWorkflowProcess
+* externalWorkflowDate
 
 Allowed to change a record when: Record is in state Taxon Entered, Verbatim Entered, or Verbatim Classified.
 

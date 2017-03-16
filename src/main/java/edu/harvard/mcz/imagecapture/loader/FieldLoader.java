@@ -289,7 +289,7 @@ public class FieldLoader {
 					if (knownFields.containsKey(key.toLowerCase()) 
 							&& !key.equals("barcode") 
 							&& (
-							   key.toLowerCase().equals("collectors") || !key.toLowerCase().equals("numbers") || 
+							   key.toLowerCase().equals("collectors") || key.toLowerCase().equals("numbers") || 
 							   MetadataRetriever.isFieldExternallyUpdatable(Specimen.class, key)
 							)
 				       ) 

@@ -516,6 +516,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuItemLoadData.setEnabled(true);
 			jMenuItemLoadData.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
+					//TODO: Launch FieldLoaderWizard and have it launch job.
 					 JobVerbatimFieldLoad scan = new JobVerbatimFieldLoad();
 					 (new Thread(scan)).start();
 				}

@@ -373,6 +373,9 @@ public class MetadataRetriever {
             if (fieldname.equalsIgnoreCase("VerbatimCollection")) { result=true; }
             if (fieldname.equalsIgnoreCase("VerbatimNumbers")) { result=true; }
             if (fieldname.equalsIgnoreCase("VerbatimUnclassifiedText")) { result=true; }
+            if (fieldname.equalsIgnoreCase("VerbatimClusterIdentifier")) { result=true; }
+            if (fieldname.equalsIgnoreCase("ExternalWorkflowProcess")) { result=true; }
+            if (fieldname.equalsIgnoreCase("ExternalWorkflowDate")) { result=true; }
             if (fieldname.equalsIgnoreCase("Minimum_Elevation")) { result=true; }
             if (fieldname.equalsIgnoreCase("Maximum_Elevation")) { result=true; }
             if (fieldname.equalsIgnoreCase("Elev_Units")) { result=true; }
@@ -437,6 +440,31 @@ public class MetadataRetriever {
 		
 		return result;
 	}		
+	
+	/**
+	 * Identify whether a field in a table contains values that are process metadata.
+	 * 
+	 * @param aTableClass table to check
+	 * @param fieldname field in aTableClass
+	 * @return true if process metadata field, false otherwise.
+	 */
+	public static boolean isFieldProcessMetadata(Class aTableClass, String fieldname) { 
+		boolean result = false;
+		if (aTableClass==Specimen.class) { 
+            if (fieldname.equalsIgnoreCase("VerbatimClusterIdentifier")) { result=true; }
+            if (fieldname.equalsIgnoreCase("ExternalWorkflowProcess")) { result=true; }
+            if (fieldname.equalsIgnoreCase("ExternalWorkflowDate")) { result=true; }
+            if (fieldname.equalsIgnoreCase("WorkflowStatus")) { result=true; }
+		}
+		if (aTableClass==Collector.class) { 
+		}
+		if (aTableClass==Determination.class) { 
+		}
+		if (aTableClass==Number.class) { 
+		}		
+		
+		return result;
+	}
 		
 	
 }

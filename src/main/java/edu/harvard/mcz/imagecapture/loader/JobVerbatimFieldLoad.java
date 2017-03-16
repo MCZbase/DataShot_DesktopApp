@@ -68,8 +68,18 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 	private List<RunnerListener> listeners = null;
 	private Counter counter = null;
 	private StringBuffer errors = null;
+	private File file = null;
 
 	public JobVerbatimFieldLoad() { 
+		init();
+	} 
+	
+	public JobVerbatimFieldLoad(File fileToLoad) { 
+		file = fileToLoad;
+		init();
+	} 	
+	
+	protected void init() { 
 		listeners = new ArrayList<RunnerListener>();
 		counter = new Counter();
 		runStatus = RunStatus.STATUS_NEW;
@@ -98,15 +108,20 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 		
 		String selectedFilename = "";
 		
-		final JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-		if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_LASTLOADPATH)!=null) { 
-			fileChooser.setCurrentDirectory(new File(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_LASTLOADPATH)));
-		} 
+		if (file==null) { 
+			final JFileChooser fileChooser = new JFileChooser();
+			fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+			if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_LASTLOADPATH)!=null) { 
+				fileChooser.setCurrentDirectory(new File(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_LASTLOADPATH)));
+			} 
+
+			int returnValue = fileChooser.showOpenDialog(Singleton.getSingletonInstance().getMainFrame());
+			if (returnValue == JFileChooser.APPROVE_OPTION) {
+				file = fileChooser.getSelectedFile();
+			} 
+		}
 		
-		int returnValue = fileChooser.showOpenDialog(Singleton.getSingletonInstance().getMainFrame());
-		if (returnValue == JFileChooser.APPROVE_OPTION) {
-			File file = fileChooser.getSelectedFile();
+		if (file!=null) { 
 			log.debug("Selected file to load: " + file.getName() + ".");
 
 			if (file.exists() && file.isFile() && file.canRead()) { 
@@ -136,12 +151,33 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 						log.debug(header);
 					}
 
+					boolean okToRun = true;
+					//TODO: Work picking/checking responsibility into FieldLoaderWizard
 					List<String> headerList = Arrays.asList(headers);
 					if (!headerList.contains("barcode")) { 
 						log.error("Input file header does not contain required field 'barcode'.");
 						// no barcode field, we can't match the input to specimen records.
 						errors.append("Field \"barcode\" not found in csv file headers.  Unable to load data.").append("\n");
+						okToRun = false;
 					} else { 
+						Iterator<String> ih = headerList.iterator();
+						StringBuilder headerString = new StringBuilder();
+						String separator = "";
+						while (ih.hasNext()) { 
+							headerString.append(separator).append(ih.next());
+							separator = ",";
+						}
+						int result = JOptionPane.showConfirmDialog(Singleton.getSingletonInstance().getMainFrame(), 
+								"Load data from " + file.getName() + " with header:\n" + headerString.toString(), 
+								"Load Data?", 
+								JOptionPane.YES_NO_OPTION);
+						if (result!=JOptionPane.YES_OPTION) {
+							okToRun = false;
+						}
+					}
+					
+					if (okToRun) { 
+						
 						Iterator<CSVRecord> iterator = csvParser.iterator();
 
 						FieldLoader fl = new FieldLoader();
