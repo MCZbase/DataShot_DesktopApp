@@ -100,6 +100,10 @@ public class PositionTemplate {
 		}
 		TemplateLifeCycle tls = new TemplateLifeCycle();
 		List<Template> persistentTemplates = tls.findAll();
+		if (persistentTemplates==null) { 
+			tls.cleanUpReferenceImage();
+			persistentTemplates = tls.findAll();
+		}
 		ListIterator<Template> iter = persistentTemplates.listIterator();
 		while (iter.hasNext()) { 
 			templateIdList.add(iter.next().getTemplateId());
