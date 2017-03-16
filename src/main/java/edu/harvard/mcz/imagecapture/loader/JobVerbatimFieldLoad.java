@@ -221,10 +221,12 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 							}
 
 						} else { 
+							int lineNumber = 0;
 							// allowed case three, transcription into arbitrary sets verbatim or other fields
 							log.debug("Input file case 3: Arbitrary set of fields.");
 							// TODO: Support arbitrary column load, without overwriting for absent columns.
 							while (iterator.hasNext()) {
+								lineNumber ++;
 								Map<String,String> data = new HashMap<String,String>();
 								CSVRecord record = iterator.next();
 							    String barcode = record.get("barcode");
@@ -244,18 +246,40 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 							            { 
 							            	containsNonVerbatim = true;
 							            }
+							            if (header.equalsIgnoreCase("collectors") || header.equalsIgnoreCase("numbers")) { 
+							            	containsNonVerbatim = true;
+							            }
+							            if (header!=null && !fl.isFieldKnown(header)) { 
+							            	log.error(header + " is not a recognized field in Specimen.");
+							            	errors.append("Column '" + header + "' not recognized, skipped.");
+							            }
 							    	}
 							    }
 							    if (data.size()>0) { 
+							    	counter.incrementSpecimens();
 							    	try {
 							    		log.debug(containsNonVerbatim);
+							    		boolean updated = false;
 							    		if (containsNonVerbatim) { 
-										    fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_CLASSIFIED, true);
+										    updated = fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_CLASSIFIED, true);
 							    		} else { 
-										    fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_VERBATIM, true);
+										    updated = fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_VERBATIM, true);
 							    		}
-									} catch (LoadException e) {
-										errors.append("Error loading row ").append(e.getMessage()).append("\n");	
+							    		if (updated) { 
+							    			counter.incrementSpecimensUpdated(); 
+							    		} else { 
+							    			RunnableJobError error =  new RunnableJobError(file.getName(), 
+							    					barcode, Integer.toString(lineNumber), 
+							    					null, null, RunnableJobError.TYPE_LOAD_NOCHANGE);
+							    			counter.appendError(error);
+							    		}
+							    	} catch (LoadException e) {
+										RunnableJobError error =  new RunnableJobError(file.getName(), 
+											barcode, Integer.toString(lineNumber), 
+											e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
+										counter.appendError(error);
+										
+										//errors.append("Error loading row ").append(e.getMessage()).append("\n");	
 										log.error(e.getMessage(), e);
 									}
 							    }

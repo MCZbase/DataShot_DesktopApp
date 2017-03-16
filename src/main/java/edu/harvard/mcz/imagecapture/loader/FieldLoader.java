@@ -26,12 +26,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.data.Collector;
+import edu.harvard.mcz.imagecapture.data.CollectorLifeCycle;
 import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
+import edu.harvard.mcz.imagecapture.data.Number;
+import edu.harvard.mcz.imagecapture.data.NumberLifeCycle;
 import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
 import edu.harvard.mcz.imagecapture.data.WorkFlowStatus;
@@ -51,12 +55,54 @@ public class FieldLoader {
 	
 	protected SpecimenLifeCycle sls = null;
 	
+	protected Map<String,String> knownFields;
+	
 	public FieldLoader() { 
 		init();
 	}
 	
 	protected void init() {
 		sls = new SpecimenLifeCycle();
+
+		// Key: lower case of field, Value actual case of Field.
+		knownFields = new HashMap<String,String>();
+		Method[] specimenMethods = Specimen.class.getDeclaredMethods();
+		for (int j=0; j<specimenMethods.length; j++) { 
+			if (specimenMethods[j].getName().startsWith("set") &&
+					specimenMethods[j].getParameterTypes().length==1 &&  
+				    specimenMethods[j].getParameterTypes()[0].getName().equals(String.class.getName()) 
+			) { 
+			    knownFields.put(specimenMethods[j].getName().replaceAll("^set", "").toLowerCase(), specimenMethods[j].getName().replaceAll("^set", ""));
+			}
+		}
+		// List of input fields that will need to be parsed into relational tables
+		ArrayList<String> toParseFields = new ArrayList<String>();
+		toParseFields.add("collectors");
+		toParseFields.add("numbers");
+		Iterator<String> ipf = toParseFields.iterator();
+		while(ipf.hasNext()) { 
+			String parseField = ipf.next();
+			knownFields.put(parseField.toLowerCase(), parseField);
+		}
+		
+		if (log.isDebugEnabled()) { 
+		   Iterator<String> i = knownFields.keySet().iterator();
+		   while (i.hasNext()) { 
+			   log.debug(i.next());
+		   }
+		}		
+	
+	}
+	
+	/**
+	 * Check whether or not a header is in the list of known fields.
+	 * 
+	 * @param possibleField header to check 
+	 * @return true if possibleField is (case insensitive) in the list of known
+	 *   fields, false if not.  Throws a null pointer exception if possibleField is null.
+	 */
+	public boolean isFieldKnown(String possibleField) { 
+		return knownFields.containsKey(possibleField.toLowerCase());
 	}
 	
 	/**
@@ -205,6 +251,7 @@ public class FieldLoader {
 		boolean result = false;
 		log.debug(barcode);
 		
+		// Check that the proposed new state is allowed.
 		if (newWorkflowStatus==null || 
 				(!newWorkflowStatus.equals(WorkFlowStatus.STAGE_VERBATIM) && 
 				 !newWorkflowStatus.equals(WorkFlowStatus.STAGE_CLASSIFIED))
@@ -213,60 +260,32 @@ public class FieldLoader {
 		   throw new LoadException("Trying to load into unallowed new state." + newWorkflowStatus);	
 		}
 		
-		// Key: lower case of field, Value actual case of Field.
-		Map<String,String> knownFields = new HashMap<String,String>();
-		Method[] specimenMethods = Specimen.class.getDeclaredMethods();
-		for (int j=0; j<specimenMethods.length; j++) { 
-			if (specimenMethods[j].getName().startsWith("set") &&
-					specimenMethods[j].getParameterTypes().length==1 &&  
-				    specimenMethods[j].getParameterTypes()[0].getName().equals(String.class.getName()) 
-			) { 
-			    knownFields.put(specimenMethods[j].getName().replaceAll("^set", "").toLowerCase(), specimenMethods[j].getName().replaceAll("^set", ""));
-			}
-		}
-		// List of input fields that will need to be parsed into relational tables
-		ArrayList<String> toParseFields = new ArrayList<String>();
-		toParseFields.add("collectors");
-		toParseFields.add("numbers");
-		Iterator<String> ipf = toParseFields.iterator();
-		while(ipf.hasNext()) { 
-			String parseField = ipf.next();
-			knownFields.put(parseField.toLowerCase(), parseField);
-		}
-		
-		if (log.isDebugEnabled()) { 
-		   Iterator<String> i = knownFields.keySet().iterator();
-		   while (i.hasNext()) { 
-			   log.debug(i.next());
-		   }
-		}
-		
-		
-		//Specimen pattern = new Specimen();
-		//pattern.setBarcode(barcode);
-		
 		List<Specimen> matches = sls.findByBarcode(barcode);
 		if (matches!=null && matches.size()==1) { 
 			Specimen match = matches.get(0);		
 		
-			if (
+			if  (
 					(newWorkflowStatus.equals(WorkFlowStatus.STAGE_VERBATIM)&& !WorkFlowStatus.allowsVerbatimUpdate(match.getWorkFlowStatus()))
 					|| 
 					(newWorkflowStatus.equals(WorkFlowStatus.STAGE_CLASSIFIED) && !WorkFlowStatus.allowsClassifiedUpdate(match.getWorkFlowStatus()))
 				) 
-			{ 
-				throw new LoadTargetMovedOnException();
+			{
+				// The target Specimen record has moved on past the state where it can be altered by a data load.
+				throw new LoadTargetMovedOnException(barcode + " is in state " + match.getWorkFlowStatus() + " and can't be altered by this data load.");
 			} else { 	
-
+                // Target Specimen record is eligible to be updated by a data load.
 				boolean foundData = false;
 				
 				Iterator<String> i = data.keySet().iterator();
 				while (i.hasNext()) { 
+					// Iterate through list of keys in input data
 					String key = i.next();
 					log.debug(knownFields.containsKey(key.toLowerCase()));
+					// Check that key is known.
 					if (!knownFields.containsKey(key.toLowerCase())) {  
 						throw new LoadException("Column " + key + " is not a known field of Specimen.");
 					}
+					// Check that key allows updates
 					if (knownFields.containsKey(key.toLowerCase()) 
 							&& !key.equals("barcode") 
 							&& (
@@ -281,20 +300,38 @@ public class FieldLoader {
 
 						Method setMethod;
 						try {
-
 							if (key.toLowerCase().equals("collectors")) { 
+								// Special case, parse collectors to associated Collector table.
 								datavalue = datavalue + "|";
+								log.debug(datavalue);
 								String[] collectors = datavalue.split("\\|", 0);
+								log.debug(collectors.length);
 								for (int j=0; j<collectors.length; j++) { 
 									String collector = collectors[j];
-									if (collector.trim().length()>0) { 
-										Collector col = new Collector();
-										col.setSpecimen(match);
-										col.setCollectorName(collector);
-										match.getCollectors().add(col);
+									log.debug(collector);
+									if (collector.trim().length()>0) {
+										// Check to see if Collector exists
+										Set<Collector> existingCollectors = match.getCollectors();
+										Iterator<Collector> ic = existingCollectors.iterator();
+										boolean exists = false;
+										while (ic.hasNext()) { 
+											Collector c = ic.next();
+											if (c.getCollectorName().equals(collector)) { 
+												exists = true;
+											}
+										}
+										if (!exists) { 
+											// only add if it isn't allready present.
+											Collector col = new Collector();
+											col.setSpecimen(match);
+											col.setCollectorName(collector);
+											match.getCollectors().add(col);
+											foundData = true;
+										}
 									}
 								}
 							} else if (key.toLowerCase().equals("numbers")) { 
+								// Special case, parse numbers to associated Number table.
 								datavalue = datavalue + "|";
 								String[] numbers = datavalue.split("\\|", 0);
 								for (int j=0; j<numbers.length; j++) { 
@@ -310,21 +347,36 @@ public class FieldLoader {
 												numType = "unknown";
 											}
 										}
-										edu.harvard.mcz.imagecapture.data.Number num = new edu.harvard.mcz.imagecapture.data.Number();
-										num.setNumber(number);
-										num.setNumberType(numType);
-										num.setSpecimen(match);
-										match.getNumbers().add(num);
+										// check to see if number exists
+										Set<Number> existingNumbers = match.getNumbers();
+										Iterator<Number> ic = existingNumbers.iterator();
+										boolean exists = false;
+										while (ic.hasNext()) { 
+											Number c = ic.next();
+											if (c.getNumber().equals(number) || c.getNumberType().equals(numType)) { 
+												exists = true;
+											}
+										}
+										if (!exists) { 
+											// only add if it isn't already present.
+											Number num = new Number();
+											num.setNumber(number);
+											num.setNumberType(numType);
+											num.setSpecimen(match);
+											match.getNumbers().add(num);
+											foundData = true;
+										}
 									}
 								}
 								
 							} else { 
+								// Find the Specimen get and set methods for the current key
 								String keyProper = knownFields.get(key.toLowerCase());
 								setMethod = Specimen.class.getMethod("set" + keyProper, String.class);
-
 								Method getMethod = Specimen.class.getMethod("get" + keyProper, null);
-
+								// Obtain the current value in the Specimen record for the field matching the current key.
 								String currentValue = (String) getMethod.invoke(match, null);
+								// Assess whether changes to existing data are allowed for that field, make them only if they are allowed.
 								if (key.equals("questions")) {
 									// append
 									if (currentValue !=null && currentValue.trim().length()>0) { 
@@ -367,7 +419,7 @@ public class FieldLoader {
 				if (foundData) { 
 					try {
 						match.setWorkFlowStatus(newWorkflowStatus);
-						
+						log.debug("Updating:" + match.getBarcode() );
 						sls.attachDirty(match);
 						result = true;
 					} catch (SaveFailedException e) {
