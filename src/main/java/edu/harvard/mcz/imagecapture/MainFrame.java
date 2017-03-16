@@ -1339,10 +1339,8 @@ public class MainFrame extends JFrame implements RunnerListener {
 			}
 			jMenuItemRedoOCROne.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					JobRepeatOCR r = new JobRepeatOCR(
-							JobRepeatOCR.SCAN_SELECT,
-							new File(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEBASE))
-					        );
+					File target = new File(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEBASE));
+					JobRepeatOCR r = new JobRepeatOCR(JobRepeatOCR.SCAN_SELECT, target);
 					(new Thread(r)).start();
 				}
 			});

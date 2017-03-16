@@ -3,17 +3,18 @@ package edu.harvard.mcz.imagecapture.data;
 // Generated Jan 23, 2009 8:12:35 AM by Hibernate Tools 3.2.2.GA
 
 import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
+import org.hibernate.SQLQuery;
 import org.hibernate.SessionException;
 import org.hibernate.classic.Session;
 import org.hibernate.criterion.Order;
 
 import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
-
 import static org.hibernate.criterion.Example.create;
 
 /**
@@ -26,6 +27,28 @@ public class TemplateLifeCycle {
 	private static final Log log = LogFactory.getLog(TemplateLifeCycle.class);
 
 
+	public void cleanUpReferenceImage() { 
+		log.debug("Trying to set all Template.referenceimage values to null.");
+		try { 
+			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			try { 
+				SQLQuery query = session.createSQLQuery("update Template set referenceimage = null");
+				int rows = query.executeUpdate();
+			    session.getTransaction().commit();
+				log.debug("changed " + rows + " rows");
+			} catch (HibernateException e) { 
+				session.getTransaction().rollback();
+				log.error(e.getMessage());
+			}
+			try { session.close(); } catch (SessionException e) { }			
+			
+		} catch (RuntimeException re) {
+			log.error("Set all Template.referenceimage to null failed", re);
+			throw re;
+		}
+	}
+	
 	public void persist(Template transientInstance) throws SaveFailedException {
 		log.debug("persisting Template instance");
 		try {

@@ -600,7 +600,7 @@ public class CandidateImageFile {
 			returnValue.setText(result.getText());
 			returnValue.setStatus(RESULT_BARCODE_SCANNED);
 		} catch (ReaderException e) {
-			log.error(e.getMessage());
+			log.error(e.getClass().toString() + " " + e.getMessage());
 			if (!Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_IMAGEZXINGALSOTRYHARDER).equalsIgnoreCase("true")) { 
 				returnValue.setText(e.toString() + " " + e.getMessage());
 				returnValue.setStatus(RESULT_ERROR);

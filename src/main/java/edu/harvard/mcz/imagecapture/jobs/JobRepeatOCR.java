@@ -259,7 +259,7 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 			Specimen s = specimens.get(i);
 			Set<ICImage> images = s.getICImages();
 			Iterator<ICImage> iter = images.iterator();
-			while (iter.hasNext()) { 
+			while (iter.hasNext() && runStatus != RunStatus.STATUS_TERMINATED) { 
 				ICImage image = (ICImage) iter.next();
 				if (scan==SCAN_ALL || image.getPath().startsWith(pathToCheck)) {
 					// Add image for specimen to list to check
@@ -269,7 +269,9 @@ public class JobRepeatOCR implements RunnableJob, Runnable {
 				}
 			}			
 		}
-		log.debug("Found " + files.size() + " Specimen records on which to repeat OCR.");
+		String message = "Found " + files.size() + " Specimen records on which to repeat OCR.";
+		log.debug(message);
+		Singleton.getSingletonInstance().getMainFrame().setStatusMessage(message);
 
 		return files;
 	}
