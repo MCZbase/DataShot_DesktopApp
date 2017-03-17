@@ -22,7 +22,7 @@ public class SpecimenPart {
 	
 	public static final String[] PARTNAMES = {
 		"whole animal", "partial animal",
-		"partial animal (abdomen)","partial animal (body)","partial animal (legs)","partial animal (wings)",
+		"partial animal: abdomen","partial animal: body","partial animal: legs","partial animal: wings",
 	   "cocoon","frass", "frass chain", "genitalia", "head capsule", 
 	   "head capsule hat", "larval case", "larval shelter",
 	   "molt", "other", "pupal exuvia", "pupal shelter", "puparium", 
