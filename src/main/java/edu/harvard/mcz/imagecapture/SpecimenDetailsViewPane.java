@@ -698,8 +698,8 @@ public class SpecimenDetailsViewPane extends JPanel {
 		field1.setInputVerifier(MetadataRetriever.getInputVerifier(edu.harvard.mcz.imagecapture.data.Number.class, "Number", field1));
 		field1.setVerifyInputWhenFocusTarget(true);
 		jTableNumbers.getColumnModel().getColumn(0).setCellEditor(new ValidatingTableCellEditor(field1));
-		JComboBox jComboNumberTypes = new JComboBox();
-		jComboNumberTypes.setModel(new DefaultComboBoxModel(NumberLifeCycle.getDistinctTypes()));
+		JComboBox<String> jComboNumberTypes = new JComboBox<String>();
+		jComboNumberTypes.setModel(new DefaultComboBoxModel<String>(NumberLifeCycle.getDistinctTypes()));
 		jComboNumberTypes.setEditable(true);
 		TableColumn typeColumn = jTableNumbers.getColumnModel().getColumn(NumberTableModel.COLUMN_TYPE);
 		typeColumn.setCellEditor(new DefaultCellEditor(jComboNumberTypes));
@@ -1909,7 +1909,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 	 * 	
 	 * @return javax.swing.JTextField	
 	 */
-	private JComboBox getJTextFieldCollection() {
+	private JComboBox<String> getJTextFieldCollection() {
 		if (jComboBoxCollection == null) {
 			SpecimenLifeCycle sls = new SpecimenLifeCycle();
 			jComboBoxCollection = new JComboBox<String>();

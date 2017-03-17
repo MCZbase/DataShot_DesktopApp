@@ -207,7 +207,7 @@ public class HigherTaxonLifeCycle {
 
 	@SuppressWarnings("unchecked")
 	public static String[] selectDistinctFamily() { 
-		List<String> result = new ArrayList();
+		List<String> result = new ArrayList<String>();
 		try {
 			String sql = " Select distinct family from HigherTaxon ht where ht.family is not null ";
 			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
@@ -235,7 +235,7 @@ public class HigherTaxonLifeCycle {
 	
 	@SuppressWarnings("unchecked")
 	public static String[] selectDistinctSubfamily(String family) { 
-		List<String> result = new ArrayList();
+		List<String> result = new ArrayList<String>();
 		try {
 			String sql = "";
 			if (family==null || family.equals("")) { 
@@ -274,7 +274,7 @@ public class HigherTaxonLifeCycle {
 	
 	@SuppressWarnings("unchecked")
 	public static String[] selectDistinctTribe(String subfamily) { 
-		List<String> result = new ArrayList();
+		List<String> result = new ArrayList<String>();
 		try {
 			String sql = " Select distinct tribe from HigherTaxon ht where ht.subfamily = '"+subfamily.trim()+"' and ht.tribe is not null ";
 			Session session = HibernateUtil.getSessionFactory().getCurrentSession();

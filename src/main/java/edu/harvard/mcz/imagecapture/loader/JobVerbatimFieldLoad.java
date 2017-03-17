@@ -1,5 +1,5 @@
 /**
- * JobVerbatimFieldLoad.java * edu.harvard.mcz.imagecapture.loader
+ * JobVerbatimFieldLoad.java 
  *
  * Copyright © 2016 President and Fellows of Harvard College
  *

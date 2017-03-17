@@ -47,7 +47,6 @@ import edu.harvard.mcz.imagecapture.CandidateImageFile;
 import edu.harvard.mcz.imagecapture.ImageCaptureApp;
 import edu.harvard.mcz.imagecapture.ImageCaptureProperties;
 import edu.harvard.mcz.imagecapture.RunnableJobReportDialog;
-import edu.harvard.mcz.imagecapture.ConfiguredBarcodePositionTemplateDetector;
 import edu.harvard.mcz.imagecapture.PositionTemplate;
 import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.UnitTrayLabelParser;
@@ -67,7 +66,6 @@ import edu.harvard.mcz.imagecapture.exceptions.SpecimenExistsException;
 import edu.harvard.mcz.imagecapture.exceptions.UnreadableFileException;
 import edu.harvard.mcz.imagecapture.interfaces.CollectionReturner;
 import edu.harvard.mcz.imagecapture.interfaces.DrawerNameReturner;
-import edu.harvard.mcz.imagecapture.interfaces.PositionTemplateDetector;
 import edu.harvard.mcz.imagecapture.interfaces.RunStatus;
 import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
 import edu.harvard.mcz.imagecapture.interfaces.RunnerListener;
@@ -618,7 +616,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 						// scan file for barcodes and ocr of unit tray label text
 						CandidateImageFile scannableFile = null;
 						try {
-							PositionTemplateDetector detector = new ConfiguredBarcodePositionTemplateDetector();
+							// PositionTemplateDetector detector = new ConfiguredBarcodePositionTemplateDetector();
 							boolean isSpecimenImage = false;
 							boolean isDrawerImage = false;
 							boolean reattach = false;  // image is detached instance and should be reattached instead of persisted denovo.
@@ -970,6 +968,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 														rawBarcode, exifComment, errorMessage,
 														(TaxonNameReturner)parser, (DrawerNameReturner)parser,
 														e2, RunnableJobError.TYPE_SAVE_FAILED);
+												counter.appendError(error);
 											}
 										} catch (SaveFailedException e) { 
 											// Couldn't save for some reason other than the

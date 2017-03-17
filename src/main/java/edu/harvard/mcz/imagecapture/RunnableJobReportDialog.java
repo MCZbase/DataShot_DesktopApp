@@ -34,7 +34,6 @@ import java.awt.GridBagLayout;
 import javax.swing.JLabel;
 
 import java.awt.GridBagConstraints;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -321,7 +320,7 @@ public class RunnableJobReportDialog extends JDialog {
 
 			int rows = jTable.getModel().getRowCount();
 			for (int i=0; i<rows; i++) {
-				ArrayList<String> values = new ArrayList();
+				ArrayList<String> values = new ArrayList<String>();
 				for (int col=0; col<cols; col++) { 
 					values.add((String) jTable.getModel().getValueAt(i, col));
 				}
