@@ -2,14 +2,10 @@ package edu.harvard.mcz.imagecapture.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import edu.harvard.mcz.imagecapture.Singleton;
-import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
 
 /**
  * Proxy object for SpecimenPart

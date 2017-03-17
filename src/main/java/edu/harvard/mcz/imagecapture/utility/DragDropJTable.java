@@ -103,7 +103,7 @@ public class DragDropJTable extends JTable {
 		}
 		int i=0;
 		String tmp="";
-		ArrayList AL=new ArrayList(20);
+		ArrayList<String> AL=new ArrayList<String>(20);
 		while (i<inStr.length()) {
 			if (inStr.charAt(i)==ctkn) {
 				AL.add(new String(tmp));
