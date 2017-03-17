@@ -179,7 +179,8 @@ public class PropertiesEditor extends JFrame {
 						} else { 
 							throw new Exception("Configured collection not recognized.");
 						}						
-						Singleton.getSingletonInstance().getMainFrame().updateTitle();
+						//Singleton.getSingletonInstance().getMainFrame().updateTitle();
+						Singleton.getSingletonInstance().getMainFrame().updateForPropertiesChange();
 						
 						thisEditor.dispose();
 					} catch (Exception e1) {
