@@ -49,6 +49,11 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 	 * The collection for which this deployment is configured to work with.
 	 */
 	public static final String KEY_COLLECTION = "configuration.collection";
+	/**
+	 * Value to use for the specific collection, empty string will use default for 
+	 * the configured KEY_COLLECTION. 
+	 */
+	public static final String KEY_SPECIFIC_COLLECTION = "configuration.specificcollection";
 	
 	/**
 	 * The most recent location selected for scanning a barcode.
@@ -415,6 +420,11 @@ public class ImageCaptureProperties  extends AbstractTableModel {
 	 * 
 	 */
 	private void checkDefaults() { 
+		if (!properties.containsKey(KEY_SPECIFIC_COLLECTION))  {
+			// location in collection to use, if not default provided from KEY_COLLECTION
+			// in LocationInCollection.
+			properties.setProperty(KEY_SPECIFIC_COLLECTION,"");	
+		} 
 		if (!properties.containsKey(KEY_COLLECTION))  {
 			// Root of the path of the place where all image files should be stored.
 			properties.setProperty(KEY_COLLECTION,ImageCaptureProperties.COLLECTION_MCZENT);	

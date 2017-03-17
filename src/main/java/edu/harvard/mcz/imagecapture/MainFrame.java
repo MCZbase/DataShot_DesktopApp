@@ -49,6 +49,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.data.HibernateUtil;
 import edu.harvard.mcz.imagecapture.data.ICImage;
+import edu.harvard.mcz.imagecapture.data.LocationInCollection;
 import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
 import edu.harvard.mcz.imagecapture.data.Users;
@@ -316,7 +317,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 			
 	}
 
-	public void updateTitle() { 
+	protected void updateTitle() { 
         this.setTitle(ImageCaptureApp.APP_NAME + ": MCZ Rapid Data Capture Application.  Configured For: " + 
 		     Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_COLLECTION)
         );
@@ -772,7 +773,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 			gridBagConstraints1.gridy = 0;
 			gridBagConstraints1.anchor = GridBagConstraints.WEST;
 			gridBagConstraints1.fill = GridBagConstraints.HORIZONTAL;
-			gridBagConstraints1.weightx = 2.0;
+			gridBagConstraints1.weightx = 4.0;
 			gridBagConstraints1.gridx = 0;
 			GridBagConstraints gridBagConstraints = new GridBagConstraints();
 			gridBagConstraints.gridx = 1;
@@ -969,6 +970,14 @@ public class MainFrame extends JFrame implements RunnerListener {
 	}
 
 	/**
+	 * Update UI elements to reflect change in properties.
+	 */
+	public void updateForPropertiesChange() { 
+		this.updateTitle();
+		jMenuItemPreprocessOneDir.setText("Preprocess A Directory (as " + LocationInCollection.getDefaultLocation() + ")");
+	}
+	
+	/**
 	 * This method initializes jMenuItemPreprocessOneDir	
 	 * 	
 	 * @return javax.swing.JMenuItem	
@@ -976,7 +985,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 	private JMenuItem getJMenuItemPreprocessOne() {
 		if (jMenuItemPreprocessOneDir == null) {
 			jMenuItemPreprocessOneDir = new JMenuItem();
-			jMenuItemPreprocessOneDir.setText("Preprocess A Directory");
+			jMenuItemPreprocessOneDir.setText("Preprocess A Directory (as " + LocationInCollection.getDefaultLocation() + ")");
 			jMenuItemPreprocessOneDir.setMnemonic(KeyEvent.VK_P);
 			jMenuItemPreprocessOneDir.setEnabled(true);
 			try { 

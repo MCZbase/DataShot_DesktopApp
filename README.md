@@ -224,6 +224,19 @@ images.thumbnailheight and images.thumbnailwidth determine the size of thumbnail
 
 images.filenameregex only files with a filename that matches this regular expression pattern will be preprocessed.  
 
+The following configuration parameter is optional, and may be changed as different parts of a collection are processed: 
+
+    configuration.specificcollection=
+
+If no value is provided for configuration.specificcollection, then default values will be used appropriate for the value
+given for configuraion.collection as the value for Specimen.LocationInCollection.   If a value is provided, it will be 
+used as the value for Specimen.LocationInCollection when new records are processed (except if family=Formicidae), for example: 
+
+    configuration.specificcollection=Type Collection
+
+Will set the value LocationInCollection of all newly created Specimen records to 'Type Collection' (except ants,
+any records with Family=Formicidae, which get the special case value 'General Ant Collection').
+
 **There is a key assumption that all images will be stored on shared storage and that every instance of the application 
 will have the images available at a known mount point**, where part of the path to the images is held as local configuration
  and part is stored in the database.  The path below this mount point cannot change without all of the records in the 
