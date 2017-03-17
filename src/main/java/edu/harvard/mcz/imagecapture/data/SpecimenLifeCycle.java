@@ -424,7 +424,6 @@ for (int i=0; i<results.size(); i++) {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public String findSpecimenCount() {
 			StringBuffer result = new StringBuffer();
 			try {
@@ -454,7 +453,6 @@ for (int i=0; i<results.size(); i++) {
 		}
 	
 	
-	@SuppressWarnings("unchecked")
 	/**
 	 * Obtain counts of the number of specimens needing verbatim transcription by genus and species. 
 	 * 
