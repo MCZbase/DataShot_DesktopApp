@@ -346,6 +346,22 @@ The first Administrator user for the application must be inserted directly into 
 Enter additional users by logging in to the application as that administrator using the user dialog accessed
 through Configuration/Users off of the main menu.  
 
+# Maintinance 
+
+## Schema
+As of version 1.3.0, DataShot checks for an allowed_version table in the
+database schema at login during startup, and will not start if this table
+is not present, and it does not contain a value of version compatible with
+the current DataShot software version.  Intent is that a change in the 
+database schema will be accompanied by either a major or minor version 
+change, but that patch version changes will not involve schema changes,
+thus any 1.3. version will work with the same database schema, and a 
+schema change will involve a change from version 1.3 to version 1.4.  
+An exception is x.x.0-SNAPSHOT versions (snapshots of the first patch 
+version of a new minor version), these are expected to incrementally 
+add schema changes. 
+
+See docs_manual/sql/ for DDL for the databse schema.
 
 # External data paths
 

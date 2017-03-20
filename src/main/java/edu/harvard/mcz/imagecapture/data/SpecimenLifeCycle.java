@@ -27,6 +27,7 @@ import org.hibernate.metadata.ClassMetadata;
 
 import edu.harvard.mcz.imagecapture.MCZENTBarcode;
 import edu.harvard.mcz.imagecapture.Singleton;
+import edu.harvard.mcz.imagecapture.exceptions.ConnectionException;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
 import edu.harvard.mcz.imagecapture.exceptions.SpecimenExistsException;
 import edu.harvard.mcz.imagecapture.interfaces.BarcodeBuilder;
@@ -453,7 +454,16 @@ for (int i=0; i<results.size(); i++) {
 		}
 	}
 
-	public String findSpecimenCount() {
+	public String findSpecimenCount() { 
+		try { 
+			return findSpecimenCountThrows();
+		} catch (ConnectionException e) { 
+			log.error(e.getMessage(),e);
+		}
+		return "";
+	}
+	
+	public String findSpecimenCountThrows() throws ConnectionException {
 			StringBuffer result = new StringBuffer();
 			try {
 				String sql = "Select count(*), workFlowStatus from Specimen group by workFlowStatus ";
@@ -477,7 +487,7 @@ for (int i=0; i<results.size(); i++) {
 				return result.toString();
 			} catch (RuntimeException re) {
 				log.error(re);
-				return result.toString();
+				throw new ConnectionException(re.getMessage(),re);
 			}
 		}
 	

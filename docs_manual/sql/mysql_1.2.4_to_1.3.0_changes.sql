@@ -5,3 +5,12 @@ alter table Specimen add column externalWorkflowDate datetime default null;
 ALTER TABLE Template ENGINE=InnoDB;
 update Template set referenceimage = null;
 alter table Template add CONSTRAINT fk_template_refimg FOREIGN KEY (referenceimage) references Image (imageid) ON DELETE SET null;
+
+create table allowed_version ( 
+   allowed_version_id bigint not null primary key auto_increment, 
+   version varchar(50) not null
+);
+
+insert into allowed_version (version) values ('1.3');
+
+

@@ -55,6 +55,7 @@ import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
 import edu.harvard.mcz.imagecapture.data.Users;
 import edu.harvard.mcz.imagecapture.data.UsersLifeCycle;
 import edu.harvard.mcz.imagecapture.encoder.UnitTrayLabelBrowser;
+import edu.harvard.mcz.imagecapture.exceptions.ConnectionException;
 import edu.harvard.mcz.imagecapture.interfaces.BarcodeBuilder;
 import edu.harvard.mcz.imagecapture.interfaces.BarcodeMatcher;
 import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
@@ -400,7 +401,13 @@ public class MainFrame extends JFrame implements RunnerListener {
 					Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Logged out " + oldUser);
 					// Force a login dialog by connecting to obtain record count;
 					SpecimenLifeCycle sls = new SpecimenLifeCycle();
-				    setCount(sls.findSpecimenCount());
+				    try {
+						setCount(sls.findSpecimenCountThrows());
+						ImageCaptureApp.doStartUp();
+					} catch (ConnectionException e1) {
+						log.error(e1.getMessage(),e1);
+						ImageCaptureApp.doStartUpNot();
+					}
 				}
 			});
 		}
@@ -801,12 +808,12 @@ public class MainFrame extends JFrame implements RunnerListener {
 	}
 	
 	/**
-	 * Sets the message on the status bar with an up to 30 character string.
+	 * Sets the message on the status bar with an up to 60 character string.
 	 * 
 	 * @param aMessage the message to display on the status bar.
 	 */
 	public void setStatusMessage(String aMessage) { 
-		int maxLength = 30;
+		int maxLength = 60;
 		if (aMessage.length()<maxLength) { maxLength = aMessage.length(); } 
 		jLabelStatus.setText("Status: " + aMessage.substring(0, maxLength));
 	}
