@@ -19,15 +19,15 @@
  */
 package edu.harvard.mcz.imagecapture.data;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+//import javax.persistence.Basic;
+//import javax.persistence.Column;
+//import javax.persistence.Entity;
+//import javax.persistence.GeneratedValue;
+//import javax.persistence.Id;
+//import javax.persistence.NamedQueries;
+//import javax.persistence.NamedQuery;
+//import javax.persistence.SequenceGenerator;
+//import javax.persistence.Table;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,23 +36,23 @@ import org.apache.commons.logging.LogFactory;
  * @author mole
  *
  */
-@Entity
-@Table(name = "allowed_version", catalog = "lepidoptera", schema = "")
-@NamedQueries({
-    @NamedQuery(name = "AllowedVersion.findAll", query = "SELECT a FROM AllowedVersion a")
-    })
+//@Entity
+//@Table(name = "allowed_version", catalog = "lepidoptera", schema = "")
+//@NamedQueries({
+//    @NamedQuery(name = "AllowedVersion.findAll", query = "SELECT a FROM AllowedVersion a")
+//    })
 public class AllowedVersion {
 
 	private static final Log log = LogFactory.getLog(AllowedVersion.class);
 	
-	@Id
-    @GeneratedValue(generator="AllowedNumberSeq")
-    @SequenceGenerator(name="AllowedNumberSeq",sequenceName="SEQ_ALLOWEDVERSIONID", allocationSize=1)
-    @Basic(optional = false)
-    @Column(name = "allowed_version_id", nullable = false)
+	//@Id
+    //@GeneratedValue(generator="AllowedNumberSeq")
+    //@SequenceGenerator(name="AllowedNumberSeq",sequenceName="SEQ_ALLOWEDVERSIONID", allocationSize=1)
+    //@Basic(optional = false)
+    //@Column(name = "allowed_version_id", nullable = false)
 	private Long allowedVersionId;
 	
-	@Column(name="version", nullable=false)
+	//@Column(name="version", nullable=false)
 	private String version;
 	/**
 	 * @return the allowedVersionId
