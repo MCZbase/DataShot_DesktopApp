@@ -185,7 +185,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 						if (headerList.size()==3 && headerList.contains("verbatimUnclassifiedText") 
 								&& headerList.contains("questions") && headerList.contains("barcode")) { 
 							log.debug("Input file matches case 1: Unclassified text only.");
-							// Allowed case 1: unclassified text only
+							// Allowed case 1a: unclassified text only
 
 							String barcode = "";
 							int lineNumber = 0;
@@ -198,7 +198,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 									barcode = record.get("barcode");
 									String questions = record.get("questions");
 
-									fl.load(barcode, verbatimUnclassifiedText, questions, true);
+									fl.load(barcode, verbatimUnclassifiedText, null, questions, true);
 									counter.incrementSpecimensUpdated();
 								} catch (IllegalArgumentException e) {
 									RunnableJobError error =  new RunnableJobError(file.getName(), 
@@ -215,12 +215,48 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 								}
 							}
 							
+						} else if (headerList.size()==4 && headerList.contains("verbatimUnclassifiedText") 
+								&& headerList.contains("questions") && headerList.contains("barcode")
+								&& headerList.contains("verbatimClusterIdentifier")) { 
+							log.debug("Input file matches case 1: Unclassified text only.");
+							// Allowed case 1b: unclassified text only (including cluster identifier)
+
+							String barcode = "";
+							int lineNumber = 0;
+							while (iterator.hasNext()) {
+								lineNumber++;
+								counter.incrementSpecimens();
+								CSVRecord record = iterator.next();
+								try { 
+									String verbatimUnclassifiedText = record.get("verbatimUnclassifiedText");
+									String verbatimClusterIdentifier = record.get("verbatimClusterIdentifier"); 
+									barcode = record.get("barcode");
+									String questions = record.get("questions");
+
+									fl.load(barcode, verbatimUnclassifiedText, verbatimClusterIdentifier, questions, true);
+									counter.incrementSpecimensUpdated();
+								} catch (IllegalArgumentException e) {
+									RunnableJobError error =  new RunnableJobError(file.getName(), 
+											barcode, Integer.toString(lineNumber), 
+											e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
+									counter.appendError(error);
+									log.error(e.getMessage(), e);
+								} catch (LoadException e) {
+									RunnableJobError error =  new RunnableJobError(file.getName(), 
+											barcode, Integer.toString(lineNumber), 
+											e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
+									counter.appendError(error);
+									log.error(e.getMessage(), e);
+								}
+							}	
+							
 						} else if (headerList.size()==8 
 								 && headerList.contains("verbatimUnclassifiedText") && headerList.contains("questions") && headerList.contains("barcode")
 							     && headerList.contains("verbatimLocality") && headerList.contains("verbatimDate") && headerList.contains("verbatimNumbers")
 							     && headerList.contains("verbatimCollector") && headerList.contains("verbatimCollection")
 								) {
-							// allowed case two, transcription into verbatim fields, must be exact list of all verbatim fields.
+							// Allowed case two, transcription into verbatim fields, must be exact list of all
+							// verbatim fields, not including cluster identifier or other metadata.
 							log.debug("Input file matches case 2: Full list of verbatim fields.");
 
 							String barcode = "";

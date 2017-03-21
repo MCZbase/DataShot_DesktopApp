@@ -382,18 +382,34 @@ these three columns must be present (no more, no fewer), but column order does n
 
     "barcode","verbatimUnclassifiedText","questions"
 
-Allowed to change a record when: Record is in state Taxon Entered or Verbatim Entered.
+Allowed to change a record when: Record is in state OCR, Taxon Entered, or Verbatim Entered.
 
 Barcode policy: Barcode must exist and must be unique.
 
-Overwrite policy: Will overwrite an existing value of verbatimUnclassifiedText.
+Overwrite policy: Will overwrite an existing value of verbatimUnclassifiedText.  
+Will remove any existing value of verbatimClusterIdentifier.  Will not modify
+other verbatim or other fields (except questions).
 
 Questions policy: Any value provided in questions will be appended to the existing value for questions.
 
 Status when complete policy:  Record is in state Verbatim Transcribed.
-    
-This functionality is expected to change in future versions.
 
+You can include a cluster identifier (if you have externally clustered the verbatim text values): 
+
+    "barcode","verbatimUnclassifiedText","verbatimClusterIdentifier","questions"
+    
+Allowed to change a record when: Record is in state OCR, Taxon Entered, or Verbatim Entered.
+
+Barcode policy: Barcode must exist and must be unique.
+
+Overwrite policy: Will overwrite an existing value of verbatimUnclassifiedText.  
+Will overwrite any existing value of verbatimClusterIdentifier.   Will not modify
+other verbatim or other fields (except questions).
+
+Questions policy: Any value provided in questions will be appended to the existing value for questions.
+
+Status when complete policy:  Record is in state Verbatim Transcribed.    
+    
 ## Transcription of (pin) label data with minimal interpretation into verbatim fields.
 
 If you export the barcode number for a specimen and an image file with pin 
@@ -407,17 +423,16 @@ these columns must be present (no more, no fewer), but column order does not mat
 
     "barcode","verbatimLocality","verbatimDate","verbatimCollector","verbatimCollection","verbatimNumbers","verbatimUnclassifiedText","questions"
 
-Allowed to change a record when: Record is in state Taxon Entered or Verbatim Entered.
+Allowed to change a record when: Record is in state OCR or Taxon Entered.
 
 Barcode policy: Barcode must exist and must be unique.
 
-Overwrite policy: Does not overwrite any existing values.
+Overwrite policy: Does not overwrite any existing values.  Will not make any updates to a field if any of the 
+verbatim fields contain data.
 
 Questions policy: Any value provided in questions will be appended to the existing value for questions.
 
-Status when complete policy:  Record is in state Verbatim Transcribed.
-
-This functionality is expected to change in future versions.
+Status when complete policy:  Record is in state Verbatim Entered.
 
 ## Transcription of (pin) label data with interpretation.
 
@@ -434,6 +449,10 @@ Example of a header:
 
     "barcode","HigherGeography","SpecificLocality","questions"
 
+Another example of a header for just verbatim fields, but with a verbatim cluster identifier.
+
+    "barcode","verbatimLocality","verbatimDate","verbatimCollector","verbatimCollection","verbatimNumbers","verbatimUnclassifiedText","verbatimClusterIdentifier","questions"
+    
 Fields that can be included: 
 
 * TypeStatus
@@ -472,8 +491,8 @@ Fields that can be included:
 
 Also two fields containing lists of values can be included:
 
-* collectors Pipe '|' delimited list of collector names.  e.g. "R.A.Eastwood|N. Mattoni"
-* numbers Pipe '|' delimited list of numbers and types, separated by a colon ':', e.g. "1:unknown|52:Species Number"
+* collectors a pipe '|' delimited list of collector names.  e.g. "R.A.Eastwood|N. Mattoni"
+* numbers a pipe '|' delimited list of numbers and types, separated by a colon ':', e.g. "1:unknown|52:Species Number"
 
 Also three fields containing metadata about external processing and classification of the data can be included:
 
@@ -481,14 +500,31 @@ Also three fields containing metadata about external processing and classificati
 * externalWorkflowProcess
 * externalWorkflowDate
 
-Allowed to change a record when: Record is in state Taxon Entered, Verbatim Entered, or Verbatim Classified.
+If any non-verbatim, non-metadata field is included:  
+
+Allowed to change a record when: Record is in state OCR, Taxon Entered, Verbatim Entered, or Verbatim Classified.
 
 Barcode policy: Barcode must exist and must be unique.
 
-Overwrite policy: Will overwrite any existing value in the Verbatim fields, but will not overwrite any existing value in any non-Verbatim field.
+Overwrite policy: Will overwrite any existing value in the Verbatim fields or 
+metadata (verbatimClusterIdentifier, externalWorkflowProcess,externalWorkflowDate) fields, 
+but will not overwrite any existing value in any non-Verbatim field.
 
 Questions policy: Any value provided in questions will be appended to the existing value for questions.
 
-Status when complete policy:  If any non-verbatim field is present, Verbatim Classified, othewise, verbatimEntered.
+Status when complete policy:  Workflow status Verbatim Classified..
 
-This functionality is expected to change in future versions.
+If only verbatim and metadata fields are included:
+
+Allowed to change a record when: Record is in state OCR, Taxon Entered, or Verbatim Entered.
+
+Barcode policy: Barcode must exist and must be unique.
+
+Overwrite policy: Will overwrite any existing value in the Verbatim fields or 
+metadata (verbatimClusterIdentifier, externalWorkflowProcess,externalWorkflowDate) fields, 
+but will not overwrite any existing value in any non-Verbatim field.
+
+Questions policy: Any value provided in questions will be appended to the existing value for questions.
+
+Status when complete policy: Workflow status Verbatim Entered.
+

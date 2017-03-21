@@ -113,7 +113,7 @@ public class FieldLoader {
 	
 	/**
 	 * Given a barcode number and a value for verbatimUnclassifiedText, update the verbatim value for the matching
-	 * Specimen record.
+	 * Specimen record, leaves the Specimen record in workflow state WorkFlowStatus.STAGE_VERBATIM.
 	 * 
 	 * @param barcode must match exactly one Specimen record.
 	 * @param verbatimUnclassifiedText value for this field in Specimen.
@@ -123,13 +123,10 @@ public class FieldLoader {
 	 * 
 	 * @throws LoadException on an error
 	 */
-	public boolean load(String barcode, String verbatimUnclassifiedText, String questions, boolean overwriteExisting) throws LoadException { 
+	public boolean load(String barcode, String verbatimUnclassifiedText, String verbatimClusterIdentifier, String questions, boolean overwriteExisting) throws LoadException { 
 		boolean result = false;
 		
-		Specimen pattern = new Specimen();
-		pattern.setBarcode(barcode);
-		
-		List<Specimen> matches = sls.findByExample(pattern);
+		List<Specimen> matches = sls.findByBarcode(barcode);
 		if (matches!=null && matches.size()==1) { 
 			Specimen match = matches.get(0);
 			if (!WorkFlowStatus.allowsVerbatimUpdate(match.getWorkFlowStatus())) { 
@@ -138,7 +135,11 @@ public class FieldLoader {
 
 				if (match.getVerbatimUnclassifiedText()==null || match.getVerbatimUnclassifiedText().trim().length()==0 || overwriteExisting) {
 					match.setVerbatimUnclassifiedText(verbatimUnclassifiedText);
-				}  else { throw new LoadTargetPopulatedException(); }
+				}  else { 
+					throw new LoadTargetPopulatedException(); 
+				}
+				
+				match.setVerbatimClusterIdentifier(verbatimClusterIdentifier);
 				
 				// append any questions to current questions.
 				if (questions!=null && questions.trim().length() > 0 ) { 
@@ -153,7 +154,7 @@ public class FieldLoader {
 				try {
 					sls.attachDirty(match);
 					result = true;
-					logHistory(match,"VerbatimUnclassifiedText",new Date());
+					logHistory(match,"Load:"+WorkFlowStatus.STAGE_VERBATIM+":VerbatimUnclassifiedText",new Date());
 				} catch (SaveFailedException e) {
 					log.error(e.getMessage(), e);
 					throw new LoadTargetSaveException("Error saving updated target record: " + e.getMessage());
@@ -168,7 +169,7 @@ public class FieldLoader {
 	
 	/**
 	 * Give a barcode number and the set of verbatim fields, attempt to set the values for those verbatim fields for a record.
-	 * Does not overwrite any existing non-empty values.
+	 * Does not overwrite existing non-empty values, does not modify record if any verbatim field contains a value.
 	 * 
 	 * @param barcode field, must match on exactly one Specimen record.
 	 * @param verbatimLocality value for this field in Specimen.
@@ -180,21 +181,15 @@ public class FieldLoader {
 	 * @param questions value to append to this field in Specimen.
 	 * 
 	 * @return true if record with the provided barcode number was updated.
-	 * @throws LoadException on an error.
+	 * @throws LoadException on an error, including any existing value for any of the verbatim fields.
 	 */
 	public boolean load(String barcode, String verbatimLocality, String verbatimDate, String verbatimCollector, String verbatimCollection, String verbatimNumbers, String verbatimUnclassifiedText, String questions) throws LoadException { 
 		boolean result = false;
 		
-		Specimen pattern = new Specimen();
-		pattern.setBarcode(barcode);
-		
-		List<Specimen> matches = sls.findByExample(pattern);
+		List<Specimen> matches = sls.findByBarcode(barcode);
 		if (matches!=null && matches.size()==1) { 
 			Specimen match = matches.get(0);
-			if (!WorkFlowStatus.allowsVerbatimUpdate(match.getWorkFlowStatus())) { 
-				throw new LoadTargetMovedOnException();
-			} else { 	
-
+			if (match.getWorkFlowStatus().equals(WorkFlowStatus.STAGE_0) || match.getWorkFlowStatus().equals(WorkFlowStatus.STAGE_1) ) { 
 				if (match.getVerbatimLocality()==null || match.getVerbatimLocality().trim().length()==0) {
 					match.setVerbatimLocality(verbatimLocality);
 				}  else { throw new LoadTargetPopulatedException(); }
@@ -232,11 +227,13 @@ public class FieldLoader {
 				try {
 					sls.attachDirty(match);
 					
-					logHistory(match,"VerbatimFields",new Date());
+					logHistory(match,"VerbatimFields:" + WorkFlowStatus.STAGE_VERBATIM + ":",new Date());
 				} catch (SaveFailedException e) {
 					log.error(e.getMessage(), e);
 					throw new LoadTargetSaveException("Error saving updated target record: " + e.getMessage());
 				}
+			} else {
+				throw new LoadTargetMovedOnException();
 			}
 		} else { 
 			throw new LoadTargetRecordNotFoundException();
@@ -401,7 +398,12 @@ public class FieldLoader {
 									}
 									setMethod.invoke(match, datavalue);
 									foundData = true;
+								} else if (key.equals("externalworkflowprocess") || key.equals("externalworkflowdate") || key.equals("verbatimclusteridentifier")) {
+									// overwrite existing metadata
+									setMethod.invoke(match, datavalue);
+									foundData = true;
 								} else { 
+									// overwrite verbatim fields if update is allowed, otherwise no overwite of existing data.
 									if (currentValue==null || currentValue.trim().length()==0) { 
 										setMethod.invoke(match, datavalue);
 										foundData = true;
