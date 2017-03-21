@@ -247,6 +247,12 @@
                 <column name="SpecimenId" />
             </key>
             <one-to-many class="edu.harvard.mcz.imagecapture.data.LatLong" />
-        </set>        
+        </set>       
+       <set name="externalHistory" inverse="true" cascade="save-update" fetch="subselect" >
+            <key>
+                <column name="SpecimenId" not-null="true" />
+            </key>
+            <one-to-many class="edu.harvard.mcz.imagecapture.data.ExternalHistory" />
+        </set>
     </class>
 </hibernate-mapping>

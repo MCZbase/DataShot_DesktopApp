@@ -22,6 +22,7 @@ package edu.harvard.mcz.imagecapture.loader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +34,8 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.harvard.mcz.imagecapture.data.Collector;
 import edu.harvard.mcz.imagecapture.data.CollectorLifeCycle;
+import edu.harvard.mcz.imagecapture.data.ExternalHistory;
+import edu.harvard.mcz.imagecapture.data.ExternalHistoryLifeCycle;
 import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
 import edu.harvard.mcz.imagecapture.data.Number;
 import edu.harvard.mcz.imagecapture.data.NumberLifeCycle;
@@ -61,6 +64,9 @@ public class FieldLoader {
 		init();
 	}
 	
+	/**
+	 * Setup initial conditions, construct list of known fields into which data can be put.
+	 */
 	protected void init() {
 		sls = new SpecimenLifeCycle();
 
@@ -147,6 +153,7 @@ public class FieldLoader {
 				try {
 					sls.attachDirty(match);
 					result = true;
+					logHistory(match,"VerbatimUnclassifiedText",new Date());
 				} catch (SaveFailedException e) {
 					log.error(e.getMessage(), e);
 					throw new LoadTargetSaveException("Error saving updated target record: " + e.getMessage());
@@ -224,6 +231,8 @@ public class FieldLoader {
 
 				try {
 					sls.attachDirty(match);
+					
+					logHistory(match,"VerbatimFields",new Date());
 				} catch (SaveFailedException e) {
 					log.error(e.getMessage(), e);
 					throw new LoadTargetSaveException("Error saving updated target record: " + e.getMessage());
@@ -275,8 +284,12 @@ public class FieldLoader {
 			} else { 	
                 // Target Specimen record is eligible to be updated by a data load.
 				boolean foundData = false;
+				boolean hasExternalWorkflowProcess = false;
+				boolean hasExternalWorkflowDate = false;
 				
 				Iterator<String> i = data.keySet().iterator();
+				String separator = "";
+				StringBuilder keys = new StringBuilder();
 				while (i.hasNext()) { 
 					// Iterate through list of keys in input data
 					String key = i.next();
@@ -294,6 +307,8 @@ public class FieldLoader {
 							)
 				       ) 
 					{ 
+						keys.append(separator).append(key);
+						separator = ",";
 						String datavalue = data.get(key);
 						log.debug(key);
 						log.debug(datavalue);
@@ -377,6 +392,8 @@ public class FieldLoader {
 								// Obtain the current value in the Specimen record for the field matching the current key.
 								String currentValue = (String) getMethod.invoke(match, null);
 								// Assess whether changes to existing data are allowed for that field, make them only if they are allowed.
+								if (key.equals("externalworkflowprocess")) { hasExternalWorkflowProcess = true; }
+								if (key.equals("externalworkflowdate")) { hasExternalWorkflowDate = true; }
 								if (key.equals("questions")) {
 									// append
 									if (currentValue !=null && currentValue.trim().length()>0) { 
@@ -418,10 +435,24 @@ public class FieldLoader {
 
 				if (foundData) { 
 					try {
+						// save the updated specimen record
 						match.setWorkFlowStatus(newWorkflowStatus);
 						log.debug("Updating:" + match.getBarcode() );
 						sls.attachDirty(match);
 						result = true;
+						
+						// If we were provided 
+						String ewProcess = "ArbitraryFieldLoad:" + match.getWorkFlowStatus() + ":" + keys.toString();
+						if (hasExternalWorkflowProcess) { 
+							ewProcess = match.getExternalWorkflowProcess();
+						}
+						Date ewDate = new Date();
+						if (hasExternalWorkflowDate) { 
+							ewDate = match.getExternalWorkflowDate();
+						}
+						
+						logHistory(match,ewProcess,ewDate);
+						
 					} catch (SaveFailedException e) {
 						log.error(e.getMessage(), e);
 						throw new LoadTargetSaveException();
@@ -433,4 +464,19 @@ public class FieldLoader {
 		
 		return result;
 	}
+	
+	protected void logHistory(Specimen match, String externalWorkflowProcess, Date externalWorkflowDate) { 
+		try { 
+			// log the external data import
+			ExternalHistory history = new ExternalHistory();
+			history.setExternalWorkflowProcess(externalWorkflowProcess);
+			history.setExternalWorkflowDate(externalWorkflowDate);
+			history.setSpecimen(match);
+			ExternalHistoryLifeCycle els = new ExternalHistoryLifeCycle();
+			els.attachDirty(history);
+		} catch (SaveFailedException ex) { 
+			log.error(ex.getMessage(),ex);
+		}
+	}
+	
 }

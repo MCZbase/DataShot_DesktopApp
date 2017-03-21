@@ -13,4 +13,10 @@ create table allowed_version (
 
 insert into allowed_version (version) values ('1.3');
 
+create table external_history ( 
+   external_history_id bigint not null primary key auto_increment,
+   specimenId bigint not null,
+   externalWorkflowProcess varchar(900), 
+   externalWorkflowDate datetime
+);
 
