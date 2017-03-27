@@ -1157,9 +1157,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 							String previousFile = ""; 
 							String previousPath = "";
 							SpecimenLifeCycle sls = new SpecimenLifeCycle();
-							Specimen imagePattern = new Specimen();
-							imagePattern.setBarcode(previous);
-							List<Specimen> result = sls.findByExample(imagePattern);
+							List<Specimen> result = sls.findByBarcode(previous);
 							if (result!=null && (!result.isEmpty())) {
 								Set<ICImage> images = result.get(0).getICImages();
 

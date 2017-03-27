@@ -101,7 +101,14 @@ public class SpecimenLifeCycle {
 				}
 			}
 			try { session.close(); } catch (SessionException e) { }
+		} catch (SpecimenExistsException see) {
+			// Pass on upwards unchanged
+			throw see;
+		} catch (SaveFailedException sfe) {
+			// Pass on upwards unchanged
+			throw sfe;
 		} catch (RuntimeException re) {
+			// Catch, log, and pass on any other exception.
 			log.error("persist failed", re);
 			throw re;
 		}
@@ -424,6 +431,14 @@ for (int i=0; i<results.size(); i++) {
 	}	
 	
 	@SuppressWarnings("unchecked")
+	/**
+	 * Find Specimen records based on an example specimen, don't use if you are only searching by barcode.  
+	 * 
+	 * @param instance Specimen instance to use as a pattern for the search
+	 * @return list of Specimens matching instance
+	 * 
+	 * @see #SpecimenLifeCycle.findByBarcode
+	 */
 	public List<Specimen> findByExample(Specimen instance) {
 		log.debug("finding Specimen instance by example");
 		try {
