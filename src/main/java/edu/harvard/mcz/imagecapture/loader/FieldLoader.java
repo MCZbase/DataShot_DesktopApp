@@ -22,15 +22,21 @@ package edu.harvard.mcz.imagecapture.loader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.filteredpush.qc.date.DateUtils;
+import org.filteredpush.qc.date.EventResult;
 
 import edu.harvard.mcz.imagecapture.data.Collector;
+import edu.harvard.mcz.imagecapture.data.CollectorLifeCycle;
+import edu.harvard.mcz.imagecapture.data.Number;
 import edu.harvard.mcz.imagecapture.data.MetadataRetriever;
+import edu.harvard.mcz.imagecapture.data.NumberLifeCycle;
 import edu.harvard.mcz.imagecapture.data.Specimen;
 import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
 import edu.harvard.mcz.imagecapture.data.WorkFlowStatus;
@@ -48,14 +54,14 @@ import edu.harvard.mcz.imagecapture.loader.ex.LoadTargetSaveException;
 public class FieldLoader {
 	private static final Log log = LogFactory.getLog(FieldLoader.class);
 	
-	protected SpecimenLifeCycle sls = null;
+	// protected SpecimenLifeCycle sls = null;
 	
 	public FieldLoader() { 
 		init();
 	}
 	
 	protected void init() {
-		sls = new SpecimenLifeCycle();
+		// sls = new SpecimenLifeCycle();
 	}
 	
 	/**
@@ -75,6 +81,8 @@ public class FieldLoader {
 		
 		Specimen pattern = new Specimen();
 		pattern.setBarcode(barcode);
+		
+		SpecimenLifeCycle sls = new SpecimenLifeCycle();
 		
 		List<Specimen> matches = sls.findByExample(pattern);
 		if (matches!=null && matches.size()==1) { 
@@ -133,6 +141,8 @@ public class FieldLoader {
 		
 		Specimen pattern = new Specimen();
 		pattern.setBarcode(barcode);
+		
+		SpecimenLifeCycle sls = new SpecimenLifeCycle();
 		
 		List<Specimen> matches = sls.findByExample(pattern);
 		if (matches!=null && matches.size()==1) { 
@@ -196,6 +206,8 @@ public class FieldLoader {
 	 * @param data map of field names and data values
 	 * @param questions value to append to this field in Specimen.
 	 * @param newWorkflowStatus to set Specimen.workflowStatus to.
+	 * @param allowUpdateExistingVerbatim if true can load can overwrite the value in an existing verbatim field.
+	 * 
 	 * @return true if one or more fields were updated.
 	 * 
 	 * @throws LoadException on an error (particularly from inability to map keys in data to fields in Specimen.
@@ -204,31 +216,36 @@ public class FieldLoader {
 		boolean result = false;
 		
 		ArrayList<String> knownFields = new ArrayList<String>();
+		HashMap<String,String> knownFieldsLowerUpper = new HashMap<String,String>();
 		Method[] specimenMethods = Specimen.class.getDeclaredMethods();
 		for (int j=0; j<specimenMethods.length; j++) { 
 			if (specimenMethods[j].getName().startsWith("set") &&
 					specimenMethods[j].getParameterTypes().length==1 &&  
 				    specimenMethods[j].getParameterTypes()[0].getName().equals(String.class.getName()) 
 			) { 
+				String actualCase = specimenMethods[j].getName().replaceAll("^set", ""); 
 			    knownFields.add(specimenMethods[j].getName().replaceAll("^set", ""));
+			    knownFieldsLowerUpper.put(actualCase.toLowerCase(), actualCase);
+			    log.debug(actualCase);
 			}
 		}
 		// List of input fields that will need to be parsed into relational tables
 		ArrayList<String> toParseFields = new ArrayList<String>();
 		toParseFields.add("collectors");
 		toParseFields.add("numbers");
-		// TODO: Add support for parsing collectors and numbers from input data
-//		knownFields.addAll(toParseFields);
-		
 		
 		Specimen pattern = new Specimen();
 		pattern.setBarcode(barcode);
 		
+		SpecimenLifeCycle sls = new SpecimenLifeCycle();
+		
+		// Retrieve existing record for update (thus not blanking existing fields, and allowing for not updating fields with values, or appending comments). 
 		List<Specimen> matches = sls.findByExample(pattern);
 		if (matches!=null && matches.size()==1) { 
 			Specimen match = matches.get(0);		
-		
-			if (!WorkFlowStatus.allowsVerbatimUpdate(match.getWorkFlowStatus())) { 
+		 
+			// Check if the existing record is still in an updatable state for this remote update workflow.
+			if (!WorkFlowStatus.allowsClassifiedUpdate(match.getWorkFlowStatus())) { 
 				throw new LoadTargetMovedOnException();
 			} else { 	
 
@@ -236,19 +253,22 @@ public class FieldLoader {
 				
 				Iterator<String> i = data.keySet().iterator();
 				while (i.hasNext()) { 
-					String key = i.next().toLowerCase();
-					if (knownFields.contains(key) && !key.equals("barcode") && MetadataRetriever.isFieldExternallyUpdatable(Specimen.class, key)) { 
-						String datavalue = data.get(key);
-
+					String keyOrig = i.next();
+					String key = keyOrig.toLowerCase();
+					String actualCase = knownFieldsLowerUpper.get(key);
+					if (toParseFields.contains(key) || 
+						(
+						actualCase!=null && knownFields.contains(actualCase) && !key.equals("barcode") && MetadataRetriever.isFieldExternallyUpdatable(Specimen.class, key)
+						)
+					) { 
+						String datavalue = data.get(keyOrig);
 						Method setMethod;
 						try {
-							setMethod = Specimen.class.getMethod("set" + key, String.class);
-
-							Method getMethod = Specimen.class.getMethod("get" + key, null);
-
-							String currentValue = (String) getMethod.invoke(match, null);
 
 							if (key.equals("questions")) {
+							    setMethod = Specimen.class.getMethod("set" + actualCase, String.class);
+							    Method getMethod = Specimen.class.getMethod("get" + actualCase, null);
+							    String currentValue = (String) getMethod.invoke(match, null);
 								// append
 								if (currentValue !=null && currentValue.trim().length()>0) { 
 									datavalue = currentValue + " | " + datavalue;
@@ -260,33 +280,73 @@ public class FieldLoader {
 								for (int j=0; j<collectors.length; j++) { 
 									String collector = collectors[j];
 									if (collector.trim().length()>0) { 
+										CollectorLifeCycle cls = new CollectorLifeCycle();
+										
 										Collector col = new Collector();
 										col.setSpecimen(match);
 										col.setCollectorName(collector);
-										// TODO: persist 
+										// only try to add the collector if an identical one doesn't exist (prevents exception from constraint).
+										List<Collector> existing = cls.findByExample(col);
+										if (existing==null || existing.size()==0) {
+										    cls.persist(col);
+									    }
 									}
 								}
 							} else if (key.equals("numbers")) { 
 								String[] numbers = datavalue.split("\\|", 0);
 								for (int j=0; j<numbers.length; j++) { 
 									String numberKV = numbers[j];
-									if (numberKV.trim().length()>0) { 
-										// TODO: Split into number type and number, then add a number to specimen.
+									if (numberKV.trim().length()>0) {
+										String number;
+										String numberType;
+										if (numberKV.contains(":")) { 
+											String[] numberBits = numberKV.split(":",2);
+											number = numberBits[0];
+											numberType = numberBits[1];
+										} else { 
+											number=numberKV;
+											numberType = "Unknown";
+										}
+										NumberLifeCycle nls = new NumberLifeCycle();
+										Number num = new Number();
+										num.setSpecimen(match);
+										num.setNumber(number);
+										num.setNumberType(numberType);
+										// only add the number if an identical one doesn't exist.
+										List<Number> existing = nls.findByExample(num);
+										if (existing==null || existing.size()==0) {
+									   	    nls.persist(num);
+										}
 									}
 								}
 								
 							} else { 
+							    setMethod = Specimen.class.getMethod("set" + actualCase, String.class);
+							    Method getMethod = Specimen.class.getMethod("get" + actualCase, null);
+							    String currentValue = (String) getMethod.invoke(match, null);
 							    if (currentValue==null || currentValue.trim().length()==0) { 
-								   setMethod.invoke(match, datavalue);
-								   foundData = true;
+							    	// TODO: Handle ISO date formatting variants
+							    	if (key.equalsIgnoreCase("ISODate")) { 
+							    		EventResult parseResult = DateUtils.extractDateFromVerbatimER(datavalue);
+							    		if (parseResult.getResultState().equals(EventResult.EventQCResultState.DATE) || parseResult.getResultState().equals(EventResult.EventQCResultState.RANGE)) { 
+							    			datavalue = parseResult.getResult();
+							    		}
+							    	}
+							    	log.debug("Set: " + actualCase + " = " + datavalue );
+								    setMethod.invoke(match, datavalue);
+								    foundData = true;
 							    } else if (MetadataRetriever.isFieldVerbatim(Specimen.class,key) && allowUpdateExistingVerbatim) { 
-								   setMethod.invoke(match, datavalue);
-								   foundData = true;
+								    setMethod.invoke(match, datavalue);
+								    foundData = true;
+							    } else { 
+							    	log.error("Skipped set" + actualCase + " = " + datavalue );
 							    }
 							}
 
 						} catch (NoSuchMethodException e) {
-							throw new LoadException(e.getMessage());
+							throw new LoadException(e.getMessage(),e);
+						} catch (SaveFailedException e) {
+							throw new LoadException(e.getMessage(),e);
 						} catch (SecurityException e) {
 							throw new LoadException(e.getMessage());
 						} catch (IllegalAccessException e) {
@@ -294,9 +354,14 @@ public class FieldLoader {
 						} catch (IllegalArgumentException e) {
 							throw new LoadException(e.getMessage());
 						} catch (InvocationTargetException e) {
-							throw new LoadException(e.getMessage());
+							throw new LoadException(e.getMessage(),e);
 						}
-					} else { 
+					} else {
+					    log.error("Key: " + key);
+					    log.error("Key (actual case of method): " + actualCase);
+						log.error("knownFields.contains(actualCase): " + knownFields.contains(actualCase));
+						log.error("toParseFields.contains(key): " + toParseFields.contains(key));
+						log.error("isFieldExternallyUpdatable:" +  MetadataRetriever.isFieldExternallyUpdatable(Specimen.class, key));
 						throw new LoadException("Column " + key + " is not a field of Specimen.");
 					}
 				}
@@ -318,4 +383,84 @@ public class FieldLoader {
 		
 		return result;
 	}
+	
+	/**
+	 * Test the headers of a file for conformance with the expectations of loadFromMap
+	 * 
+	 * @param headers the headers to check against allowed fields in List<String> form.
+	 * @return a HeaderCheckResult object containing a result (true) and a message, the
+	 *    result is true if there are no unmatched fields in the load, currently exceptions
+	 *    are thrown instead of any false cases for result.
+	 *
+	 * @throws LoadException if no barcode field is found, if no data fields are found, or if
+	 *    one or more unknown (not mapped to DataShot specimen) fields are found. 
+	 *    
+	 * @see HeaderCheckResult.loadFromMap  
+	 */
+	public HeaderCheckResult checkHeaderList(List<String> headers) throws LoadException {
+		HeaderCheckResult result = new HeaderCheckResult();
+		
+		ArrayList<String> knownFields = new ArrayList<String>();
+		HashMap<String,String> knownFieldsLowerUpper = new HashMap<String,String>();
+		Method[] specimenMethods = Specimen.class.getDeclaredMethods();
+		for (int j=0; j<specimenMethods.length; j++) { 
+			if (specimenMethods[j].getName().startsWith("set") &&
+					specimenMethods[j].getParameterTypes().length==1 &&  
+				    specimenMethods[j].getParameterTypes()[0].getName().equals(String.class.getName()) 
+			) { 
+				String actualCase = specimenMethods[j].getName().replaceAll("^set", ""); 
+			    knownFields.add(specimenMethods[j].getName().replaceAll("^set", ""));
+			    knownFieldsLowerUpper.put(actualCase.toLowerCase(), actualCase);
+			    log.debug(actualCase);
+			}
+		}
+		// List of input fields that will need to be parsed into relational tables
+		ArrayList<String> toParseFields = new ArrayList<String>();
+		toParseFields.add("collectors");
+		toParseFields.add("numbers");
+		
+		Iterator<String> i = headers.iterator();
+		boolean containsBarcode = false;
+		boolean containsAField = false;
+		boolean containsUnknownField = false;
+		while (i.hasNext()) { 
+			String keyOrig = i.next();
+			String key = keyOrig.toLowerCase();
+			if (key.equals("barcode")) {
+				containsBarcode = true;
+				result.addToMessage(keyOrig); 
+			} else { 
+				if (key.startsWith("_")) { 
+					result.addToMessage("[" + keyOrig+ "=Skipped]");
+				} else { 
+					String actualCase = knownFieldsLowerUpper.get(key);
+					if (toParseFields.contains(key) || 
+							(
+									actualCase!=null && knownFields.contains(actualCase) && MetadataRetriever.isFieldExternallyUpdatable(Specimen.class, key)
+									)
+							) { 		
+						result.addToMessage(keyOrig); 
+						containsAField=true;
+					} else { 
+						result.addToMessage("[" + keyOrig + "=Unknown]");
+						containsUnknownField = true;
+					}
+				}
+			}
+		}
+		
+		if (!containsBarcode) { 
+			throw new LoadException("Header does not contain a barcode field.  \nFields:" + result.getMessage());
+		}
+		if (!containsAField) { 
+			throw new LoadException("Header contains no recognized data fields. \nFields: " + result.getMessage());
+		}
+		if (containsUnknownField) { 
+			throw new LoadException("Header contains at least one unknown field. \nFields: " + result.getMessage());
+		}
+		result.setResult(true);
+		
+		return result;
+	}
+	
 }

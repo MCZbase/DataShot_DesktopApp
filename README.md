@@ -366,6 +366,8 @@ these three columns must be present (no more, no fewer), but column order does n
 
     "barcode","verbatimUnclassifiedText","questions"
 
+### Load Policy ###
+
 Allowed to change a record when: Record is in state Taxon Entered or Verbatim Entered.
 
 Barcode policy: Barcode must exist and must be unique.
@@ -391,6 +393,8 @@ these columns must be present (no more, no fewer), but column order does not mat
 
     "barcode","verbatimLocality","verbatimDate","verbatimCollector","verbatimCollection","verbatimNumbers","verbatimUnclassifiedText","questions"
 
+### Load Policy ###
+
 Allowed to change a record when: Record is in state Taxon Entered or Verbatim Entered.
 
 Barcode policy: Barcode must exist and must be unique.
@@ -410,27 +414,31 @@ label data for that specimen, values for any of the fields listed below can be
 loaded back into the database in a csv file that contains a column "barcode", 
 and optionally a column "questions".  To do this, construct a csv file
 containing the data to be ingested barcode and any the columns below, and select 
-Action/Load Data from the main menu.  Column names are case sensitive. Exactly 
-these columns must be present (no more, no fewer), but column order does not matter. 
+Action/Load Data from the main menu.  Column names are case sensitive. 
+The barcode column must be present along with any of the columns from the list
+below.  Column order does not matter.  Additional columns that are to be skipped 
+may be included if the column name is prefixed with an underscore character "_". 
 
-    "barcode","Higher_Geography","SpecificLocality","questions"
+For Example: 
+
+    "barcode","Higher_Geography","SpecificLocality","questions","_myExternalId"
 
 * TypeStatus
 * TypeNumber
 * CitedInPublication
 * Features
-* Higher_Geography
+* HigherGeography
 * SpecificLocality
 * VerbatimLocality
 * VerbatimCollector
 * VerbatimCollection
 * VerbatimNumbers
 * VerbatimUnclassifiedText
-* Minimum_Elevation
-* Maximum_Elevation
+* MinimumElevationSt  (for Minimum_Elevation)
+* MaximumElevationSt  (for Maximum_Elevation)
 * Elev_Units
 * CollectingMethod
-* ISODate 
+* ISODate (in the form 1998-03-05  or the form 1998-03-01/1998-04-03)
 * DateNOS (use instead of vebatimDate when loading an arbitrary set of columns).
 * DateEmerged
 * DateEmergedIndicator
@@ -449,11 +457,44 @@ these columns must be present (no more, no fewer), but column order does not mat
 * LocationInCollection
 * ValidDistributionFlag
 
-Allowed to change a record when: Record is in state Taxon Entered, Verbatim Entered, (Verbatim Classified??).
+In addition, two additional fields that contain structured lists can be added (all lower case field names): 
+
+* collectors
+* numbers
+
+Collectors must contain a pipe delimited list of collector names (e.g. "A.R. Smith|B.C. Jones"
+
+Numbers must contain a pipe delimited list of colon separated other_number values in the form of "number:number type" pairs (e.g. "1:Collection Number|5:Unknown".  
+Order is important.  The element before a colon will be treated as the number, and the element after the colon will be treated as the number type.  
+For example, "351:Species Number|2562:Collection Number" will create two other number records in the expected form, but
+"351:Species Number|Collection Number:2562" will produce one other number record in the expected form (number=351,numberType=Species Number), but 
+will produce an incorrect other number record in the form (number=Collection Number,numberType=2562).  The ingest code does not check whether or not
+you have these in the correct order and will produce bad data if you do not.   If a pipe delimited numbers element does not contain a colon, then it 
+will be treated as an other number of type unknown (e.g. "3:Species Number|15" will produce two other number records number=3,numberType=Species Number and number=15,numberType=Unknown).
+
+Expected values for number type are (case sensitive, arbitrary values are allowed, but these are preferred): 
+* Unknown
+* Species Number
+* Collector Number
+* Collection Number
+* Genitalia Preparation
+* DNA Sample Number
+* Drawer Number
+* Lycaenidae Morphology Ref.
+* MCZ Slide Number
+* MCZ Butterfly Exhibit, 2000
+
+To load a csv file that contains additional columns that aren't to be loaded, prefix the columns to be 
+skipped with an underscore for it to be skipped (e.g. _someExternalId will be skipped).
+
+### Load Policy ###
+
+Allowed to change a record when: Record is in state Taxon Entered, Verbatim Entered, pr Verbatim Classified.
 
 Barcode policy: Barcode must exist and must be unique.
 
-Overwrite policy: Will overwrite any existing value in the Verbatim fields, but will not overwrite any existing value in any non-Verbatim field.
+Overwrite policy: Will overwrite any existing value in the Verbatim fields, but will not overwrite any existing value in any 
+non-Verbatim field.  
 
 Questions policy: Any value provided in questions will be appended to the existing value for questions.
 

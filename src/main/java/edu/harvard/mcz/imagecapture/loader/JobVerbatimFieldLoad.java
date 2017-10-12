@@ -114,6 +114,28 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 				selectedFilename = file.getName();
 
 				String[] headers = new String[]{};
+				
+			    int rows = 0;
+			    try {
+			    	Reader reader = new FileReader(file);
+					CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(headers);
+
+					CSVParser csvParser = new CSVParser(reader, csvFormat);
+					Iterator<CSVRecord> iterator = csvParser.iterator();
+					while (iterator.hasNext()) {
+						iterator.next();
+						rows++;
+					}
+                    csvParser.close();
+                    reader.close();
+			    } catch (FileNotFoundException e) {
+			    	JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "Unable to load data, file not found: " + e.getMessage() , "Error: File Not Found", JOptionPane.OK_OPTION);	
+			    	errors.append("File not found ").append(e.getMessage()).append("\n");	
+			    	log.error(e.getMessage(), e);
+			    } catch (IOException e) {
+			    	errors.append("Error Loading data: ").append(e.getMessage()).append("\n");	
+			    	log.error(e.getMessage(), e);
+			    }
 
 				try {
 					Reader reader = new FileReader(file);
@@ -148,34 +170,41 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 								&& headerList.contains("questions") && headerList.contains("barcode")) { 
 							// Allowed case 1: unclassified text only
 
-							String barcode = "";
-							int lineNumber = 0;
-							while (iterator.hasNext()) {
-								lineNumber++;
-								counter.incrementSpecimens();
-								CSVRecord record = iterator.next();
-								try { 
-									String verbatimUnclassifiedText = record.get("verbatimUnclassifiedText");
-									barcode = record.get("barcode");
-									String questions = record.get("questions");
+							int confirm = JOptionPane.showConfirmDialog(Singleton.getSingletonInstance().getMainFrame(),
+									"Confirm load from file " + selectedFilename +  " (" + rows + " rows) with just barcode and verbatimUnclassifiedText", "Verbatim unclassified Field found for load", JOptionPane.OK_CANCEL_OPTION);	
+							if (confirm == JOptionPane.OK_OPTION) { 
+								String barcode = "";
+								int lineNumber = 0;
+								while (iterator.hasNext()) {
+									lineNumber++;
+									counter.incrementSpecimens();
+									CSVRecord record = iterator.next();
+									try { 
+										String verbatimUnclassifiedText = record.get("verbatimUnclassifiedText");
+										barcode = record.get("barcode");
+										String questions = record.get("questions");
 
-									fl.load(barcode, verbatimUnclassifiedText, questions, true);
-									counter.incrementSpecimensUpdated();
-								} catch (IllegalArgumentException e) {
-									RunnableJobError error =  new RunnableJobError(file.getName(), 
-											barcode, Integer.toString(lineNumber), 
-											e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
-									counter.appendError(error);
-									log.error(e.getMessage(), e);
-								} catch (LoadException e) {
-									RunnableJobError error =  new RunnableJobError(file.getName(), 
-											barcode, Integer.toString(lineNumber), 
-											e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
-									counter.appendError(error);
-									log.error(e.getMessage(), e);
+										fl.load(barcode, verbatimUnclassifiedText, questions, true);
+										counter.incrementSpecimensUpdated();
+									} catch (IllegalArgumentException e) {
+										RunnableJobError error =  new RunnableJobError(file.getName(), 
+												barcode, Integer.toString(lineNumber), 
+												e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
+										counter.appendError(error);
+										log.error(e.getMessage(), e);
+									} catch (LoadException e) {
+										RunnableJobError error =  new RunnableJobError(file.getName(), 
+												barcode, Integer.toString(lineNumber), 
+												e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
+										counter.appendError(error);
+										log.error(e.getMessage(), e);
+									}
+									percentComplete = (int) ((lineNumber*100f)/rows);
+									this.setPercentComplete(percentComplete);
 								}
+							} else { 
+								errors.append("Load canceled by user.").append("\n");	
 							}
-							
 						} else if (headerList.size()==8 
 								 && headerList.contains("verbatimUnclassifiedText") && headerList.contains("questions") && headerList.contains("barcode")
 							     && headerList.contains("verbatimLocality") && headerList.contains("verbatimDate") && headerList.contains("verbatimNumbers")
@@ -183,73 +212,130 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 								) {
 							// allowed case two, transcription into verbatim fields, must be exact list of all verbatim fields.
 
-							String barcode = "";
-							int lineNumber = 0;
-							while (iterator.hasNext()) {
-								lineNumber++;
-								counter.incrementSpecimens();
-								CSVRecord record = iterator.next();
-								try { 
-									String verbatimLocality = record.get("verbatimLocality");
-									String verbatimDate = record.get("verbatimDate");
-									String verbatimCollector = record.get("verbatimCollector");
-									String verbatimCollection = record.get("verbatimCollection");
-									String verbatimNumbers = record.get("verbatimNumbers");
-									String verbatimUnclasifiedText = record.get("verbatimUnclassifiedText");
-									barcode = record.get("barcode");
-									String questions = record.get("questions");
-									
-									fl.load(barcode, verbatimLocality, verbatimDate, verbatimCollector, verbatimCollection, verbatimNumbers, verbatimUnclasifiedText, questions);
-									counter.incrementSpecimensUpdated();
-								} catch (IllegalArgumentException e) {
-									RunnableJobError error =  new RunnableJobError(file.getName(), 
-											barcode, Integer.toString(lineNumber), 
-											e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
-									counter.appendError(error);
-									log.error(e.getMessage(), e);
-								} catch (LoadException e) {
-									RunnableJobError error =  new RunnableJobError(file.getName(), 
-											barcode, Integer.toString(lineNumber), 
-											e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
-									counter.appendError(error);
-									log.error(e.getMessage(), e);
-								}
-							}
+							int confirm = JOptionPane.showConfirmDialog(Singleton.getSingletonInstance().getMainFrame(),
+									"Confirm load from file " + selectedFilename +  " (" + rows + " rows) with just barcode and verbatim fields.", "Verbatim Fields found for load", JOptionPane.OK_CANCEL_OPTION);	
+							if (confirm == JOptionPane.OK_OPTION) { 
 
-						} else { 
-							// allowed case three, transcription into arbitrary sets verbatim or other fields
-							// TODO: Support arbitrary column load, without overwriting for absent columns.
-							while (iterator.hasNext()) {
-								Map<String,String> data = new HashMap<String,String>();
-								CSVRecord record = iterator.next();
-							    String barcode = record.get("barcode");
-							    Iterator<String> hi = headerList.iterator();
-							    boolean containsNonVerbatim = false;
-							    while (hi.hasNext()) {
-							    	String header = hi.next();
-							    	if (!header.equals("barcode")) { 
-							            data.put(header, record.get(header));
-							            if (!header.equals("questions") && MetadataRetriever.isFieldExternallyUpdatable(Specimen.class, header) && MetadataRetriever.isFieldVerbatim(Specimen.class, header) ) { 
-							            	containsNonVerbatim = true;
-							            }
-							    	}
-							    }
-							    if (data.size()>0) { 
-							    	try {
-							    		if (containsNonVerbatim) { 
-										    fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_CLASSIFIED, true);
-							    		} else { 
-										    fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_VERBATIM, true);
-							    		}
+								String barcode = "";
+								int lineNumber = 0;
+								while (iterator.hasNext()) {
+									lineNumber++;
+									counter.incrementSpecimens();
+									CSVRecord record = iterator.next();
+									try { 
+										String verbatimLocality = record.get("verbatimLocality");
+										String verbatimDate = record.get("verbatimDate");
+										String verbatimCollector = record.get("verbatimCollector");
+										String verbatimCollection = record.get("verbatimCollection");
+										String verbatimNumbers = record.get("verbatimNumbers");
+										String verbatimUnclasifiedText = record.get("verbatimUnclassifiedText");
+										barcode = record.get("barcode");
+										String questions = record.get("questions");
+
+										fl.load(barcode, verbatimLocality, verbatimDate, verbatimCollector, verbatimCollection, verbatimNumbers, verbatimUnclasifiedText, questions);
+										counter.incrementSpecimensUpdated();
+									} catch (IllegalArgumentException e) {
+										RunnableJobError error =  new RunnableJobError(file.getName(), 
+												barcode, Integer.toString(lineNumber), 
+												e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
+										counter.appendError(error);
+										log.error(e.getMessage(), e);
 									} catch (LoadException e) {
-										errors.append("Error loading row ").append(e.getMessage()).append("\n");	
+										RunnableJobError error =  new RunnableJobError(file.getName(), 
+												barcode, Integer.toString(lineNumber), 
+												e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
+										counter.appendError(error);
 										log.error(e.getMessage(), e);
 									}
-							    }
+									percentComplete = (int) ((lineNumber*100f)/rows);
+									this.setPercentComplete(percentComplete);
+								}
+							} else { 
+								errors.append("Load canceled by user.").append("\n");	
+							}
+							
+						} else { 
+							// allowed case three, transcription into arbitrary sets verbatim or other fields
+							
+							// Check column headers before starting run.
+							boolean headersOK = false;
+							
+							try {
+								HeaderCheckResult headerCheck = fl.checkHeaderList(headerList);
+								if (headerCheck.isResult()) { 
+									int confirm = JOptionPane.showConfirmDialog(Singleton.getSingletonInstance().getMainFrame(),
+											"Confirm load from file " + selectedFilename +  " (" + rows + " rows) with headers: \n" + headerCheck.getMessage().replaceAll(":", ":\n") , "Fields found for load", JOptionPane.OK_CANCEL_OPTION);	
+									if (confirm == JOptionPane.OK_OPTION) { 
+										headersOK = true;
+									} else { 
+										errors.append("Load canceled by user.").append("\n");	
+									}
+								} else { 
+									int confirm = JOptionPane.showConfirmDialog(Singleton.getSingletonInstance().getMainFrame(),
+											"Problem found with headers in file, try to load anyway?\nHeaders: \n" + headerCheck.getMessage().replaceAll(":", ":\n") , "Problem in fields for load", JOptionPane.OK_CANCEL_OPTION);	
+									if (confirm == JOptionPane.OK_OPTION) { 
+										headersOK = true;
+									} else { 
+										errors.append("Load canceled by user.").append("\n");	
+									}
+								}
+							} catch (LoadException e) { 
+								errors.append("Error loading data: \n").append(e.getMessage()).append("\n");
+								JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), e.getMessage().replaceAll(":", ":\n"), "Error Loading Data: Problem Fields", JOptionPane.ERROR_MESSAGE);
+								
+								log.error(e.getMessage(), e);
+							} 
+							
+							if (headersOK) { 
+								int lineNumber = 0;
+								while (iterator.hasNext()) {
+									lineNumber++;
+									Map<String,String> data = new HashMap<String,String>();
+									CSVRecord record = iterator.next();
+									String barcode = record.get("barcode");
+									Iterator<String> hi = headerList.iterator();
+									boolean containsNonVerbatim = false;
+									while (hi.hasNext()) {
+										String header = hi.next();
+										// Skip any fields prefixed by the underscore character _
+										if (!header.equals("barcode") && !header.startsWith("_")) { 
+											data.put(header, record.get(header));
+											if (!header.equals("questions") && MetadataRetriever.isFieldExternallyUpdatable(Specimen.class, header) && MetadataRetriever.isFieldVerbatim(Specimen.class, header) ) { 
+												containsNonVerbatim = true;
+											}
+										}
+									}
+									if (data.size()>0) { 
+										try {
+											if (containsNonVerbatim) { 
+												fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_CLASSIFIED, true);
+											} else { 
+												fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_VERBATIM, true);
+											}
+											counter.incrementSpecimensUpdated();
+										} catch (LoadException e) {
+											StringBuilder message = new StringBuilder();
+											message.append("Error loading row (").append(lineNumber).append(")[").append(barcode).append("]").append(e.getMessage());
+											
+											RunnableJobError err = new RunnableJobError(selectedFilename, barcode, Integer.toString(lineNumber), e.getMessage(), e,  RunnableJobError.TYPE_LOAD_FAILED);
+											
+											counter.appendError(err);
+											// errors.append(message.append("\n").toString());
+											log.error(e.getMessage(), e);
+										}
+									}
+									percentComplete = (int) ((lineNumber*100f)/rows);
+									this.setPercentComplete(percentComplete);
+								} 
+							} else { 
+								String message = "Can't load data, problem with headers.";	
+								errors.append(message).append("\n");	
+								log.error(message);
 							}
 						}
 					} 
-
+                    csvParser.close();
+                    reader.close();
 				} catch (FileNotFoundException e) {
 					JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "Unable to load data, file not found: " + e.getMessage() , "Error: File Not Found", JOptionPane.OK_OPTION);	
 					errors.append("File not found ").append(e.getMessage()).append("\n");	

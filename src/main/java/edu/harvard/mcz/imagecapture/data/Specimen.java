@@ -575,6 +575,27 @@ public class Specimen implements java.io.Serializable {
 	public void setVerbatimUnclassifiedText(String verbatimUnclassifiedText) {
 		this.verbatimUnclassifiedText = verbatimUnclassifiedText;
 	}
+	
+	/**
+	 * @return the minimum_elevation
+	 */
+	public String getMinimumElevationSt() {
+		if (minimum_elevation==null) { 
+			return null;
+		}
+		return minimum_elevation.toString();
+	}
+
+	/**
+	 * @param minimum_elevation the minimum_elevation to set
+	 */
+	public void setMinimumElevationSt(String minimum_elevation) {
+		if (minimum_elevation==null || minimum_elevation.trim().length()==0) { 
+			this.minimum_elevation = null;
+		} else { 
+		    this.minimum_elevation = Long.parseLong(minimum_elevation);
+		}
+	}	
 
 	/**
 	 * @return the minimum_elevation
@@ -590,6 +611,27 @@ public class Specimen implements java.io.Serializable {
 		this.minimum_elevation = minimum_elevation;
 	}
 
+	/**
+	 * @return the maximum_elevation
+	 */
+	public String getMaximumElevationSt() {
+		if (maximum_elevation==null) { 
+			return null;
+		}
+		return maximum_elevation.toString();
+	}
+
+	/**
+	 * @param maximum_elevation the maximum_elevation to set
+	 */
+	public void setMaximumElevationSt(String maximum_elevation) {
+		if (maximum_elevation==null || maximum_elevation.trim().length()==0) { 
+			this.maximum_elevation = null;
+		} else { 
+		    this.maximum_elevation = Long.parseLong(maximum_elevation);
+		}
+	}	
+	
 	/**
 	 * @return the maximum_elevation
 	 */

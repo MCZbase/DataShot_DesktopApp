@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.harvard.mcz</groupId>
 	<artifactId>DataShot</artifactId>
-	<version>1.2.5</version>
+	<version>1.2.6-SNAPSHOT</version>
 	<!-- Remeber to edit src/main/java/edu/harvard/mcz/imagecapture/ImageCaptureApp.java -->
 	<name>datashot</name>
 	<description>MCZ DataShot Collection Imaging Application</description>
@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>org.filteredpush</groupId>
 			<artifactId>event_date_qc</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>antlr</groupId>

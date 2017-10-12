@@ -366,7 +366,7 @@ public class MetadataRetriever {
             if (fieldname.equalsIgnoreCase("TypeNumber")) { result=true; }
             if (fieldname.equalsIgnoreCase("CitedInPublication")) { result=true; }
             if (fieldname.equalsIgnoreCase("Features")) { result=true; }
-			if (fieldname.equalsIgnoreCase("Higher_Geography")) { result = true; }
+			if (fieldname.equalsIgnoreCase("HigherGeography")) { result = true; }
             if (fieldname.equalsIgnoreCase("SpecificLocality")) { result=true; }
             if (fieldname.equalsIgnoreCase("VerbatimLocality")) { result=true; }
             if (fieldname.equalsIgnoreCase("VerbatimCollector")) { result=true; }
@@ -375,6 +375,8 @@ public class MetadataRetriever {
             if (fieldname.equalsIgnoreCase("VerbatimUnclassifiedText")) { result=true; }
             if (fieldname.equalsIgnoreCase("Minimum_Elevation")) { result=true; }
             if (fieldname.equalsIgnoreCase("Maximum_Elevation")) { result=true; }
+            if (fieldname.equalsIgnoreCase("MinimumElevationSt")) { result=true; }
+            if (fieldname.equalsIgnoreCase("MaximumElevationSt")) { result=true; }
             if (fieldname.equalsIgnoreCase("Elev_Units")) { result=true; }
             if (fieldname.equalsIgnoreCase("CollectingMethod")) { result=true; }
             if (fieldname.equalsIgnoreCase("ISODate")) { result=true; }
