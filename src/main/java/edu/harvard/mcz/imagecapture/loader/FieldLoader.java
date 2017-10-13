@@ -54,14 +54,14 @@ import edu.harvard.mcz.imagecapture.loader.ex.LoadTargetSaveException;
 public class FieldLoader {
 	private static final Log log = LogFactory.getLog(FieldLoader.class);
 	
-	// protected SpecimenLifeCycle sls = null;
+	protected SpecimenLifeCycle sls = null;
 	
 	public FieldLoader() { 
 		init();
 	}
 	
 	protected void init() {
-		// sls = new SpecimenLifeCycle();
+		sls = new SpecimenLifeCycle();
 	}
 	
 	/**
@@ -81,8 +81,6 @@ public class FieldLoader {
 		
 		Specimen pattern = new Specimen();
 		pattern.setBarcode(barcode);
-		
-		SpecimenLifeCycle sls = new SpecimenLifeCycle();
 		
 		List<Specimen> matches = sls.findByExample(pattern);
 		if (matches!=null && matches.size()==1) { 
@@ -141,8 +139,6 @@ public class FieldLoader {
 		
 		Specimen pattern = new Specimen();
 		pattern.setBarcode(barcode);
-		
-		SpecimenLifeCycle sls = new SpecimenLifeCycle();
 		
 		List<Specimen> matches = sls.findByExample(pattern);
 		if (matches!=null && matches.size()==1) { 
@@ -226,7 +222,6 @@ public class FieldLoader {
 				String actualCase = specimenMethods[j].getName().replaceAll("^set", ""); 
 			    knownFields.add(specimenMethods[j].getName().replaceAll("^set", ""));
 			    knownFieldsLowerUpper.put(actualCase.toLowerCase(), actualCase);
-			    log.debug(actualCase);
 			}
 		}
 		// List of input fields that will need to be parsed into relational tables
@@ -236,8 +231,6 @@ public class FieldLoader {
 		
 		Specimen pattern = new Specimen();
 		pattern.setBarcode(barcode);
-		
-		SpecimenLifeCycle sls = new SpecimenLifeCycle();
 		
 		// Retrieve existing record for update (thus not blanking existing fields, and allowing for not updating fields with values, or appending comments). 
 		List<Specimen> matches = sls.findByExample(pattern);
@@ -250,6 +243,7 @@ public class FieldLoader {
 			} else { 	
 
 				boolean foundData = false;
+				boolean hasChange = false;
 				
 				Iterator<String> i = data.keySet().iterator();
 				while (i.hasNext()) { 
@@ -274,6 +268,7 @@ public class FieldLoader {
 									datavalue = currentValue + " | " + datavalue;
 								}
 								setMethod.invoke(match, datavalue);
+								hasChange = true;
 								foundData = true;
 							} else if (key.equals("collectors")) { 
 								String[] collectors = datavalue.split("\\|", 0);
@@ -289,6 +284,7 @@ public class FieldLoader {
 										List<Collector> existing = cls.findByExample(col);
 										if (existing==null || existing.size()==0) {
 										    cls.persist(col);
+										    hasChange = true;
 									    }
 									}
 								}
@@ -316,6 +312,7 @@ public class FieldLoader {
 										List<Number> existing = nls.findByExample(num);
 										if (existing==null || existing.size()==0) {
 									   	    nls.persist(num);
+										    hasChange = true;
 										}
 									}
 								}
@@ -338,6 +335,7 @@ public class FieldLoader {
 							    } else if (MetadataRetriever.isFieldVerbatim(Specimen.class,key) && allowUpdateExistingVerbatim) { 
 								    setMethod.invoke(match, datavalue);
 								    foundData = true;
+									hasChange = true;
 							    } else { 
 							    	log.error("Skipped set" + actualCase + " = " + datavalue );
 							    }
@@ -371,14 +369,13 @@ public class FieldLoader {
 						match.setWorkFlowStatus(newWorkflowStatus);
 						
 						sls.attachDirty(match);
-						result = true;
+						result = hasChange;
 					} catch (SaveFailedException e) {
 						log.error(e.getMessage(), e);
 						throw new LoadTargetSaveException();
 					}
 				}
 			}			
-			
 		}
 		
 		return result;

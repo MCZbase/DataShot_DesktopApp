@@ -221,7 +221,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 								while (iterator.hasNext()) {
 									lineNumber++;
 									counter.incrementSpecimens();
-									CSVRecord record = iterator.next();
+									 CSVRecord record = iterator.next();
 									try { 
 										String verbatimLocality = record.get("verbatimLocality");
 										String verbatimDate = record.get("verbatimDate");
@@ -307,12 +307,16 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 									}
 									if (data.size()>0) { 
 										try {
+											boolean updated = false;
 											if (containsNonVerbatim) { 
-												fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_CLASSIFIED, true);
+												updated = fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_CLASSIFIED, true);
 											} else { 
-												fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_VERBATIM, true);
+												updated = fl.loadFromMap(barcode, data, WorkFlowStatus.STAGE_VERBATIM, true);
 											}
-											counter.incrementSpecimensUpdated();
+											counter.incrementSpecimens();
+											if (updated) { 
+											    counter.incrementSpecimensUpdated();
+											}
 										} catch (LoadException e) {
 											StringBuilder message = new StringBuilder();
 											message.append("Error loading row (").append(lineNumber).append(")[").append(barcode).append("]").append(e.getMessage());
@@ -426,7 +430,8 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 	private void report(String selectedFilename) { 
 		String report = "Results for loading data from file " + selectedFilename + ".\n";
 		report += "Found  " + counter.getSpecimens() + " rows in input file.\n";
-		report += "Saved values for " + counter.getSpecimensUpdated() + " specimens.\n";
+		report += "Examined " + counter.getSpecimens() + " specimens.\n";
+		report += "Saved updated values for " + counter.getSpecimensUpdated() + " specimens.\n";
 		report += errors.toString();
 		Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Load data from file complete.");
 		RunnableJobReportDialog errorReportDialog = new RunnableJobReportDialog(
