@@ -393,6 +393,8 @@ these columns must be present (no more, no fewer), but column order does not mat
 
     "barcode","verbatimLocality","verbatimDate","verbatimCollector","verbatimCollection","verbatimNumbers","verbatimUnclassifiedText","questions"
 
+For this load, use verbatimDate, this will be mapped internally onto the DateNOS field.
+
 ### Load Policy ###
 
 Allowed to change a record when: Record is in state Taxon Entered or Verbatim Entered.
@@ -407,7 +409,15 @@ Status when complete policy:  Record is in state Verbatim Transcribed.
 
 This functionality is expected to change in future versions.
 
-## Transcription of (pin) label data with interpretation.
+## Transcription of verbatim information with classification and metadata ##
+
+Not Yet Implemented.
+
+* verbatimClusterIdentifier
+* externalWorkflowProcess 
+* externalWorkflowDate 
+
+## Transcription of (pin) label data with interpretation. ##
 
 If you export the barcode number for a specimen and an image file with pin 
 label data for that specimen, values for any of the fields listed below can be
@@ -452,10 +462,12 @@ For Example:
 * Habitat
 * Microhabitat
 * AssociatedTaxon
-* Questions
+* Questions (value provided will be appended to any existing value in Questions).
 * Inferences
 * LocationInCollection
 * ValidDistributionFlag
+
+For this load, use the actual field name DateNOS instead of verbatimDate for verbatim date values.
 
 In addition, two additional fields that contain structured lists can be added (all lower case field names): 
 

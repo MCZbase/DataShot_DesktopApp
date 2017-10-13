@@ -54,7 +54,12 @@ public class Specimen implements java.io.Serializable {
 	private String verbatimCollection;
 	private String verbatimNumbers;
 	private String verbatimUnclassifiedText;
-	// private String verbatimElevation;
+	
+    //TODO: Add: verbatimClusterIdentifier
+    //TODO: Add: externalWorkflowProcess
+    //TODO: Add: externalWorkflowDate
+	
+	// private String verbatimElevation;   // removed
 	private Long minimum_elevation;
 	private Long maximum_elevation;
 	private String elev_units;

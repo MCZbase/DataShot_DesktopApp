@@ -79,6 +79,10 @@ public class FieldLoader {
 	public boolean load(String barcode, String verbatimUnclassifiedText, String questions, boolean overwriteExisting) throws LoadException { 
 		boolean result = false;
 		
+        //TODO: Add: verbatimClusterIdentifier
+	    //TODO: Add: externalWorkflowProcess
+	    //TODO: Add: externalWorkflowDate		
+		
 		Specimen pattern = new Specimen();
 		pattern.setBarcode(barcode);
 		
@@ -136,6 +140,10 @@ public class FieldLoader {
 	 */
 	public boolean load(String barcode, String verbatimLocality, String verbatimDate, String verbatimCollector, String verbatimCollection, String verbatimNumbers, String verbatimUnclassifiedText, String questions) throws LoadException { 
 		boolean result = false;
+		
+        //TODO: Add: verbatimClusterIdentifier
+	    //TODO: Add: externalWorkflowProcess
+	    //TODO: Add: externalWorkflowDate
 		
 		Specimen pattern = new Specimen();
 		pattern.setBarcode(barcode);
@@ -210,6 +218,10 @@ public class FieldLoader {
 	 */
 	public boolean loadFromMap(String barcode, Map<String,String> data, String newWorkflowStatus, boolean allowUpdateExistingVerbatim) throws LoadException { 
 		boolean result = false;
+		
+        //TODO: Add: verbatimClusterIdentifier
+	    //TODO: Add: externalWorkflowProcess
+	    //TODO: Add: externalWorkflowDate		
 		
 		ArrayList<String> knownFields = new ArrayList<String>();
 		HashMap<String,String> knownFieldsLowerUpper = new HashMap<String,String>();
