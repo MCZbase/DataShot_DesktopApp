@@ -533,9 +533,7 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 										filename + " " + barcode + " \n" + e.getMessage(), 
 										"Specimen Exists, linking Image to existing record.", 
 								JOptionPane.ERROR_MESSAGE);
-								Specimen checkSpecimen = new Specimen();
-								checkSpecimen.setBarcode(barcode);
-								List <Specimen> checkResult = sh.findByExample(checkSpecimen);
+								List <Specimen> checkResult = sh.findByBarcode(barcode);
 								if (checkResult.size()==1) { 
 									s = checkResult.get(0);
 								} 
@@ -544,9 +542,7 @@ public class JobSingleBarcodeScan implements RunnableJob, Runnable {
 								// specimen record already existing.
 								log.debug(e);
 								try { 
-									Specimen checkSpecimen = new Specimen();
-									checkSpecimen.setBarcode(barcode);
-									List <Specimen> checkResult = sh.findByExample(checkSpecimen);
+									List <Specimen> checkResult = sh.findByBarcode(barcode);
 									if (checkResult.size()==1) { 
 										s = checkResult.get(0);
 									} 

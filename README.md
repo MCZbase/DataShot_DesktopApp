@@ -346,6 +346,22 @@ The first Administrator user for the application must be inserted directly into 
 Enter additional users by logging in to the application as that administrator using the user dialog accessed
 through Configuration/Users off of the main menu.  
 
+# Maintinance 
+
+## Schema
+As of version 1.3.0, DataShot checks for an allowed_version table in the
+database schema at login during startup, and will not start if this table
+is not present, and it does not contain a value of version compatible with
+the current DataShot software version.  Intent is that a change in the 
+database schema will be accompanied by either a major or minor version 
+change, but that patch version changes will not involve schema changes,
+thus any 1.3. version will work with the same database schema, and a 
+schema change will involve a change from version 1.3 to version 1.4.  
+An exception is x.x.0-SNAPSHOT versions (snapshots of the first patch 
+version of a new minor version), these are expected to incrementally 
+add schema changes. 
+
+See docs_manual/sql/ for DDL for the databse schema.
 
 # External data paths
 
@@ -368,18 +384,34 @@ these three columns must be present (no more, no fewer), but column order does n
 
 ### Load Policy ###
 
-Allowed to change a record when: Record is in state Taxon Entered or Verbatim Entered.
+Allowed to change a record when: Record is in state OCR, Taxon Entered, or Verbatim Entered.
 
 Barcode policy: Barcode must exist and must be unique.
 
-Overwrite policy: Will overwrite an existing value of verbatimUnclassifiedText.
+Overwrite policy: Will overwrite an existing value of verbatimUnclassifiedText.  
+Will remove any existing value of verbatimClusterIdentifier.  Will not modify
+other verbatim or other fields (except questions).
 
 Questions policy: Any value provided in questions will be appended to the existing value for questions.
 
 Status when complete policy:  Record is in state Verbatim Transcribed.
-    
-This functionality is expected to change in future versions.
 
+You can include a cluster identifier (if you have externally clustered the verbatim text values): 
+
+    "barcode","verbatimUnclassifiedText","verbatimClusterIdentifier","questions"
+    
+Allowed to change a record when: Record is in state OCR, Taxon Entered, or Verbatim Entered.
+
+Barcode policy: Barcode must exist and must be unique.
+
+Overwrite policy: Will overwrite an existing value of verbatimUnclassifiedText.  
+Will overwrite any existing value of verbatimClusterIdentifier.   Will not modify
+other verbatim or other fields (except questions).
+
+Questions policy: Any value provided in questions will be appended to the existing value for questions.
+
+Status when complete policy:  Record is in state Verbatim Transcribed.    
+    
 ## Transcription of (pin) label data with minimal interpretation into verbatim fields.
 
 If you export the barcode number for a specimen and an image file with pin 
@@ -397,17 +429,16 @@ For this load, use verbatimDate, this will be mapped internally onto the DateNOS
 
 ### Load Policy ###
 
-Allowed to change a record when: Record is in state Taxon Entered or Verbatim Entered.
+Allowed to change a record when: Record is in state OCR or Taxon Entered.
 
 Barcode policy: Barcode must exist and must be unique.
 
-Overwrite policy: Does not overwrite any existing values.
+Overwrite policy: Does not overwrite any existing values.  Will not make any updates to a field if any of the 
+verbatim fields contain data.
 
 Questions policy: Any value provided in questions will be appended to the existing value for questions.
 
-Status when complete policy:  Record is in state Verbatim Transcribed.
-
-This functionality is expected to change in future versions.
+Status when complete policy:  Record is in state Verbatim Entered.
 
 ## Transcription of verbatim information with classification and metadata ##
 
@@ -429,9 +460,15 @@ The barcode column must be present along with any of the columns from the list
 below.  Column order does not matter.  Additional columns that are to be skipped 
 may be included if the column name is prefixed with an underscore character "_". 
 
-For Example: 
+Example of a header: 
 
     "barcode","Higher_Geography","SpecificLocality","questions","_myExternalId"
+
+Another example of a header for just verbatim fields, but with a verbatim cluster identifier.
+
+    "barcode","verbatimLocality","verbatimDate","verbatimCollector","verbatimCollection","verbatimNumbers","verbatimUnclassifiedText","verbatimClusterIdentifier","questions"
+    
+Fields that can be included: 
 
 * TypeStatus
 * TypeNumber
@@ -469,12 +506,14 @@ For Example:
 
 For this load, use the actual field name DateNOS instead of verbatimDate for verbatim date values.
 
-In addition, two additional fields that contain structured lists can be added (all lower case field names): 
+In addition, two additional fields that contain structured lists of values can be added (all lower case field names): 
 
-* collectors
-* numbers
+;collectors
+:a pipe '|' delimited list of collector names.  e.g. "R.A.Eastwood|N. Mattoni"
+;numbers
+:a pipe '|' delimited list of numbers and types, separated by a colon ':', e.g. "1:unknown|52:Species Number"
 
-Collectors must contain a pipe delimited list of collector names (e.g. "A.R. Smith|B.C. Jones"
+Collectors must contain a pipe delimited list of collector names (e.g. "A.R. Smith|B.C. Jones")
 
 Numbers must contain a pipe delimited list of colon separated other_number values in the form of "number:number type" pairs (e.g. "1:Collection Number|5:Unknown".  
 Order is important.  The element before a colon will be treated as the number, and the element after the colon will be treated as the number type.  
@@ -496,20 +535,42 @@ Expected values for number type are (case sensitive, arbitrary values are allowe
 * MCZ Slide Number
 * MCZ Butterfly Exhibit, 2000
 
+Also three fields containing metadata about external processing and classification of the data can be included:
+
+* verbatimClusterIdentifier
+* externalWorkflowProcess
+* externalWorkflowDate
+
 To load a csv file that contains additional columns that aren't to be loaded, prefix the columns to be 
 skipped with an underscore for it to be skipped (e.g. _someExternalId will be skipped).
 
 ### Load Policy ###
 
-Allowed to change a record when: Record is in state Taxon Entered, Verbatim Entered, pr Verbatim Classified.
+#### If any non-verbatim, non-metadata field is included: ####
+
+Allowed to change a record when: Record is in state OCR, Taxon Entered, Verbatim Entered, or Verbatim Classified.
 
 Barcode policy: Barcode must exist and must be unique.
 
-Overwrite policy: Will overwrite any existing value in the Verbatim fields, but will not overwrite any existing value in any 
-non-Verbatim field.  
+Overwrite policy: Will overwrite any existing value in the Verbatim fields or 
+metadata (verbatimClusterIdentifier, externalWorkflowProcess,externalWorkflowDate) fields, 
+but will not overwrite any existing value in any non-Verbatim field.
 
 Questions policy: Any value provided in questions will be appended to the existing value for questions.
 
-Status when complete policy:  If any non-verbatim field is present, Verbatim Classified, othewise, verbatimEntered.
+Status when complete policy:  Workflow status Verbatim Classified..
 
-This functionality is expected to change in future versions.
+#### If only verbatim and metadata fields are included: ####
+
+Allowed to change a record when: Record is in state OCR, Taxon Entered, or Verbatim Entered.
+
+Barcode policy: Barcode must exist and must be unique.
+
+Overwrite policy: Will overwrite any existing value in the Verbatim fields or 
+metadata (verbatimClusterIdentifier, externalWorkflowProcess,externalWorkflowDate) fields, 
+but will not overwrite any existing value in any non-Verbatim field.
+
+Questions policy: Any value provided in questions will be appended to the existing value for questions.
+
+Status when complete policy: Workflow status Verbatim Entered.
+

@@ -146,6 +146,24 @@ public class WorkFlowStatus {
 	}
 	
 	/**
+	 * Test to see whether or not a state can be changed to verbatim captured when overwrites are allowed. 
+	 * 
+	 * @param workflowStatus a current workflow state to check 
+	 * @return true if the record can be placed into state verbatim captured from 
+	 *   its current (other) state, false otherwise.  True if the current state
+	 *   is already verbatim captured.
+	 */
+	public static boolean allowsVerbatimUpdateOverwrite(String workflowStatus) { 
+		boolean result = false;
+		
+		if (workflowStatus.equals(STAGE_0)) { result = true; } 
+		if (workflowStatus.equals(STAGE_1)) { result = true; } 
+		if (workflowStatus.equals(STAGE_VERBATIM)) { result = true; } 
+		
+		return result;
+	}	
+	
+	/**
 	 * Test to see whether or not a state can be changed to verbatim classified.
 	 * 
 	 * @param workflowStatus a current workflow state to check. 

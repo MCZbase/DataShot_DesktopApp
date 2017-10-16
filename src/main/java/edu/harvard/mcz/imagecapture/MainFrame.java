@@ -55,6 +55,7 @@ import edu.harvard.mcz.imagecapture.data.SpecimenLifeCycle;
 import edu.harvard.mcz.imagecapture.data.Users;
 import edu.harvard.mcz.imagecapture.data.UsersLifeCycle;
 import edu.harvard.mcz.imagecapture.encoder.UnitTrayLabelBrowser;
+import edu.harvard.mcz.imagecapture.exceptions.ConnectionException;
 import edu.harvard.mcz.imagecapture.interfaces.BarcodeBuilder;
 import edu.harvard.mcz.imagecapture.interfaces.BarcodeMatcher;
 import edu.harvard.mcz.imagecapture.interfaces.RunnableJob;
@@ -289,11 +290,11 @@ public class MainFrame extends JFrame implements RunnerListener {
 	}
 	
 	/**
-	 * This method initializes this
+	 * This method initializes the main frame.
 	 * 
 	 */
 	private void initialize() {
-		
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setSize(new Dimension(1280, 750));
         this.setPreferredSize(new Dimension(1280, 800));
@@ -400,7 +401,13 @@ public class MainFrame extends JFrame implements RunnerListener {
 					Singleton.getSingletonInstance().getMainFrame().setStatusMessage("Logged out " + oldUser);
 					// Force a login dialog by connecting to obtain record count;
 					SpecimenLifeCycle sls = new SpecimenLifeCycle();
-				    setCount(sls.findSpecimenCount());
+				    try {
+						setCount(sls.findSpecimenCountThrows());
+						ImageCaptureApp.doStartUp();
+					} catch (ConnectionException e1) {
+						log.error(e1.getMessage(),e1);
+						ImageCaptureApp.doStartUpNot();
+					}
 				}
 			});
 		}
@@ -517,6 +524,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 			jMenuItemLoadData.setEnabled(true);
 			jMenuItemLoadData.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
+					//TODO: Launch FieldLoaderWizard and have it launch job.
 					 JobVerbatimFieldLoad scan = new JobVerbatimFieldLoad();
 					 (new Thread(scan)).start();
 				}
@@ -800,12 +808,12 @@ public class MainFrame extends JFrame implements RunnerListener {
 	}
 	
 	/**
-	 * Sets the message on the status bar with an up to 30 character string.
+	 * Sets the message on the status bar with an up to 60 character string.
 	 * 
 	 * @param aMessage the message to display on the status bar.
 	 */
 	public void setStatusMessage(String aMessage) { 
-		int maxLength = 30;
+		int maxLength = 60;
 		if (aMessage.length()<maxLength) { maxLength = aMessage.length(); } 
 		jLabelStatus.setText("Status: " + aMessage.substring(0, maxLength));
 	}
@@ -1149,9 +1157,7 @@ public class MainFrame extends JFrame implements RunnerListener {
 							String previousFile = ""; 
 							String previousPath = "";
 							SpecimenLifeCycle sls = new SpecimenLifeCycle();
-							Specimen imagePattern = new Specimen();
-							imagePattern.setBarcode(previous);
-							List<Specimen> result = sls.findByExample(imagePattern);
+							List<Specimen> result = sls.findByBarcode(previous);
 							if (result!=null && (!result.isEmpty())) {
 								Set<ICImage> images = result.get(0).getICImages();
 

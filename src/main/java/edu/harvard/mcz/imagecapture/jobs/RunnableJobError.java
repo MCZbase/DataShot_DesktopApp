@@ -39,6 +39,7 @@ public class RunnableJobError {
 	public static final int TYPE_DUPLICATE = 5;
 	public static final int TYPE_FAILOVER_TO_OCR = 6;
 	public static final int TYPE_LOAD_FAILED = 7;
+	public static final int TYPE_LOAD_NOCHANGE = 8;
 
 	private String filename;
 	private String barcode;
@@ -303,6 +304,9 @@ public class RunnableJobError {
 			break;		
 		case TYPE_LOAD_FAILED: 
 			result = "Data Load Failed";
+			break;
+		case TYPE_LOAD_NOCHANGE: 
+			result = "Data Not Changed";
 			break;
 		}
 		return result;

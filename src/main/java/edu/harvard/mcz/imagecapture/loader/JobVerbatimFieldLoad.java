@@ -68,8 +68,18 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 	private List<RunnerListener> listeners = null;
 	private Counter counter = null;
 	private StringBuffer errors = null;
+	private File file = null;
 
 	public JobVerbatimFieldLoad() { 
+		init();
+	} 
+	
+	public JobVerbatimFieldLoad(File fileToLoad) { 
+		file = fileToLoad;
+		init();
+	} 	
+	
+	protected void init() { 
 		listeners = new ArrayList<RunnerListener>();
 		counter = new Counter();
 		runStatus = RunStatus.STATUS_NEW;
@@ -83,6 +93,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 	 */
 	@Override
 	public void run() {
+		log.debug(this.toString());
 		start();
 	}
 
@@ -97,15 +108,20 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 		
 		String selectedFilename = "";
 		
-		final JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-		if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_LASTLOADPATH)!=null) { 
-			fileChooser.setCurrentDirectory(new File(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_LASTLOADPATH)));
-		} 
+		if (file==null) { 
+			final JFileChooser fileChooser = new JFileChooser();
+			fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+			if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_LASTLOADPATH)!=null) { 
+				fileChooser.setCurrentDirectory(new File(Singleton.getSingletonInstance().getProperties().getProperties().getProperty(ImageCaptureProperties.KEY_LASTLOADPATH)));
+			} 
+
+			int returnValue = fileChooser.showOpenDialog(Singleton.getSingletonInstance().getMainFrame());
+			if (returnValue == JFileChooser.APPROVE_OPTION) {
+				file = fileChooser.getSelectedFile();
+			} 
+		}
 		
-		int returnValue = fileChooser.showOpenDialog(Singleton.getSingletonInstance().getMainFrame());
-		if (returnValue == JFileChooser.APPROVE_OPTION) {
-			File file = fileChooser.getSelectedFile();
+		if (file!=null) { 
 			log.debug("Selected file to load: " + file.getName() + ".");
 
 			if (file.exists() && file.isFile() && file.canRead()) { 
@@ -157,18 +173,41 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 						log.debug(header);
 					}
 
+					boolean okToRun = true;
+					//TODO: Work picking/checking responsibility into FieldLoaderWizard
 					List<String> headerList = Arrays.asList(headers);
 					if (!headerList.contains("barcode")) { 
+						log.error("Input file header does not contain required field 'barcode'.");
 						// no barcode field, we can't match the input to specimen records.
 						errors.append("Field \"barcode\" not found in csv file headers.  Unable to load data.").append("\n");
+						okToRun = false;
 					} else { 
+						Iterator<String> ih = headerList.iterator();
+						StringBuilder headerString = new StringBuilder();
+						String separator = "";
+						while (ih.hasNext()) { 
+							headerString.append(separator).append(ih.next());
+							separator = ",";
+						}
+						int result = JOptionPane.showConfirmDialog(Singleton.getSingletonInstance().getMainFrame(), 
+								"Load data from " + file.getName() + " with header:\n" + headerString.toString(), 
+								"Load Data?", 
+								JOptionPane.YES_NO_OPTION);
+						if (result!=JOptionPane.YES_OPTION) {
+							okToRun = false;
+						}
+					}
+					
+					if (okToRun) { 
+						
 						Iterator<CSVRecord> iterator = csvParser.iterator();
 
 						FieldLoader fl = new FieldLoader();
 
 						if (headerList.size()==3 && headerList.contains("verbatimUnclassifiedText") 
 								&& headerList.contains("questions") && headerList.contains("barcode")) { 
-							// Allowed case 1: unclassified text only
+							log.debug("Input file matches case 1: Unclassified text only.");
+							// Allowed case 1a: unclassified text only
 
 							int confirm = JOptionPane.showConfirmDialog(Singleton.getSingletonInstance().getMainFrame(),
 									"Confirm load from file " + selectedFilename +  " (" + rows + " rows) with just barcode and verbatimUnclassifiedText", "Verbatim unclassified Field found for load", JOptionPane.OK_CANCEL_OPTION);	
@@ -205,12 +244,57 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 							} else { 
 								errors.append("Load canceled by user.").append("\n");	
 							}
+						} else if (headerList.size()==4 && headerList.contains("verbatimUnclassifiedText") 
+								&& headerList.contains("questions") && headerList.contains("barcode")
+								&& headerList.contains("verbatimClusterIdentifier")) { 
+							log.debug("Input file matches case 1: Unclassified text only.");
+							// Allowed case 1b: unclassified text only (including cluster identifier)
+
+							int confirm = JOptionPane.showConfirmDialog(Singleton.getSingletonInstance().getMainFrame(),
+									"Confirm load from file " + selectedFilename +  " (" + rows + " rows) with just barcode and verbatimUnclassifiedText", "Verbatim unclassified Field found for load", JOptionPane.OK_CANCEL_OPTION);	
+							if (confirm == JOptionPane.OK_OPTION) { 
+								String barcode = "";
+								int lineNumber = 0;
+								while (iterator.hasNext()) {
+									lineNumber++;
+									counter.incrementSpecimens();
+									CSVRecord record = iterator.next();
+									try { 
+										String verbatimUnclassifiedText = record.get("verbatimUnclassifiedText");
+										String verbatimClusterIdentifier = record.get("verbatimClusterIdentifier"); 
+										barcode = record.get("barcode");
+										String questions = record.get("questions");
+
+										fl.load(barcode, verbatimUnclassifiedText, verbatimClusterIdentifier, questions, true);
+										counter.incrementSpecimensUpdated();
+									} catch (IllegalArgumentException e) {
+										RunnableJobError error =  new RunnableJobError(file.getName(), 
+												barcode, Integer.toString(lineNumber), 
+												e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
+										counter.appendError(error);
+										log.error(e.getMessage(), e);
+									} catch (LoadException e) {
+										RunnableJobError error =  new RunnableJobError(file.getName(), 
+												barcode, Integer.toString(lineNumber), 
+												e.getClass().getSimpleName(), e, RunnableJobError.TYPE_LOAD_FAILED);
+										counter.appendError(error);
+										log.error(e.getMessage(), e);
+									}
+									percentComplete = (int) ((lineNumber*100f)/rows);
+									this.setPercentComplete(percentComplete);
+								}
+							} else { 
+								errors.append("Load canceled by user.").append("\n");	
+							}
+							
 						} else if (headerList.size()==8 
 								 && headerList.contains("verbatimUnclassifiedText") && headerList.contains("questions") && headerList.contains("barcode")
 							     && headerList.contains("verbatimLocality") && headerList.contains("verbatimDate") && headerList.contains("verbatimNumbers")
 							     && headerList.contains("verbatimCollector") && headerList.contains("verbatimCollection")
 								) {
-							// allowed case two, transcription into verbatim fields, must be exact list of all verbatim fields.
+							// Allowed case two, transcription into verbatim fields, must be exact list of all
+							// verbatim fields, not including cluster identifier or other metadata.
+							log.debug("Input file matches case 2: Full list of verbatim fields.");
 
 							int confirm = JOptionPane.showConfirmDialog(Singleton.getSingletonInstance().getMainFrame(),
 									"Confirm load from file " + selectedFilename +  " (" + rows + " rows) with just barcode and verbatim fields.", "Verbatim Fields found for load", JOptionPane.OK_CANCEL_OPTION);	
@@ -256,6 +340,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 							
 						} else { 
 							// allowed case three, transcription into arbitrary sets verbatim or other fields
+							log.debug("Input file case 3: Arbitrary set of fields.");
 							
 							// Check column headers before starting run.
 							boolean headersOK = false;

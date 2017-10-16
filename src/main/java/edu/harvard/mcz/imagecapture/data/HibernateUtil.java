@@ -146,10 +146,8 @@ public class HibernateUtil {
 							}
 						}
 					} catch (Throwable e) {
-						e.printStackTrace();
-						log.error(e);
-						log.trace(e);
-						System.out.println(e.getStackTrace());
+						log.error(e.getMessage());
+						log.trace(e.getMessage(),e);
 						System.out.println("Initial SessionFactory creation failed." + e.getMessage());
 						// TODO: don't reference UI if not running one...
 						loginDialog = new LoginDialog();

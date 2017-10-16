@@ -955,9 +955,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 											// 
 											// Look up the existing record to link this specimen to it.
 											try { 
-												Specimen checkSpecimen = new Specimen();
-												checkSpecimen.setBarcode(barcode);
-												List <Specimen> checkResult = sh.findByExample(checkSpecimen);
+												List <Specimen> checkResult = sh.findByBarcode(barcode);
 												if (checkResult.size()==1) { 
 													s = checkResult.get(0);
 												} 
@@ -976,9 +974,7 @@ public class JobAllImageFilesScan implements RunnableJob, Runnable{
 											// save problems resulting from parsing errors.
 											log.debug(e.getMessage());
 											try { 
-												Specimen checkSpecimen = new Specimen();
-												checkSpecimen.setBarcode(barcode);
-												List <Specimen> checkResult = sh.findByExample(checkSpecimen);
+												List <Specimen> checkResult = sh.findByBarcode(barcode);
 												if (checkResult.size()==1) { 
 													s = checkResult.get(0);
 												} 

@@ -30,5 +30,7 @@
         <mapping resource="edu/harvard/mcz/imagecapture/data/MCZbaseGeogAuthRec.hbm.xml" /> 
         <mapping resource="edu/harvard/mcz/imagecapture/data/MCZbaseAuthAgentName.hbm.xml" /> 
         <mapping resource="edu/harvard/mcz/imagecapture/data/LatLong.hbm.xml" />
+        <mapping resource="edu/harvard/mcz/imagecapture/data/AllowedVersion.hbm.xml" />
+        <mapping resource="edu/harvard/mcz/imagecapture/data/ExternalHistory.hbm.xml" />
     </session-factory>
 </hibernate-configuration>

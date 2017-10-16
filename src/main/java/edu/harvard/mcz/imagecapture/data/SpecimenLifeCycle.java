@@ -27,6 +27,7 @@ import org.hibernate.metadata.ClassMetadata;
 
 import edu.harvard.mcz.imagecapture.MCZENTBarcode;
 import edu.harvard.mcz.imagecapture.Singleton;
+import edu.harvard.mcz.imagecapture.exceptions.ConnectionException;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;
 import edu.harvard.mcz.imagecapture.exceptions.SpecimenExistsException;
 import edu.harvard.mcz.imagecapture.interfaces.BarcodeBuilder;
@@ -100,7 +101,14 @@ public class SpecimenLifeCycle {
 				}
 			}
 			try { session.close(); } catch (SessionException e) { }
+		} catch (SpecimenExistsException see) {
+			// Pass on upwards unchanged
+			throw see;
+		} catch (SaveFailedException sfe) {
+			// Pass on upwards unchanged
+			throw sfe;
 		} catch (RuntimeException re) {
+			// Catch, log, and pass on any other exception.
 			log.error("persist failed", re);
 			throw re;
 		}
@@ -252,6 +260,35 @@ public class SpecimenLifeCycle {
 			throw re;
 		}
 	}
+	
+	public List<Specimen> findByBarcode(String barcode) {
+		List<Specimen> results = new ArrayList<Specimen>();
+		log.debug("getting Specimen instance with barcode: " + barcode);
+		try {
+			Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+			session.beginTransaction();
+			try { 
+				Query query = session.createQuery("From Specimen s where s.barcode = '" + barcode + "' order by s.barcode");
+				results = (List<Specimen>) query.list();
+				session.getTransaction().commit();
+				if (results.size()==0) {
+					log.debug("get successful, no instance found");
+				} else if (results.size()==1) {
+					log.debug("get successful, one instance found");
+				} else {
+					log.debug("get successful, but more than one instance found");
+				}
+			} catch (HibernateException e) { 
+				session.getTransaction().rollback();
+				log.error("get failed", e);
+			}
+			try { session.close(); } catch (SessionException e) { }
+			return results;
+		} catch (RuntimeException re) {
+			log.error("get failed", re);
+			throw re;
+		}
+	}
 
 	public Specimen findById(java.lang.Long id) {
 		log.debug("getting Specimen instance with id: " + id);
@@ -394,6 +431,14 @@ for (int i=0; i<results.size(); i++) {
 	}	
 	
 	@SuppressWarnings("unchecked")
+	/**
+	 * Find Specimen records based on an example specimen, don't use if you are only searching by barcode.  
+	 * 
+	 * @param instance Specimen instance to use as a pattern for the search
+	 * @return list of Specimens matching instance
+	 * 
+	 * @see #SpecimenLifeCycle.findByBarcode
+	 */
 	public List<Specimen> findByExample(Specimen instance) {
 		log.debug("finding Specimen instance by example");
 		try {
@@ -424,7 +469,16 @@ for (int i=0; i<results.size(); i++) {
 		}
 	}
 
-	public String findSpecimenCount() {
+	public String findSpecimenCount() { 
+		try { 
+			return findSpecimenCountThrows();
+		} catch (ConnectionException e) { 
+			log.error(e.getMessage(),e);
+		}
+		return "";
+	}
+	
+	public String findSpecimenCountThrows() throws ConnectionException {
 			StringBuffer result = new StringBuffer();
 			try {
 				String sql = "Select count(*), workFlowStatus from Specimen group by workFlowStatus ";
@@ -448,7 +502,7 @@ for (int i=0; i<results.size(); i++) {
 				return result.toString();
 			} catch (RuntimeException re) {
 				log.error(re);
-				return result.toString();
+				throw new ConnectionException(re.getMessage(),re);
 			}
 		}
 	
