@@ -20,3 +20,5 @@ create table external_history (
    externalWorkflowDate datetime
 );
 
+create index idxexthistspid on external_history(specimenId);
+

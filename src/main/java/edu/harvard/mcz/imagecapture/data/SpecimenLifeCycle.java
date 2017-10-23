@@ -7,7 +7,6 @@ package edu.harvard.mcz.imagecapture.data;
 // Generated Jan 23, 2009 8:12:35 AM by Hibernate Tools 3.2.2.GA
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,7 +24,6 @@ import org.hibernate.classic.Session;
 import org.hibernate.criterion.Example;
 import org.hibernate.metadata.ClassMetadata;
 
-import edu.harvard.mcz.imagecapture.MCZENTBarcode;
 import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.exceptions.ConnectionException;
 import edu.harvard.mcz.imagecapture.exceptions.SaveFailedException;

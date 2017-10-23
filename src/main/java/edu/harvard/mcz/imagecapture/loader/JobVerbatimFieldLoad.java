@@ -40,6 +40,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
 
 import edu.harvard.mcz.imagecapture.jobs.Counter;
 import edu.harvard.mcz.imagecapture.jobs.RunnableJobError;
@@ -131,37 +132,33 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 
 				String[] headers = new String[]{};
 				
+				CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(headers);
 			    int rows = 0;
 			    try {
-			    	Reader reader = new FileReader(file);
-					CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(headers);
-
-					CSVParser csvParser = new CSVParser(reader, csvFormat);
-					Iterator<CSVRecord> iterator = csvParser.iterator();
-					while (iterator.hasNext()) {
-						iterator.next();
-						rows++;
-					}
-                    csvParser.close();
-                    reader.close();
+					rows = readRows(file, csvFormat);
 			    } catch (FileNotFoundException e) {
 			    	JOptionPane.showMessageDialog(Singleton.getSingletonInstance().getMainFrame(), "Unable to load data, file not found: " + e.getMessage() , "Error: File Not Found", JOptionPane.OK_OPTION);	
 			    	errors.append("File not found ").append(e.getMessage()).append("\n");	
 			    	log.error(e.getMessage(), e);
 			    } catch (IOException e) {
-			    	errors.append("Error Loading data: ").append(e.getMessage()).append("\n");	
-			    	log.error(e.getMessage(), e);
+			    	errors.append("Error loading csv format, trying tab delimited: ").append(e.getMessage()).append("\n");	
+			    	log.debug(e.getMessage());
+			    	try { 
+			    		// try reading as tab delimited format, if successful, use that format.
+			    		CSVFormat tabFormat = CSVFormat.newFormat('\t')
+			    				.withIgnoreSurroundingSpaces(true)
+			    				.withHeader(headers)
+			    				.withQuote('"');
+			    		rows = readRows(file, tabFormat);
+			    		csvFormat = tabFormat;
+			    	} catch (IOException e1) {  
+			    		errors.append("Error Loading data: ").append(e1.getMessage()).append("\n");	
+			    		log.error(e.getMessage(), e1);
+			    	}
 			    }
 
 				try {
 					Reader reader = new FileReader(file);
-
-					CSVFormat tabFormat = CSVFormat.newFormat('\t')
-							.withIgnoreSurroundingSpaces(true)
-							.withHeader(headers)
-							.withQuote('"');
-
-					CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(headers);
 
 					CSVParser csvParser = new CSVParser(reader, csvFormat);
 
@@ -174,28 +171,13 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 					}
 
 					boolean okToRun = true;
-					//TODO: Work picking/checking responsibility into FieldLoaderWizard
+					//TODO: Work picking/checking responsibility into a FieldLoaderWizard
 					List<String> headerList = Arrays.asList(headers);
 					if (!headerList.contains("barcode")) { 
-						log.error("Input file header does not contain required field 'barcode'.");
+						log.error("Input file " + file.getName()+ " header does not contain required field 'barcode'.");
 						// no barcode field, we can't match the input to specimen records.
 						errors.append("Field \"barcode\" not found in csv file headers.  Unable to load data.").append("\n");
 						okToRun = false;
-					} else { 
-						Iterator<String> ih = headerList.iterator();
-						StringBuilder headerString = new StringBuilder();
-						String separator = "";
-						while (ih.hasNext()) { 
-							headerString.append(separator).append(ih.next());
-							separator = ",";
-						}
-						int result = JOptionPane.showConfirmDialog(Singleton.getSingletonInstance().getMainFrame(), 
-								"Load data from " + file.getName() + " with header:\n" + headerString.toString(), 
-								"Load Data?", 
-								JOptionPane.YES_NO_OPTION);
-						if (result!=JOptionPane.YES_OPTION) {
-							okToRun = false;
-						}
 					}
 					
 					if (okToRun) { 
@@ -247,7 +229,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 						} else if (headerList.size()==4 && headerList.contains("verbatimUnclassifiedText") 
 								&& headerList.contains("questions") && headerList.contains("barcode")
 								&& headerList.contains("verbatimClusterIdentifier")) { 
-							log.debug("Input file matches case 1: Unclassified text only.");
+							log.debug("Input file matches case 1: Unclassified text only (with cluster identifier).");
 							// Allowed case 1b: unclassified text only (including cluster identifier)
 
 							int confirm = JOptionPane.showConfirmDialog(Singleton.getSingletonInstance().getMainFrame(),
@@ -402,6 +384,14 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 											if (updated) { 
 											    counter.incrementSpecimensUpdated();
 											}
+										} catch (HibernateException e1) {
+											// Catch (should just be development) problems with the underlying query 
+											StringBuilder message = new StringBuilder();
+											message.append("Query Error loading row (").append(lineNumber).append(")[").append(barcode).append("]").append(e1.getMessage());
+											RunnableJobError err = new RunnableJobError(selectedFilename, barcode, Integer.toString(lineNumber), e1.getMessage(), e1,  RunnableJobError.TYPE_LOAD_FAILED);
+											counter.appendError(err);
+											log.error(e1.getMessage(), e1);
+											
 										} catch (LoadException e) {
 											StringBuilder message = new StringBuilder();
 											message.append("Error loading row (").append(lineNumber).append(")[").append(barcode).append("]").append(e.getMessage());
@@ -543,5 +533,30 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 		//notify listeners
         notifyListeners(percentComplete);
 	}		
+	
+	/**
+	 * Attempt to read file with a given CSV format, and if successful, return
+	 * the number of rows in the file.
+	 * 
+	 * @param file to check for csv rows.
+	 * @param formatToTry the CSV format to try to read the file with.
+	 * @return number of rows in the file.
+	 * @throws IOException on a problem reading the header.
+	 * @throws FileNotFoundException on not finding the file.
+	 */
+	protected int readRows(File file, CSVFormat formatToTry) throws IOException, FileNotFoundException {
+		int rows = 0;
+    	Reader reader = new FileReader(file);
+
+		CSVParser csvParser = new CSVParser(reader, formatToTry);
+		Iterator<CSVRecord> iterator = csvParser.iterator();
+		while (iterator.hasNext()) {
+			iterator.next();
+			rows++;
+		}
+        csvParser.close();
+        reader.close();
+        return rows;
+	}
 
 }
