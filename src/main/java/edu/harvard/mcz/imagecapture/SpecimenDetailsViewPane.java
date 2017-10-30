@@ -186,6 +186,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 	private JTextField jTextFieldVerbatimLocality = null;
 	private JLabel lblHigherGeography;
 	private FilteringGeogJComboBox comboBoxHigherGeog;
+	private StringBuffer higherGeogNotFoundWarning = new StringBuffer();
 	private JButton jButtonGeoreference = null;
 	private JTextField jTextFieldCountry = null;
 	private JTextField jTextFieldPrimaryDivision = null;
@@ -379,6 +380,10 @@ public class SpecimenDetailsViewPane extends JPanel {
 					}
 				}
 			}
+		}
+		if (higherGeogNotFoundWarning!=null && higherGeogNotFoundWarning.length()>0) { 
+			jTextPaneWarnings.setText(higherGeogNotFoundWarning.toString());
+			jTextPaneWarnings.setForeground(Color.RED);
 		}
 	}
 		
@@ -630,8 +635,17 @@ public class SpecimenDetailsViewPane extends JPanel {
 		// Specimen record contains a string, delegate handling of lookup of object to the combo box model.
 		log.debug(specimen.getHigherGeography());
 		((HigherGeographyComboBoxModel)comboBoxHigherGeog.getModel()).setSelectedItem(specimen.getHigherGeography());
-//TODO ? set model not notifying listeners? 		
+//TODO ? set model not notifying listeners? 	
+		higherGeogNotFoundWarning = new StringBuffer();
 		comboBoxHigherGeog.getEditor().setItem(comboBoxHigherGeog.getModel().getSelectedItem());
+		if (specimen.getHigherGeography()==null) { 
+			comboBoxHigherGeog.setBackground(Color.YELLOW);
+		} else { 
+			if (comboBoxHigherGeog.getModel().getSelectedItem()==null) {
+				comboBoxHigherGeog.setBackground(Color.RED);
+				higherGeogNotFoundWarning.append("Higher Geog: [").append(specimen.getHigherGeography()).append("] not found. Fix before saving.");
+			}
+		}
 		jTextFieldCountry.setText(specimen.getCountry());
 		if (specimen.getValidDistributionFlag()!=null) { 
 		    jCheckBoxValidDistributionFlag.setSelected(specimen.getValidDistributionFlag());
@@ -3377,6 +3391,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 					} else { 
 					    log.debug(utl.getHigher_geog());
 					    specimen.setHigherGeography(utl.getHigher_geog());
+					    comboBoxHigherGeog.setBackground(Color.WHITE);
 					}
 				}
 			});
