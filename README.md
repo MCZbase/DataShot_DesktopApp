@@ -544,6 +544,8 @@ Also three fields containing metadata about external processing and classificati
 To load a csv file that contains additional columns that aren't to be loaded, prefix the columns to be 
 skipped with an underscore for it to be skipped (e.g. _someExternalId will be skipped).
 
+Load of data into fields other than those listed above (in particular part/preparation/part attribute (e.g. caste)) are not supported.
+
 ### Load Policy ###
 
 #### If any non-verbatim, non-metadata field is included: ####
