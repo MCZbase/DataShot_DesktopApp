@@ -301,13 +301,13 @@ public class FieldLoader {
 			Specimen match = matches.get(0);		
 		
 			if  (
-					(newWorkflowStatus.equals(WorkFlowStatus.STAGE_VERBATIM)&& !WorkFlowStatus.allowsVerbatimUpdate(match.getWorkFlowStatus()))
+					(newWorkflowStatus.equals(WorkFlowStatus.STAGE_VERBATIM) && !WorkFlowStatus.allowsVerbatimUpdate(match.getWorkFlowStatus()))
 					|| 
 					(newWorkflowStatus.equals(WorkFlowStatus.STAGE_CLASSIFIED) && !WorkFlowStatus.allowsClassifiedUpdate(match.getWorkFlowStatus()))
 				) 
 			{
 				// The target Specimen record has moved on past the state where it can be altered by a data load.
-				throw new LoadTargetMovedOnException(barcode + " is in state " + match.getWorkFlowStatus() + " and can't be altered by this data load.");
+				throw new LoadTargetMovedOnException(barcode + " is in state " + match.getWorkFlowStatus() + " and can't be altered by this data load (to " + newWorkflowStatus + ").");
 			} else { 	
                 // Target Specimen record is eligible to be updated by a data load.
 				boolean foundData = false;

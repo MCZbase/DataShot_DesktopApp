@@ -367,7 +367,7 @@ public class JobVerbatimFieldLoad  implements RunnableJob, Runnable {
 										// Skip any fields prefixed by the underscore character _
 										if (!header.equals("barcode") && !header.startsWith("_")) { 
 											data.put(header, record.get(header));
-											if (!header.equals("questions") && MetadataRetriever.isFieldExternallyUpdatable(Specimen.class, header) && MetadataRetriever.isFieldVerbatim(Specimen.class, header) ) { 
+											if (!header.equals("questions") && MetadataRetriever.isFieldExternallyUpdatable(Specimen.class, header) && !MetadataRetriever.isFieldVerbatim(Specimen.class, header) ) { 
 												containsNonVerbatim = true;
 											}
 										}
