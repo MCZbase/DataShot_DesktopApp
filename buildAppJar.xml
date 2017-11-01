@@ -14,7 +14,7 @@
             <fileset dir="target/classes"/>
         	<!-- exclude development (mysql) hibernate.cfg.xml --> 
             <fileset excludes="hibernate.cfg.xml" dir="target/classes"/>
-            <fileset excludes="log4j.properties" dir="target/classes"/>
+            <fileset excludes="log4j2.xml" dir="target/classes"/>
         	<!-- include production (oracle) hibernate.cfg.xml (from a svn ignored path) --> 
         	<fileset dir="not_vcs"/>
         	<!-- include external libraries -->
