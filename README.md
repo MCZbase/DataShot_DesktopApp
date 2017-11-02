@@ -4,6 +4,9 @@ This is the desktop application client for DataShot.  It is intended to
 support an object-precapture-image-data workflow for capture of natural 
 science collections data.  
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1040876.svg)](https://doi.org/10.5281/zenodo.1040876)
+
+
 This software was designed to work along side MCZbase and to load data from
 the DataShot staging database into MCZbase through a variant of the MCZbase
 bulkloader.  It should not be difficult to deploy this software next to an 
