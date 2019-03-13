@@ -511,20 +511,22 @@ For this load, use the actual field name DateNOS instead of verbatimDate for ver
 
 In addition, two additional fields that contain structured lists of values can be added (all lower case field names): 
 
-;collectors
-:a pipe '|' delimited list of collector names.  e.g. "R.A.Eastwood|N. Mattoni"
-;numbers
-:a pipe '|' delimited list of numbers and types, separated by a colon ':', e.g. "1:unknown|52:Species Number"
+* collectors
 
-Collectors must contain a pipe delimited list of collector names (e.g. "A.R. Smith|B.C. Jones")
+The collectors field can contain a single collector name or a pipe '|' delimited list of collector names.  e.g. "R.A.Eastwood|N. Mattoni"
 
-Numbers must contain a pipe delimited list of colon separated other_number values in the form of "number:number type" pairs (e.g. "1:Collection Number|5:Unknown".  
+* numbers
+
+The numbers field can contain a pipe '|' delimited list of numbers and types, separated by a colon ':', e.g. "1:unknown|52:Species Number"
+
+The numbers field can contain colon separated other_number values in the form of "number:number type" pairs (e.g. "1:Collection Number|5:Unknown", optionally a list of multiple number:number type pairs separated by a pipe character.  
+
 Order is important.  The element before a colon will be treated as the number, and the element after the colon will be treated as the number type.  
 For example, "351:Species Number|2562:Collection Number" will create two other number records in the expected form, but
 "351:Species Number|Collection Number:2562" will produce one other number record in the expected form (number=351,numberType=Species Number), but 
 will produce an incorrect other number record in the form (number=Collection Number,numberType=2562).  The ingest code does not check whether or not
 you have these in the correct order and will produce bad data if you do not.   If a pipe delimited numbers element does not contain a colon, then it 
-will be treated as an other number of type unknown (e.g. "3:Species Number|15" will produce two other number records number=3,numberType=Species Number and number=15,numberType=Unknown).
+will be treated as an other number of type unknown (e.g. "3:Species Number|15" will produce two other number records number=3,numberType=Species Number and number=15,numberType=Unknown, likewise "12" will produce one other number record, number=12, numberType=Unkown).
 
 Expected values for number type are (case sensitive, arbitrary values are allowed, but these are preferred): 
 * Unknown
