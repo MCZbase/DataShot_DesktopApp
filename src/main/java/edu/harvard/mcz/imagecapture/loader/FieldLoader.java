@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.filteredpush.qc.date.DateUtils;
 import org.filteredpush.qc.date.EventResult;
 
+import edu.harvard.mcz.imagecapture.Singleton;
 import edu.harvard.mcz.imagecapture.data.Collector;
 import edu.harvard.mcz.imagecapture.data.CollectorLifeCycle;
 import edu.harvard.mcz.imagecapture.data.ExternalHistory;
@@ -436,8 +437,12 @@ public class FieldLoader {
 								    	// Handle ISO date formatting variants 
 								    	if (key.equalsIgnoreCase("ISODate")) { 
 								    		EventResult parseResult = DateUtils.extractDateFromVerbatimER(datavalue);
-								    		if (parseResult.getResultState().equals(EventResult.EventQCResultState.DATE) || parseResult.getResultState().equals(EventResult.EventQCResultState.RANGE)) { 
-								    			datavalue = parseResult.getResult();
+								    		if (parseResult.getResultState().equals(EventResult.EventQCResultState.DATE) || parseResult.getResultState().equals(EventResult.EventQCResultState.RANGE)) {
+								    			String correctISOFormat = parseResult.getResult();
+								    			// switch from correct ISO format to the internally stored incorrect format that switches - and /.
+								    			datavalue = correctISOFormat.replace("/", "^");  // change / to placeholder 
+								    			datavalue = datavalue.replace("-","/"); // change - to /
+								    			datavalue = datavalue.replace("^", "-"); // change placeholder to - 
 								    		}
 								    	}
 									    // overwrite verbatim fields if update is allowed, otherwise no overwite of existing data.
@@ -485,6 +490,9 @@ public class FieldLoader {
 					try {
 						// save the updated specimen record
 						match.setWorkFlowStatus(newWorkflowStatus);
+						// with the user running the load job and the current date as last update.
+						match.setLastUpdatedBy(Singleton.getSingletonInstance().getUserFullName());
+						match.setDateLastUpdated(new Date());
 						log.debug("Updating:" + match.getBarcode() );
 						sls.attachDirty(match);
 						result = hasChange;
