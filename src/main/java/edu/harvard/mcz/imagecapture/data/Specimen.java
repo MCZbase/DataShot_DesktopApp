@@ -217,7 +217,7 @@ public class Specimen implements java.io.Serializable {
 		this.sex = sex;
 		//this.preparationType = preparationType;
 		this.habitat = habitat;
-		this.microhabitat = habitat;
+		this.microhabitat = microhabitat;
 		this.associatedTaxon = associatedTaxon;
 		this.questions = questions;
 		this.inferences = inferences;

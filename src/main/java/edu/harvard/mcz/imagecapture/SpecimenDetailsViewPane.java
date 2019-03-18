@@ -222,7 +222,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 	private JLabel jLabelElevation;
 	private JTextField jTextFieldMinElevation = null;
 	private JTextField textFieldMaxElev = null;
-	private JComboBox comboBoxElevUnits = null;
+	private JComboBox<String> comboBoxElevUnits = null;
 	private JTextField jTextFieldCollectingMethod = null;
 	private JLabel jLabel33 = null;
 	private JLabel jLabel34 = null;
@@ -263,7 +263,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 	private JLabel jTextFieldImageCount = null;
 	private JLabel lblTo;
 	private JLabel lblMicrohabitat;
-	private JTextField textField;
+	private JTextField textFieldMicrohabitat = null;
 	private JLabel lblNatureofid;
 	private JComboBox<String> jComboBoxNatureOfId;
 	private JLabel lblIdDate;
@@ -516,6 +516,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 	    //specimen.setPreparationType(jTextFieldPreparationType.getText());
 	    specimen.setAssociatedTaxon(jTextFieldAssociatedTaxon.getText());
 	    specimen.setHabitat(jTextFieldHabitat.getText());
+	    specimen.setMicrohabitat(textFieldMicrohabitat.getText());
 	    specimen.setSpecimenNotes(jTextAreaSpecimenNotes.getText());
 	    specimen.setInferences(jTextFieldInferences.getText());
 	    specimen.setLastUpdatedBy(Singleton.getSingletonInstance().getUserFullName());
@@ -683,6 +684,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 		//jTextFieldPreparationType.setText(specimen.getPreparationType());
 		jTextFieldAssociatedTaxon.setText(specimen.getAssociatedTaxon());
 		jTextFieldHabitat.setText(specimen.getHabitat());
+		textFieldMicrohabitat.setText(specimen.getMicrohabitat());
 		jTextAreaSpecimenNotes.setText(specimen.getSpecimenNotes());
 		jComboBoxFeatures.setSelectedItem(specimen.getFeatures());
 		jComboBoxLifeStage.setSelectedItem(specimen.getLifeStage());
@@ -1697,7 +1699,7 @@ public class SpecimenDetailsViewPane extends JPanel {
 			gbc_textField.fill = GridBagConstraints.HORIZONTAL;
 			gbc_textField.gridx = 1;
 			gbc_textField.gridy = 34;
-			jPanel.add(getTextField(), gbc_textField);
+			jPanel.add(getTextFieldMicrohabitat(), gbc_textField);
 			jPanel.add(getJButton(), gridBagConstraints10);
 			jPanel.add(jLabel5, gridBagConstraints21);
 			jPanel.add(getJTextFieldCollection(), gridBagConstraints31);
@@ -3405,9 +3407,9 @@ public class SpecimenDetailsViewPane extends JPanel {
 		}
 		return textFieldMaxElev;
 	}
-	private JComboBox getComboBoxElevUnits() {
+	private JComboBox<String> getComboBoxElevUnits() {
 		if (comboBoxElevUnits == null) {
-			comboBoxElevUnits = new JComboBox();
+			comboBoxElevUnits = new JComboBox<String>();
 			comboBoxElevUnits.setModel(new DefaultComboBoxModel(new String[] {"", "?", "m", "ft"}));
 		}
 		return comboBoxElevUnits;
@@ -3424,12 +3426,12 @@ public class SpecimenDetailsViewPane extends JPanel {
 		}
 		return lblMicrohabitat;
 	}
-	private JTextField getTextField() {
-		if (textField == null) {
-			textField = new JTextField();
-			textField.setColumns(10);
+	private JTextField getTextFieldMicrohabitat() {
+		if (textFieldMicrohabitat == null) {
+			textFieldMicrohabitat = new JTextField();
+			textFieldMicrohabitat.setColumns(10);
 		}
-		return textField;
+		return textFieldMicrohabitat;
 	}
 	private JLabel getLblNatureofid() {
 		if (lblNatureofid == null) {
