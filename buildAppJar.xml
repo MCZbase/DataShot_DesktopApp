@@ -18,13 +18,15 @@
         	<!-- include production (oracle) hibernate.cfg.xml (from a svn ignored path) --> 
         	<fileset dir="not_vcs"/>
         	<!-- include external libraries -->
-        	<!-- multiple conflicting licences mean this jar isn't redistributable -->            
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/filteredpush/event_date_qc/1.0.0/event_date_qc-1.0.0.jar"/>
+        	<!-- multiple conflicting licences mean this jar isn't redistributable -->        
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/filteredpush/event_date_qc/1.0.4-SNAPSHOT/event_date_qc-1.0.4-SNAPSHOT.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/datakurator/ffdq-api/1.0.4-SNAPSHOT/ffdq-api-1.0.4-SNAPSHOT.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/joda-time/joda-time/2.2/joda-time-2.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/logging/log4j/log4j-jcl/2.7/log4j-jcl-2.7.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/antlr/antlr/2.7.7/antlr-2.7.7.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/commons-cli/commons-cli/1.2/commons-cli-1.2.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/commons/commons-csv/1.4/commons-csv-1.4.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/commons/commons-csv/1.5/commons-csv-1.5.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/com/lowagie/itext/2.1.7/itext-2.1.7.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/bouncycastle/bcmail-jdk14/138/bcmail-jdk14-138.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/bouncycastle/bcprov-jdk14/138/bcprov-jdk14-138.jar"/>
@@ -39,30 +41,6 @@
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/com/adobe/xmp/xmpcore/5.1.2/xmpcore-5.1.2.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/mysql/mysql-connector-java/5.1.18/mysql-connector-java-5.1.18.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/swinglabs/swingx/0.9.7/swingx-0.9.7.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/codehaus/mojo/hibernate3/maven-hibernate3-api/2.2/maven-hibernate3-api-2.2.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/maven/maven-plugin-api/2.0.6/maven-plugin-api-2.0.6.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/maven/maven-project/2.0.6/maven-project-2.0.6.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/maven/maven-settings/2.0.6/maven-settings-2.0.6.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/maven/maven-profile/2.0.6/maven-profile-2.0.6.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/maven/maven-model/2.0.6/maven-model-2.0.6.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/maven/maven-artifact-manager/2.0.6/maven-artifact-manager-2.0.6.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/maven/maven-repository-metadata/2.0.6/maven-repository-metadata-2.0.6.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/maven/wagon/wagon-provider-api/1.0-beta-2/wagon-provider-api-1.0-beta-2.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/maven/maven-plugin-registry/2.0.6/maven-plugin-registry-2.0.6.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/maven/maven-artifact/2.0.6/maven-artifact-2.0.6.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/codehaus/plexus/plexus-container-default/1.0-alpha-9-stable-1/plexus-container-default-1.0-alpha-9-stable-1.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/classworlds/classworlds/1.1-alpha-2/classworlds-1.1-alpha-2.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/hibernate/hibernate-core/3.3.1.GA/hibernate-core-3.3.1.GA.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/hibernate/hibernate-tools/3.2.3.GA/hibernate-tools-3.2.3.GA.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/beanshell/bsh/2.0b4/bsh-2.0b4.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/freemarker/freemarker/2.3.8/freemarker-2.3.8.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/hibernate/jtidy/r8-20060801/jtidy-r8-20060801.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/geronimo/specs/geronimo-jta_1.0.1B_spec/1.1.1/geronimo-jta_1.0.1B_spec-1.1.1.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/slf4j/slf4j-log4j12/1.5.6/slf4j-log4j12-1.5.6.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/log4j/log4j/1.2.14/log4j-1.2.14.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/slf4j/slf4j-api/1.5.6/slf4j-api-1.5.6.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/slf4j/jcl-over-slf4j/1.5.6/jcl-over-slf4j-1.5.6.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/codehaus/plexus/plexus-utils/1.5.6/plexus-utils-1.5.6.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/com/google/zxing/core/3.3.0/core-3.3.0.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/com/google/zxing/javase/3.3.0/javase-3.3.0.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/com/beust/jcommander/1.48/jcommander-1.48.jar"/>
@@ -73,6 +51,11 @@
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/com/jgoodies/jgoodies-common/1.4.0/jgoodies-common-1.4.0.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/imgscalr/imgscalr-lib/4.2/imgscalr-lib-4.2.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/commons-codec/commons-codec/1.8/commons-codec-1.8.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/logging/log4j/log4j-core/2.7/log4j-core-2.7.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/hibernate/hibernate-core/3.3.1.GA/hibernate-core-3.3.1.GA.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/logging/log4j/log4j-api/2.7/log4j-api-2.7.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/logging/log4j/log4j-slf4j-impl/2.7/log4j-slf4j-impl-2.7.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/slf4j/slf4j-api/1.7.9/slf4j-api-1.7.9.jar"/>
         </jar>
     </target>
 </project>
