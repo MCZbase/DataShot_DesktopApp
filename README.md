@@ -67,16 +67,17 @@ test database (as of version 1.2.2) is in docs_manual/sql/mysql_ver1.2.2.sql
 the expected name, user and location of this database are in 
 src/main/java/hibernate.cfg.xml (you will need to create a database lepidoptera).  
 (The default name of the database is lepidoptera, but this can be changed, and one database 
-can be configured for testing and another for production use).
+can be configured for testing and another for production use).  Check /docs_manual/sql/for updates and apply those as well.
 
 
     mysql lepidoptera -p < docs_manual/sql/mysql_ver1.2.2.sql
+    mysql lepidoptera -p < docs_manual/sql/mysql_1.2.4_to_1.3.0_changes.sql
 
 Once this database has been created, you'll need to create a user that the
 application will use to connect to the database, that is (in the default configuration) a user LEPIDOPTERA 
 with select/insert/update/delete privileges on the lepidoptera schema on localhost.
 
-    grant select, insert, update, delete on lepidoptera.* to 'LEPIDOPTERA'@'localhost';     
+    grant select, insert, update, delete on lepidoptera.* to 'LEPIDOPTERA'@'localhost' identified by 'password';     
 
 And then insert a row for a DataShot administrator into the LEPIDPTERA.Users table. 
 
@@ -94,6 +95,8 @@ You should not put a password inside src/main/java/hibernate.cfg.xml.
      $ mkdir not_vcs
      $ cp src/main/java/hibernate.cfg.xml not_vcs/
      $ cp src/main/java/log4j.properties not_vcs/
+
+Do not include the password in the hibernate.cfc.xml file in src/main/java/, but edit it to point to your test database, then on logging in when running from eclipse or another IDE, enter the password for the LEPIDOPTERA user into the advanced section of the login interface (likewise if a login is prompted when running tests).
 
 then build with:
 

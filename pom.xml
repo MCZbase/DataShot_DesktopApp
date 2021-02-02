@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.harvard.mcz</groupId>
 	<artifactId>DataShot</artifactId>
-	<version>1.3.3-SNASPHOT</version>
+	<version>1.3.3</version>
 	<!-- Remeber to edit src/main/java/edu/harvard/mcz/imagecapture/ImageCaptureApp.java -->
 	<name>datashot</name>
 	<description>MCZ DataShot Collection Imaging Application</description>
@@ -15,7 +15,7 @@
 		<dependency>
 			<groupId>org.filteredpush</groupId>
 			<artifactId>event_date_qc</artifactId>
-			<version>1.0.4-SNAPSHOT</version>
+			<version>2.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>antlr</groupId>
@@ -177,6 +177,16 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.9</version>
 		</dependency>
+		<dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.3.2</version>
+        </dependency>
 	</dependencies>
 	<build>
 		<resources>
@@ -205,7 +215,7 @@
 				<configuration>
 					<verbose>true</verbose>
 					<fork>true</fork>
-					<compilerVersion>1.7</compilerVersion>
+					<compilerVersion>1.8</compilerVersion>
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
