@@ -19,7 +19,7 @@
         	<fileset dir="not_vcs"/>
         	<!-- include external libraries -->
         	<!-- multiple conflicting licences mean this jar isn't redistributable -->        
-            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/filteredpush/event_date_qc/1.0.4-SNAPSHOT/event_date_qc-1.0.4-SNAPSHOT.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/filteredpush/event_date_qc/2.0.2/event_date_qc-2.0.2.jar"/> 
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/datakurator/ffdq-api/1.0.4-SNAPSHOT/ffdq-api-1.0.4-SNAPSHOT.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/joda-time/joda-time/2.2/joda-time-2.2.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/logging/log4j/log4j-jcl/2.7/log4j-jcl-2.7.jar"/>
@@ -56,6 +56,14 @@
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/logging/log4j/log4j-api/2.7/log4j-api-2.7.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/apache/logging/log4j/log4j-slf4j-impl/2.7/log4j-slf4j-impl-2.7.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/slf4j/slf4j-api/1.7.9/slf4j-api-1.7.9.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/com/sun/istack/istack-commons-runtime/3.0.8/istack-commons-runtime-3.0.8.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/2.3.2/jakarta.xml.bind-api-2.3.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/com/sun/xml/fastinfoset/FastInfoset/1.2.16/FastInfoset-1.2.16.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/glassfish/jaxb/txw2/2.3.2/txw2-2.3.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/jvnet/staxex/stax-ex/1.8.1/stax-ex-1.8.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/jakarta/activation/jakarta.activation-api/1.2.1/jakarta.activation-api-1.2.1.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/glassfish/jaxb/jaxb-runtime/2.3.2/jaxb-runtime-2.3.2.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${user.home}/.m2/repository/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar"/>
         </jar>
     </target>
 </project>
