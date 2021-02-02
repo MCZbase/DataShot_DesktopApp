@@ -206,7 +206,15 @@
         <property name="externalWorkflowDate" type="java.util.Date">
             <column name="externalWorkflowDate" />
         </property>        
-        <set name="collectors" inverse="true" cascade="save-update" fetch="subselect">
+
+        <property name="locality_id" type="java.lang.Long">
+            <column name="locality_id" />
+        </property>
+        <property name="collecting_event_id" type="java.lang.Long">
+            <column name="collecting_event_id" />
+        </property>
+
+	<set name="collectors" inverse="true" cascade="save-update" fetch="subselect">
             <key>
                 <column name="SpecimenId" not-null="true" />
             </key>

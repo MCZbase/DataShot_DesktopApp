@@ -105,6 +105,8 @@ public class Specimen implements java.io.Serializable {
 	private Set<SpecimenPart> specimenParts = new HashSet<SpecimenPart>(0);
 	private Set<LatLong> georeferences = new HashSet<LatLong>(0);
 	private Set<ExternalHistory> externalHistory = new HashSet<ExternalHistory>(0);
+	private Long locality_id;
+	private Long collecting_event_id;
 	
 	public Specimen() {
 		setDefaults();
@@ -956,6 +958,47 @@ public class Specimen implements java.io.Serializable {
 		this.flagAncilaryAlsoInMCZbase = flagAncilaryAlsoInMCZbase;
 	}
 
+	/**
+	 * @return the locality_id
+	 */
+	public Long getLocality_id() {
+		return locality_id;
+	}
+
+	/**
+	 * @param locality_id the locality_id to set
+	 */
+	public void setLocality_id(Long locality_id) {
+		this.locality_id = locality_id;
+	}
+	/**
+	 * @param locality_id the locality_id to set
+	 */
+	public void setLocality_id(String locality_id) {
+		this.locality_id = Long.parseLong(locality_id);
+	}
+
+	/**
+	 * @return the collecting_event_id
+	 */
+	public Long getCollecting_event_id() {
+		return collecting_event_id;
+	}
+
+	/**
+	 * @param collecting_event_id the collecting_event_id to set
+	 */
+	public void setCollecting_event_id(Long collecting_event_id) {
+		this.collecting_event_id = collecting_event_id;
+	}
+
+	/**
+	 * @param collecting_event_id the collecting_event_id to set
+	 */
+	public void setCollecting_event_id(String collecting_event_id) {
+		this.collecting_event_id = Long.parseLong(collecting_event_id);
+	}
+	
 	/**
 	 * @return the path
 	 */
