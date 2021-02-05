@@ -971,11 +971,13 @@ public class Specimen implements java.io.Serializable {
 	public void setLocality_id(Long locality_id) {
 		this.locality_id = locality_id;
 	}
-	/**
+	/** Set the numeric locality id value from a string, ignore empty strings.
 	 * @param locality_id the locality_id to set
 	 */
 	public void setLocality_id(String locality_id) {
-		this.locality_id = Long.parseLong(locality_id);
+		if (locality_id.trim().length() > 0) { 
+			this.locality_id = Long.parseLong(locality_id);
+		}
 	}
 
 	/**
@@ -992,11 +994,13 @@ public class Specimen implements java.io.Serializable {
 		this.collecting_event_id = collecting_event_id;
 	}
 
-	/**
+	/** Set the numeric collecting_event_id value from a string, ignore empty strings.
 	 * @param collecting_event_id the collecting_event_id to set
 	 */
 	public void setCollecting_event_id(String collecting_event_id) {
-		this.collecting_event_id = Long.parseLong(collecting_event_id);
+		if (collecting_event_id.trim().length() > 0) {
+			this.collecting_event_id = Long.parseLong(collecting_event_id);
+		}
 	}
 	
 	/**
