@@ -62,16 +62,22 @@ Add it to your local .m2
     mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc14 \
       -Dversion=10.2.0.5.0 -Dpackaging=jar -Dfile=ojdbc14.jar -DgeneratePom=true
 
-(2) Create a test database.  A dump of the schema of a working 
-test database (as of version 1.2.2) is in docs_manual/sql/mysql_ver1.2.2.sql
-the expected name, user and location of this database are in 
+(2) Create a test database (and grant your user all permssions on it).  
+A dump of the schema of a working test database (as of version 1.2.2) is in docs_manual/sql/mysql_ver1.2.2.sql
+Check /docs_manual/sql/for updates and apply those as well.
+The expected name, user and location of this database are in 
 src/main/java/hibernate.cfg.xml (you will need to create a database lepidoptera).  
-(The default name of the database is lepidoptera, but this can be changed, and one database 
-can be configured for testing and another for production use).  Check /docs_manual/sql/for updates and apply those as well.
 
+    MariaDB [mysql]> create database lepidoptera; 
+    MariaDB [mysql]> grant all privileges on lepidoptera.* to '{your username}'@'localhost'; 
+
+(The default name of the database is lepidoptera, but this can be changed, and one database 
+can be configured for testing and another for production use).  
+Populate the test database from the relevant DDL files in /docs_manual/sql/ from the shell:
 
     mysql lepidoptera -p < docs_manual/sql/mysql_ver1.2.2.sql
     mysql lepidoptera -p < docs_manual/sql/mysql_1.2.4_to_1.3.0_changes.sql
+    mysql lepidoptera -p < docs_manual/sql/mysql_1.3.3_to_1.3.4_changes.sql
 
 Once this database has been created, you'll need to create a user that the
 application will use to connect to the database, that is (in the default configuration) a user LEPIDOPTERA 
