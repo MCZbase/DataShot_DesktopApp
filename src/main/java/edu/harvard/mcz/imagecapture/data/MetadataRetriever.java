@@ -318,6 +318,8 @@ public class MetadataRetriever {
             if (fieldname.equalsIgnoreCase("DateLastUpdated")) { help="The date and time at which this record was most recently updated."; }
             if (fieldname.equalsIgnoreCase("LastUpdatedBy")){ help="The name of the person who most recenly updated this record.";  }
             if (fieldname.equalsIgnoreCase("ValidDistributionFlag")) {  help = "Uncheck if the locality does not reflect the collection of this specimen from nature (e.g. uncheck for specimens that came from a captive breeding program).  Leave checked if locality represents natural biological range. "; }
+            if (fieldname.equalsIgnoreCase("locality_id")){ help="MCZbase locality_id to use for this record.  Causes higher geography and locality information from the MCZbase locality to be used instead of values here.";  }
+            if (fieldname.equalsIgnoreCase("collecting_event_id")){ help="MCZbase collecting_event_id to use for this record.  Causes higher geography, locality, and collecting event information from the MCZbase collecting event to be used instead of the values here.";  }
 		}
 		if (aTableClass==Number.class) { 
 			if (fieldname.equalsIgnoreCase("Number")) { help="A number (including alphanumeric identifiers) found on a label of this specimen."; }	
@@ -400,6 +402,8 @@ public class MetadataRetriever {
             if (fieldname.equalsIgnoreCase("Inferences")) { result=true; }
             if (fieldname.equalsIgnoreCase("LocationInCollection")) { result=true; }
             if (fieldname.equalsIgnoreCase("ValidDistributionFlag")) {  result = true; }
+            if (fieldname.equalsIgnoreCase("locality_id")) {  result = true; }
+            if (fieldname.equalsIgnoreCase("collecting_event_id")) {  result = true; }
 		}
 		if (aTableClass==Collector.class) { 
 			if (fieldname.equalsIgnoreCase("CollectorName")) { result=true; }	
