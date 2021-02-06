@@ -30,6 +30,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.WindowConstants;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
@@ -321,7 +322,7 @@ public class ImageDisplayFrame extends JFrame {
 	 */
 	private void initialize() {
 		this.setSize(755, 353);
-		this.setPreferredSize(new Dimension(1350,1000));
+		this.setPreferredSize(new Dimension(1450,1100));
 		this.setContentPane(getJContentPane());
 		this.setTitle("Image File and Barcode Value");
 	}
@@ -355,13 +356,21 @@ public class ImageDisplayFrame extends JFrame {
 	}
 	
 	public void addWest(JPanel panel) {
-//		JScrollPane scroll = new JScrollPane(panel);
-//		scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-//		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-//		jContentPane.add(scroll,BorderLayout.WEST);
-		jContentPane.add(panel,BorderLayout.WEST);
-		panel.setPreferredSize(new Dimension(594,panel.getHeight()));
-//		scroll.setPreferredSize(new Dimension(594,panel.getHeight()));
+//	    if (Singleton.getSingletonInstance().getProperties().getProperties().getProperty(
+//	    		 ImageCaptureProperties.KEY_DETAILS_SCROLL).equals(ImageCaptureProperties.VALUE_DETAILS_SCROLL_FORCE_ON)) 
+//	    { 
+//	    	jContentPane.add(panel,BorderLayout.WEST);
+//	    } else { 
+//			JScrollPane scroll = new JScrollPane(panel);
+//			scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+//			scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+//			jContentPane.add(scroll,BorderLayout.WEST);
+//			scroll.setPreferredSize(new Dimension(660,panel.getHeight()-10));
+//	    }
+	    jContentPane.add(panel,BorderLayout.WEST);
+		panel.setMinimumSize(new Dimension(660,panel.getHeight()-100));
+		panel.setPreferredSize(new Dimension(675,panel.getHeight()-50));
+
 		this.pack();
 	}
 
