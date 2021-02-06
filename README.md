@@ -515,6 +515,8 @@ Fields that can be included:
 * Inferences
 * LocationInCollection
 * ValidDistributionFlag
+* LocalityId (maps to MCZbase bulkloader locality_id)
+* CollectingEventId (maps to MCZbase bulkloader collecting_event_id)
 
 For this load, use the actual field name DateNOS instead of verbatimDate for verbatim date values.
 
