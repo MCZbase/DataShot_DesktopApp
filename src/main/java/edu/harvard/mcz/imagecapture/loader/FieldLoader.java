@@ -548,6 +548,7 @@ public class FieldLoader {
 			    knownFields.add(specimenMethods[j].getName().replaceAll("^set", ""));
 			    knownFieldsLowerUpper.put(actualCase.toLowerCase(), actualCase);
 			    log.debug(actualCase);
+			    System.out.println(actualCase);
 			}
 		}
 		// List of input fields that will need to be parsed into relational tables
@@ -562,6 +563,7 @@ public class FieldLoader {
 		while (i.hasNext()) { 
 			String keyOrig = i.next();
 			String key = keyOrig.toLowerCase();
+			System.out.println("Key:" + key);
 			if (key.equals("barcode")) {
 				containsBarcode = true;
 				result.addToMessage(keyOrig); 

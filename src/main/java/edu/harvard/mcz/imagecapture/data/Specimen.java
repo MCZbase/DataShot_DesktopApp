@@ -975,16 +975,24 @@ public class Specimen implements java.io.Serializable {
 	/** get locality_id as a string
 	 * @return the locality_id
 	 */
-	public String getLocality_id() {
-		return locality_id.toString();
+	public String getLocalityId() {
+		if (locality_id==null) {
+			return null;
+		} else { 
+			return locality_id.toString();
+		}
 	}
 
 	/** Set the numeric locality id value from a string, ignore empty strings.
 	 * @param locality_id the locality_id to set
 	 */
-	public void setLocality_id(String locality_id) {
-		if (locality_id.trim().length() > 0) { 
-			this.locality_id = Long.parseLong(locality_id);
+	public void setLocalityId(String locality_id) {
+		if (locality_id == null) { 
+			this.locality_id=null;
+		} else { 
+			if (locality_id.trim().length() > 0) { 
+				this.locality_id = Long.parseLong(locality_id);
+			}
 		}
 	}
 
@@ -1005,16 +1013,25 @@ public class Specimen implements java.io.Serializable {
 	/** get the collecting event id as a string
 	 * @return the collecting_event_id
 	 */
-	public String getCollecting_event_id() {
-		return collecting_event_id.toString();
-	}
+	public String getCollectingEventId() {
+		if (collecting_event_id==null) { 
+			return "";
+		} else { 
+			return collecting_event_id.toString();
+
+		}
+	}		
 
 	/** Set the numeric collecting_event_id value from a string, ignore empty strings.
 	 * @param collecting_event_id the collecting_event_id to set
 	 */
-	public void setCollecting_event_id(String collecting_event_id) {
-		if (collecting_event_id.trim().length() > 0) {
-			this.collecting_event_id = Long.parseLong(collecting_event_id);
+	public void setCollectingEventId(String collecting_event_id) {
+		if (collecting_event_id ==null) { 
+			this.collecting_event_id = null;	
+		} else {
+			if (collecting_event_id.trim().length() > 0) {
+				this.collecting_event_id = Long.parseLong(collecting_event_id);
+			}
 		}
 	}
 	

@@ -402,8 +402,8 @@ public class MetadataRetriever {
             if (fieldname.equalsIgnoreCase("Inferences")) { result=true; }
             if (fieldname.equalsIgnoreCase("LocationInCollection")) { result=true; }
             if (fieldname.equalsIgnoreCase("ValidDistributionFlag")) {  result = true; }
-            if (fieldname.equalsIgnoreCase("locality_id")) {  result = true; }
-            if (fieldname.equalsIgnoreCase("collecting_event_id")) {  result = true; }
+            if (fieldname.equalsIgnoreCase("LocalityId")) {  result = true; }  // string methods for long field
+            if (fieldname.equalsIgnoreCase("CollectingEventId")) {  result = true; } // string methods for long field.
 		}
 		if (aTableClass==Collector.class) { 
 			if (fieldname.equalsIgnoreCase("CollectorName")) { result=true; }	
